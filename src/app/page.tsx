@@ -13,7 +13,7 @@ export default async function Home() {
 
   // Fetch screenings for this week
   // TODO prefetch only
-  const { result: screenings, nextCursor } = await api.screening.getAll({
+  const screenings = await api.screening.getAll({
     dateFrom: startOfWeek,
     dateTo: endOfWeek,
   });
@@ -22,21 +22,17 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <Container size="xl" mt="xl">
-        <Grid gutter="xl">
-          {/* Movie Carousel Section */}
-          <GridCol>
-            <Title order={2} mb="md">Filme</Title>
-            <MovieCarousel movies={uniqueMovies} />
-          </GridCol>
+      <Grid m="xl" gutter="xl">
+        <GridCol>
+          <Title order={2} mb="md">Filme</Title>
+          <MovieCarousel movies={uniqueMovies} />
+        </GridCol>
 
-          {/* Timetable Section */}
-          <GridCol>
-            <Title order={2} mb="md">Vorführungen</Title>
-            <ScreeningTimetable screenings={screenings} />
-          </GridCol>
-        </Grid>
-      </Container>
+        <GridCol>
+          <Title order={2} mb="md">Vorführungen</Title>
+          <ScreeningTimetable screenings={screenings} />
+        </GridCol>
+      </Grid>
     </HydrateClient>
   );
 }
