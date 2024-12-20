@@ -1,6 +1,8 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { cinemaRouter } from "./routers/cinema";
 import { screeningRouter } from "./routers/screening";
+import { schedule } from 'node-cron';
+import { run } from "./scheduler";
 /**
  * This is the primary router for your server.
  *
@@ -22,3 +24,8 @@ export type AppRouter = typeof appRouter;
  *       ^? Post[]
  */
 export const createCaller = createCallerFactory(appRouter);
+
+console.log("Starting scheduler");
+schedule('24 15 * * *', () => {
+  run();
+});
