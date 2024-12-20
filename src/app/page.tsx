@@ -6,14 +6,15 @@ import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Home() {
   // Get this week's date range
-  const today = new Date();
-  const endOfWeek = new Date(today);
-  endOfWeek.setDate(today.getDate() + 7);
+  const startOfWeek = new Date();
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1); // Set to Monday of current week
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
 
   // Fetch screenings for this week
   // TODO prefetch only
   const { result: screenings, nextCursor } = await api.screening.getAll({
-    dateFrom: today,
+    dateFrom: startOfWeek,
     dateTo: endOfWeek,
   });
 
