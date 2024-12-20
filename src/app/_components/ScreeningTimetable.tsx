@@ -1,9 +1,13 @@
-import { Table, Paper, TableTr, TableTd, TableTh, TableThead, TableTbody } from '@mantine/core';
+import { Paper, Box, Stack, Text, Card } from '@mantine/core';
 import type { Screening } from '@prisma/client';
 
 interface ScreeningTimetableProps {
   screenings: Array<Screening & { movie: { title: string }, cinema: { name: string } }>;
 }
+
+const START_HOUR = 9;
+const END_HOUR = 24;
+const HOUR_HEIGHT = 60;
 
 export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
   // Group screenings by weekday (convert Sunday from 0 to 6)
@@ -18,39 +22,119 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
   }, {} as Record<number, typeof screenings>);
 
   // Weekday headers (now starting with Monday)
-  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+
+  const timeLabels = Array.from(
+    { length: END_HOUR - START_HOUR },
+    (_, i) => `${(START_HOUR + i).toString().padStart(2, '0')}:00`
+  );
+
+  function Header({ text }: { text: string }) {
+    return (
+      <Box
+        p="sm"
+        style={{
+          borderBottom: '1px solid var(--mantine-color-gray-3)',
+          position: 'sticky',
+          top: 0,
+          background: 'var(--mantine-color-body)',
+          zIndex: 1
+        }}
+      >
+        <Text fw={700} ta="center">{text}</Text>
+      </Box>
+    )
+  }
 
   return (
     <Paper shadow="xs" p="md">
-      <Table>
-        <TableThead>
-          <TableTr>
-            {weekdays.map((day) => (
-              <TableTh key={day} style={{ width: `${100 / 7}%` }}>{day}</TableTh>
-            ))}
-          </TableTr>
-        </TableThead>
-        <TableTbody>
-          <TableTr>
-            {weekdays.map((_, index) => (
-              <TableTd key={index} style={{ verticalAlign: 'top', width: `${100 / 7}%` }}>
-                {groupedByWeekday[index]?.map((screening) => (
-                  <div key={screening.id} style={{ marginBottom: '0.5rem' }}>
-                    <div><strong>{screening.movie.title}</strong></div>
-                    <div>{screening.cinema.name}</div>
-                    <div>
-                      {screening.startTime.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </TableTd>
-            ))}
-          </TableTr>
-        </TableTbody>
-      </Table>
+      <Box style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', position: 'relative' }}>
+        {/* Time labels column */}
+        <Stack gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+          <Header text="Zeit" />
+          {timeLabels.map((time) => (
+            <Box
+              key={time}
+              h={HOUR_HEIGHT}
+              style={{
+                borderBottom: '1px solid var(--mantine-color-gray-2)',
+                padding: '4px',
+              }}
+            >
+              <Text size="xs" ta="center">{time}</Text>
+            </Box>
+          ))}
+        </Stack>
+
+        {/* Days columns */}
+        {weekdays.map((day, index) => (
+          <Box
+            key={day}
+            style={{
+              gridColumn: index + 2,
+              borderRight: '1px solid var(--mantine-color-gray-3)',
+              position: 'relative',
+            }}
+          >
+            {/* Day header */}
+            <Header text={day} />
+            {/* Time grid */}
+            <Box pos="relative" h={HOUR_HEIGHT * (END_HOUR - START_HOUR)}>
+              {timeLabels.map((time) => (
+                <Box
+                  key={time}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    height: HOUR_HEIGHT,
+                    borderBottom: '1px solid var(--mantine-color-gray-2)',
+                    top: HOUR_HEIGHT * timeLabels.indexOf(time),
+                  }}
+                />
+              ))}
+
+              {/* Screenings */}
+              {groupedByWeekday[index]?.map((screening) => {
+                const hours = screening.startTime.getHours();
+                const minutes = screening.startTime.getMinutes();
+                const top = (hours - START_HOUR + minutes / 60) * HOUR_HEIGHT;
+
+                return (
+                  <Card
+                    key={screening.id}
+                    shadow="xs"
+                    padding="xs"
+                    radius="sm"
+                    style={{
+                      position: 'absolute',
+                      top: `${top}px`,
+                      left: '4px',
+                      right: '4px',
+                      zIndex: 2,
+                    }}
+                  >
+                    <Stack gap={2}>
+                      <Text size="sm" fw={700} lineClamp={1}>
+                        {screening.movie.title}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {screening.cinema.name}
+                      </Text>
+                      <Text size="xs">
+                        {screening.startTime.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </Text>
+                    </Stack>
+                  </Card>
+                );
+              })}
+            </Box>
+          </Box>
+        ))}
+      </Box>
     </Paper>
   );
-} 
+}

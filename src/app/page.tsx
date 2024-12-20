@@ -25,13 +25,13 @@ export default async function Home() {
         <Grid gutter="xl">
           {/* Movie Carousel Section */}
           <GridCol>
-            <Title order={2} mb="md">Now Showing</Title>
+            <Title order={2} mb="md">Filme</Title>
             <MovieCarousel movies={uniqueMovies} />
           </GridCol>
 
           {/* Timetable Section */}
           <GridCol mt="xl">
-            <Title order={2} mb="md">This Week&apos;s Screenings</Title>
+            <Title order={2} mb="md">Vorführungen</Title>
             <ScreeningTimetable screenings={screenings} />
           </GridCol>
         </Grid>

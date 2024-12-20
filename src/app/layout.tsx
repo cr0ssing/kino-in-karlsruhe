@@ -21,7 +21,7 @@ const theme = mergeMantineTheme(
     fontFamily: GeistSans.style.fontFamily,
     breakpoints,
     colors,
-  }),
+  })
 );
 
 export default function RootLayout({
