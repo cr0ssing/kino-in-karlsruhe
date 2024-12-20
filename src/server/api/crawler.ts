@@ -6,7 +6,7 @@ import minMax from 'dayjs/plugin/minMax';
 dayjs.extend(minMax);
 
 export async function run() {
-  console.log("Running scheduler");
+  console.log("Running crawlers");
   await crawlSchauburg();
 }
 
