@@ -5,9 +5,16 @@ import minMax from 'dayjs/plugin/minMax';
 
 dayjs.extend(minMax);
 
+type Screening = {
+  movieTitle: string;
+  startTime: Date;
+  properties: string[];
+  cinemaId: number;
+}
+
 export async function run() {
   console.log("Running crawlers");
-  const screenings = (await Promise.all([crawlSchauburg(), crawlKinemathek()])).flat();
+  const screenings = (await Promise.all([crawlSchauburg(), crawlKinemathek(), crawlUniversum()])).flat();
 
   // Delete existing screenings
   await db.screening.deleteMany({
@@ -42,13 +49,6 @@ export async function run() {
       }
     });
   }
-}
-
-type Screening = {
-  movieTitle: string;
-  startTime: Date;
-  properties: string[];
-  cinemaId: number;
 }
 
 async function crawlSchauburg() {
@@ -225,4 +225,99 @@ function getMonthNumber(monthName: string): number {
     'Dezember': 12
   };
   return months[monthName] || -1;
+}
+
+async function crawlUniversum() {
+  const url = 'https://www.kinopolis.de/ka/programm';
+  const response = await fetch(url);
+  const html = await response.text();
+  const $ = load(html);
+
+  // Find cinema ID for Schauburg
+  const { id: cinemaId } = await db.cinema.findFirstOrThrow({
+    select: {
+      id: true
+    },
+    where: {
+      name: 'Universum'
+    }
+  });
+
+  if (!cinemaId) {
+    throw new Error('Cinema "Schauburg" not found');
+  }
+
+  const screenings: Screening[] = [];
+
+  // Iterate through each movie section
+  $('.movie').each((_, movieSection) => {
+    const movieTitle = $(movieSection).find('h2.hl--1 .hl-link').first().text().trim();
+
+    // Get all date navigation items
+    $(movieSection).find('.prog-nav__item').each((_, dateNav) => {
+      const $dateNav = $(dateNav);
+      const dayText = $dateNav.find('.prog-nav__day').text().trim();
+
+      // Skip if no performance IDs or it's a "weitere Spielzeiten" link
+      const performanceIds = $dateNav.attr('data-performance-ids')!;
+      if (!performanceIds || performanceIds.includes('»')) return;
+
+      // Parse the IDs and find corresponding screenings
+      const ids = performanceIds.replace(/\[|\]/g, '').split(',');
+
+      ids.forEach(id => {
+        const $screening = $(movieSection).find(`[data-performance-id="${id}"]`);
+        if (!$screening.length) return;
+
+        const timeText = $screening.find('.prog2__time').text().trim();
+        const [hours, minutes] = timeText.split(':').map(Number);
+
+        // Create date from day text and time
+        const date = parseGermanDate(dayText);
+        if (!date) return;
+
+        date.setHours(hours!, minutes, 0, 0);
+
+        const properties: string[] = [];
+        const versionData = $screening.find('.buy__btn').attr('data-version');
+        if (versionData) {
+          properties.push(...JSON.parse(versionData));
+        }
+
+        screenings.push({
+          movieTitle,
+          startTime: date,
+          properties,
+          cinemaId
+        });
+      });
+    });
+  });
+
+  return screenings;
+}
+
+// Helper function to parse German date text
+function parseGermanDate(dayText: string): Date | null {
+  const today = new Date();
+
+  if (dayText.includes('Heute')) {
+    return today;
+  }
+
+  if (dayText.includes('Morgen')) {
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    return tomorrow;
+  }
+
+  // Handle format like "So. 22.12."
+  const match = dayText.match(/\d{2}\.\d{2}\./);
+  if (match) {
+    const [day, month] = match[0].split('.').map(Number);
+    const date = new Date(today.getFullYear(), month! - 1, day);
+    return date;
+  }
+
+  return null;
 }

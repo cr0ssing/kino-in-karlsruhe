@@ -25,6 +25,13 @@ async function main() {
         website: 'www.kinemathek-karlsruhe.de',
       },
     }),
+    prisma.cinema.create({
+      data: {
+        name: 'Universum',
+        address: 'Kaiserstraße 152-154, 76133 Karlsruhe',
+        website: 'www.kinopolis.de/ka',
+      },
+    }),
   ])
 
   // Create movies
