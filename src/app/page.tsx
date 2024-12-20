@@ -1,13 +1,40 @@
-import { Button, Flex } from "@mantine/core";
+import { Container, Title, Grid, GridCol } from "@mantine/core";
+import { MovieCarousel } from "~/components/MovieCarousel";
+import { ScreeningTimetable } from "~/components/ScreeningTimetable";
 
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Home() {
+  // Get this week's date range
+  const today = new Date();
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + 7);
+
+  // Fetch screenings for this week
+  const { result: screenings, nextCursor } = await api.screening.getAll({
+    dateFrom: today,
+    dateTo: endOfWeek,
+  });
+
+  const uniqueMovies = Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values());
+
   return (
     <HydrateClient>
-      <Flex justify="center" align="center" h="100vh">
-        <Button>Click me</Button>
-      </Flex>
+      <Container size="xl" mt="xl">
+        <Grid gutter="xl">
+          {/* Movie Carousel Section */}
+          <GridCol>
+            <Title order={2} mb="md">Now Showing</Title>
+            <MovieCarousel movies={uniqueMovies} />
+          </GridCol>
+
+          {/* Timetable Section */}
+          <GridCol mt="xl">
+            <Title order={2} mb="md">This Week's Screenings</Title>
+            <ScreeningTimetable screenings={screenings} />
+          </GridCol>
+        </Grid>
+      </Container>
     </HydrateClient>
   );
 }
