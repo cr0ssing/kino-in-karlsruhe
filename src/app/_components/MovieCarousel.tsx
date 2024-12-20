@@ -8,18 +8,6 @@ interface MovieCarouselProps {
 }
 
 export async function MovieCarousel({ movies }: MovieCarouselProps) {
-  const posterUrls = new Map((await Promise.all(movies.map(async (movie) => {
-    const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${movie.title}&include_adult=true&language=de-DE`, {
-      headers: {
-        Authorization: `Bearer ${env.TMDB_API_KEY}`,
-      },
-    });
-    const data = await response.json() as { results: { poster_path: string }[] };
-    const result = data.results[0];
-    return [movie.id, result?.poster_path] as const
-  }))).filter(([_, poster_path]) => poster_path !== null)
-  )
-
   const toShow = 6;
 
   return (
@@ -40,7 +28,7 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
           <Card shadow="sm">
             <CardSection>
               <Image
-                src={`https://image.tmdb.org/t/p/w500/${posterUrls.get(movie.id) ?? 'wrong'}`}
+                src={`https://image.tmdb.org/t/p/w500${movie.posterUrl}`}
                 fit="contain"
                 alt={movie.title}
                 fallbackSrc="https://placehold.co/400x600?text=No+Poster"

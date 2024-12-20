@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import dayjs from 'dayjs'
+import { run } from '~/server/api/crawler';
 
 const prisma = new PrismaClient()
 
@@ -32,57 +32,17 @@ async function main() {
         website: 'www.kinopolis.de/ka',
       },
     }),
-  ])
-
-  // Create movies
-  const movies = await Promise.all([
-    prisma.movie.create({
+    prisma.cinema.create({
       data: {
-        title: 'The Matrix Resurrections',
-      },
-    }),
-    prisma.movie.create({
-      data: {
-        title: 'Dune',
-      },
-    }),
-    prisma.movie.create({
-      data: {
-        title: 'Spider-Man: No Way Home',
+        name: 'Filmpalast',
+        address: 'Brauerstraße 40 - 76135 Karlsruhe',
+        website: 'www.filmpalast.net',
       },
     }),
   ])
 
-  // Create screenings
-  const now = new Date()
-  const screenings = await Promise.all([
-    // Screenings for Cineplex Downtown
-    prisma.screening.create({
-      data: {
-        cinemaId: cinemas[0].id,
-        movieId: movies[0].id,
-        startTime: dayjs(now).add(1, 'day').add(2, 'hour').toDate(),
-        properties: ['IMAX', '3D'],
-      },
-    }),
-    prisma.screening.create({
-      data: {
-        cinemaId: cinemas[0].id,
-        movieId: movies[1].id,
-        startTime: dayjs(now).add(1, 'day').add(5, 'hour').toDate(),
-        properties: ['Standard'],
-      },
-    }),
-    // Screenings for MovieMax Plaza
-    prisma.screening.create({
-      data: {
-        cinemaId: cinemas[1].id,
-        movieId: movies[2].id,
-        startTime: dayjs(now).add(2, 'day').add(3, 'hour').toDate(),
-        properties: ['Dolby Atmos', '4K'],
-      },
-    }),
-  ])
+  const { screenings, movies } = await run();
+
 
   console.log({
     cinemas,

@@ -12,7 +12,7 @@ datasource db {
 
 model Cinema {
   id        Int         @id @default(autoincrement())
-  name      String
+  name      String      @unique
   address   String
   website   String
   createdAt DateTime    @default(now())
@@ -39,6 +39,9 @@ model Screening {
 model Movie {
   id        Int         @id @default(autoincrement())
   title     String
+  posterUrl String?
+  tmdbId    Int?
+  length    Int?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   Screening Screening[]

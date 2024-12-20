@@ -2,6 +2,7 @@ import { load } from "cheerio";
 import { db } from "~/server/db";
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
+import { env } from "process";
 
 dayjs.extend(minMax);
 
@@ -14,7 +15,12 @@ type Screening = {
 
 export async function run() {
   console.log("Running crawlers");
-  const screenings = (await Promise.all([crawlSchauburg(), crawlKinemathek(), crawlUniversum()])).flat();
+  const screenings = (await Promise.all([
+    crawlSchauburg(),
+    crawlKinemathek(),
+    crawlUniversum(),
+    crawlFilmpalast()
+  ])).flat();
 
   // Delete existing screenings
   await db.screening.deleteMany({
@@ -26,6 +32,9 @@ export async function run() {
     }
   });
 
+  const movies = [];
+  const insertedScreenings = [];
+
   // Insert screenings and create movies if they don't exist
   for (const screening of screenings) {
     // Find or create the movie
@@ -34,21 +43,36 @@ export async function run() {
     });
 
     if (!movie) {
+      const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${screening.movieTitle}&include_adult=true&language=de-DE`, {
+        headers: {
+          Authorization: `Bearer ${env.TMDB_API_KEY}`,
+        },
+      });
+      const data = await response.json() as { results: { poster_path: string, id: number }[] };
+      const result = data.results[0];
+      const details = await fetch(` https://api.themoviedb.org/3/movie/${result?.id}`, {
+        headers: {
+          Authorization: `Bearer ${env.TMDB_API_KEY}`,
+        },
+      }).then(r => r.json()) as { runtime: number };
       movie = await db.movie.create({
-        data: { title: screening.movieTitle }
+        data: { title: screening.movieTitle, posterUrl: result?.poster_path, tmdbId: result?.id, length: details.runtime }
       });
     }
 
+    movies.push(movie);
+
     // Create the screening
-    await db.screening.create({
+    insertedScreenings.push(await db.screening.create({
       data: {
         movieId: movie.id,
         startTime: screening.startTime,
         properties: screening.properties,
         cinemaId: screening.cinemaId
       }
-    });
+    }));
   }
+  return { screenings: insertedScreenings, movies };
 }
 
 async function crawlSchauburg() {
@@ -129,7 +153,7 @@ async function crawlSchauburg() {
     });
   });
 
-  console.log(`Found ${screenings.length} screenings`);
+  console.log(`Found ${screenings.length} screenings in Schauburg.`);
 
   return screenings;
 }
@@ -203,7 +227,7 @@ async function crawlKinemathek() {
     }
   });
 
-  console.log(`Found ${screenings.length} screenings`);
+  console.log(`Found ${screenings.length} screenings in Kinemathek.`);
 
   return screenings;
 }
@@ -244,7 +268,7 @@ async function crawlUniversum() {
   });
 
   if (!cinemaId) {
-    throw new Error('Cinema "Schauburg" not found');
+    throw new Error('Cinema "Universum" not found');
   }
 
   const screenings: Screening[] = [];
@@ -294,6 +318,8 @@ async function crawlUniversum() {
     });
   });
 
+  console.log(`Found ${screenings.length} screenings in Universum.`);
+
   return screenings;
 }
 
@@ -320,4 +346,46 @@ function parseGermanDate(dayText: string): Date | null {
   }
 
   return null;
+}
+
+async function crawlFilmpalast() {
+  const response = await fetch('https://www.filmpalast.net/programm/?time=week');
+  const html = await response.text();
+  const $ = load(html);
+
+  // Find cinema ID for Schauburg
+  const { id: cinemaId } = await db.cinema.findFirstOrThrow({
+    select: {
+      id: true
+    },
+    where: {
+      name: 'Filmpalast'
+    }
+  });
+
+  if (!cinemaId) {
+    throw new Error('Cinema "Filmpalast" not found');
+  }
+
+  const scriptContent = $('script#pmkino-shortcode-program-script-js-extra').text();
+  // Extract JSON content between curly braces
+  const jsonMatch = scriptContent.match(/\{.*\}/s);
+  if (!jsonMatch) {
+    throw new Error('Could not find JSON data in script content');
+  }
+  const jsonContent = jsonMatch[0];
+  const data = Object.values(JSON.parse(jsonContent).apiData.movies.items).filter((item: any) => !!item.performances);
+  const result = data.map((item: any) => {
+    const movieTitle = item.titleDisplay || item.title;
+    return item.performances.map((p: any) => ({
+      movieTitle,
+      startTime: new Date(p.timeUtc),
+      cinemaId,
+      properties: p.attributes.map((a: any) => a.name)
+    }))
+  }).flat();
+
+  console.log(`Found ${result.length} screenings in Filmpalast.`);
+
+  return result;
 }
