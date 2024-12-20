@@ -26,6 +26,6 @@ export type AppRouter = typeof appRouter;
 export const createCaller = createCallerFactory(appRouter);
 
 console.log("Starting scheduler");
-schedule('0 0 * * *', () => {
+schedule('0 2 * * *', () => {
   run();
 });
