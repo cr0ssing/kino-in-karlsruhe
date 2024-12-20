@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { add } from 'date-fns'
+import dayjs from 'dayjs'
 
 const prisma = new PrismaClient()
 
@@ -13,16 +13,16 @@ async function main() {
   const cinemas = await Promise.all([
     prisma.cinema.create({
       data: {
-        name: 'Cineplex Downtown',
-        address: '123 Main Street, Downtown',
-        website: 'www.cineplex-downtown.com',
+        name: 'Schauburg',
+        address: 'Marienstraße 16, 76137 Karlsruhe',
+        website: 'www.schauburg.de',
       },
     }),
     prisma.cinema.create({
       data: {
-        name: 'MovieMax Plaza',
-        address: '456 Park Avenue, Uptown',
-        website: 'www.moviemax.com',
+        name: 'Kinemathek',
+        address: 'Kaiserpassage 6, 76133 Karlsruhe',
+        website: 'www.kinemathek-karlsruhe.de',
       },
     }),
   ])
@@ -54,7 +54,7 @@ async function main() {
       data: {
         cinemaId: cinemas[0].id,
         movieId: movies[0].id,
-        startTime: add(now, { days: 1, hours: 2 }),
+        startTime: dayjs(now).add(1, 'day').add(2, 'hour').toDate(),
         properties: ['IMAX', '3D'],
       },
     }),
@@ -62,7 +62,7 @@ async function main() {
       data: {
         cinemaId: cinemas[0].id,
         movieId: movies[1].id,
-        startTime: add(now, { days: 1, hours: 5 }),
+        startTime: dayjs(now).add(1, 'day').add(5, 'hour').toDate(),
         properties: ['Standard'],
       },
     }),
@@ -71,7 +71,7 @@ async function main() {
       data: {
         cinemaId: cinemas[1].id,
         movieId: movies[2].id,
-        startTime: add(now, { days: 2, hours: 3 }),
+        startTime: dayjs(now).add(2, 'day').add(3, 'hour').toDate(),
         properties: ['Dolby Atmos', '4K'],
       },
     }),
