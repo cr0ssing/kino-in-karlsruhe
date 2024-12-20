@@ -20,14 +20,14 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
   }))).filter(([_, poster_path]) => poster_path !== null)
   )
 
-  const toShow = 5;
+  const toShow = 6;
 
   return (
     <Carousel
       height={430}
       align="center"
       slidesToScroll={1}
-      slideSize={`${100 / toShow}%`}
+      slideSize={{ xl: `${100 / 6}%`, lg: `${100 / 5}%`, md: `${100 / 4}%`, sm: `${100 / 3}%`, xs: `${100 / 2}%` }}
       slideGap="sm"
       loop
       dragFree={movies.length > toShow}
@@ -40,7 +40,8 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
           <Card shadow="sm">
             <CardSection>
               <Image
-                src={`https://image.tmdb.org/t/p/w500/${posterUrls.get(movie.id) ?? 'wrong'}`} // You'll need to handle movie posters
+                src={`https://image.tmdb.org/t/p/w500/${posterUrls.get(movie.id) ?? 'wrong'}`}
+                fit="contain"
                 alt={movie.title}
                 fallbackSrc="https://placehold.co/400x600?text=No+Poster"
                 h={375}
