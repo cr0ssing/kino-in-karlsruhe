@@ -35,6 +35,7 @@ model Screening {
   updatedAt  DateTime @updatedAt
 
   @@index([movieId])
+  @@index([startTime])
 }
 
 model Movie {
