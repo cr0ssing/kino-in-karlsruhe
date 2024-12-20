@@ -1,6 +1,6 @@
 import { Container, Title, Grid, GridCol } from "@mantine/core";
-import { MovieCarousel } from "~/components/MovieCarousel";
-import { ScreeningTimetable } from "~/components/ScreeningTimetable";
+import { MovieCarousel } from "~/app/_components/MovieCarousel";
+import { ScreeningTimetable } from "~/app/_components/ScreeningTimetable";
 
 import { api, HydrateClient } from "~/trpc/server";
 
