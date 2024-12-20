@@ -1,11 +1,14 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
-
+import { cinemaRouter } from "./routers/cinema";
+import { screeningRouter } from "./routers/screening";
 /**
  * This is the primary router for your server.
  *
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  cinema: cinemaRouter,
+  screening: screeningRouter,
 });
 
 // export type definition of API
