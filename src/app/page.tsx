@@ -11,6 +11,7 @@ export default async function Home() {
   endOfWeek.setDate(today.getDate() + 7);
 
   // Fetch screenings for this week
+  // TODO prefetch only
   const { result: screenings, nextCursor } = await api.screening.getAll({
     dateFrom: today,
     dateTo: endOfWeek,
@@ -30,7 +31,7 @@ export default async function Home() {
 
           {/* Timetable Section */}
           <GridCol mt="xl">
-            <Title order={2} mb="md">This Week's Screenings</Title>
+            <Title order={2} mb="md">This Week&apos;s Screenings</Title>
             <ScreeningTimetable screenings={screenings} />
           </GridCol>
         </Grid>

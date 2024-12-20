@@ -15,6 +15,7 @@ export const screeningRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { dateFrom, dateTo, movieId, limit, cursor } = input;
 
+      // TODO remove pagination
       const result = await ctx.db.screening.findMany({
         where: {
           AND: [
