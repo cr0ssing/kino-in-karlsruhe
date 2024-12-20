@@ -1,5 +1,5 @@
 import { Carousel, CarouselSlide } from '@mantine/carousel';
-import { Card, CardSection, Image, Text } from '@mantine/core';
+import { Card, CardSection, Image, Text, Tooltip } from '@mantine/core';
 import type { Movie } from '@prisma/client';
 import { env } from "process";
 
@@ -24,7 +24,7 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
 
   return (
     <Carousel
-      height={450}
+      height={430}
       align="center"
       slidesToScroll={1}
       slideSize={`${100 / toShow}%`}
@@ -32,7 +32,7 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
       loop
       dragFree={movies.length > toShow}
       draggable={movies.length > toShow}
-      withIndicators={movies.length > toShow}
+      withIndicators={false}
       withControls={movies.length > toShow}
     >
       {movies.map((movie) => (
@@ -46,7 +46,9 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
                 h={375}
               />
             </CardSection>
-            <Text fw={500} mt="sm" lineClamp={1}>{movie.title}</Text>
+            <Tooltip label={movie.title}>
+              <Text fw={500} mt="sm" lineClamp={1}>{movie.title}</Text>
+            </Tooltip>
           </Card>
         </CarouselSlide>
       ))}

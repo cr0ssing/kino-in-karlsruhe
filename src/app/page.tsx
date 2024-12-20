@@ -31,7 +31,7 @@ export default async function Home() {
           </GridCol>
 
           {/* Timetable Section */}
-          <GridCol mt="xl">
+          <GridCol>
             <Title order={2} mb="md">Vorführungen</Title>
             <ScreeningTimetable screenings={screenings} />
           </GridCol>

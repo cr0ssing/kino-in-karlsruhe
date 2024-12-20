@@ -7,7 +7,7 @@ interface ScreeningTimetableProps {
 
 const START_HOUR = 9;
 const END_HOUR = 24;
-const HOUR_HEIGHT = 60;
+const HOUR_HEIGHT = 120;
 
 export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
   // Group screenings by weekday (convert Sunday from 0 to 6)
