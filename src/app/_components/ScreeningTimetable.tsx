@@ -10,16 +10,40 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 120;
 
 export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
-  // Group screenings by weekday (convert Sunday from 0 to 6)
-  const groupedByWeekday = screenings.reduce((acc, screening) => {
+  type CombinedScreening = Screening & {
+    movie: { title: string },
+    cinemas: { name: string }[]
+  };
+
+  const combined = new Map<string, CombinedScreening>();
+
+  screenings.forEach((screening) => {
+    const key = `${screening.movieId}-${screening.startTime.getTime()}`;
+    if (!combined.has(key)) {
+      combined.set(key, {
+        ...screening,
+        cinemas: [{ name: screening.cinema.name }]
+      });
+    } else {
+      const existing = combined.get(key)!;
+      existing.cinemas.push({ name: screening.cinema.name });
+    }
+
+    return Array.from(combined.values());
+  });
+
+  const combinedScreenings = Array.from(combined.values());
+
+  // Modify the grouping logic to use combined screenings
+  const groupedByWeekday = combinedScreenings.reduce((acc, screening) => {
     const weekday = screening.startTime.getDay();
-    const mondayBasedDay = weekday === 0 ? 6 : weekday - 1; // Convert to Monday-based index
+    const mondayBasedDay = weekday === 0 ? 6 : weekday - 1;
     if (!acc[mondayBasedDay]) {
       acc[mondayBasedDay] = [];
     }
     acc[mondayBasedDay].push(screening);
     return acc;
-  }, {} as Record<number, typeof screenings>);
+  }, {} as Record<number, typeof combinedScreenings>);
 
   // Weekday headers (now starting with Monday)
   const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
@@ -119,7 +143,7 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
                         {screening.movie.title}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        {screening.cinema.name}
+                        {screening.cinemas.map(c => c.name).join(', ')}
                       </Text>
                       <Text size="xs">
                         {screening.startTime.toLocaleTimeString([], {
