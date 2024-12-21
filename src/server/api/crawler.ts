@@ -176,7 +176,7 @@ async function crawlKinemathek() {
   });
 
   // Find all date headers (h3 with class wpt_listing_group day)
-  $('h3.wpt_listing_group.day').each((_, dateHeader) => {
+  $('.entry-content h3.wpt_listing_group.day').each((_, dateHeader) => {
     const dateText = $(dateHeader).text().trim();
     // Extract date from format like "Donnerstag 2. Januar"
     const dateMatch = dateText.match(/(\d{1,2})\. (\w+)/);
