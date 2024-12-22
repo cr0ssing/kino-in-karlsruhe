@@ -20,6 +20,7 @@ export default async function Home({
   const currentDay = startOfWeek.getDay();
   const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
   startOfWeek.setDate(startOfWeek.getDate() - daysFromMonday + (weekOffset * 7));
+  startOfWeek.setHours(0, 0, 0, 0);
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6);
 
