@@ -7,7 +7,6 @@ async function main() {
   // Clean up existing data
   await prisma.screening.deleteMany()
   await prisma.cinema.deleteMany()
-  await prisma.movie.deleteMany()
 
   // Create cinemas
   const cinemas = await Promise.all([
