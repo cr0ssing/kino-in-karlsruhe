@@ -16,7 +16,10 @@ export default async function Home({
 
   // Get this week's date range
   const startOfWeek = new Date();
-  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1 + (weekOffset * 7));
+  // getDay() returns 0-6 where 0 is Sunday, so we need to handle Monday differently
+  const currentDay = startOfWeek.getDay();
+  const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
+  startOfWeek.setDate(startOfWeek.getDate() - daysFromMonday + (weekOffset * 7));
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6);
 
