@@ -1,7 +1,6 @@
 import { Carousel, CarouselSlide } from '@mantine/carousel';
 import { Card, CardSection, Image, Text, Tooltip } from '@mantine/core';
 import type { Movie } from '@prisma/client';
-import { env } from "process";
 
 interface MovieCarouselProps {
   movies: Movie[];
@@ -15,7 +14,7 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
       height={430}
       align="center"
       slidesToScroll={1}
-      slideSize={{ xl: `${100 / 6}%`, lg: `${100 / 5}%`, md: `${100 / 4}%`, sm: `${100 / 3}%`, xs: `${100 / 2}%` }}
+      slideSize={{ xl: `${100 / 7}%`, lg: `${100 / 6}%`, md: `${100 / 5}%`, sm: `${100 / 4}%`, xs: `${100 / 2}%` }}
       slideGap="sm"
       loop
       dragFree={movies.length > toShow}

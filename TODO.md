@@ -1,0 +1,9 @@
+- [x] design calendar-like timetable
+- [x] integrate crawling for one cinema
+- [x] integrate matching of movies to tmdb
+- [x] integrate movie posters from tmdb
+- [x] save link to poster in db
+- [x] integrate crawler for filmpalast
+- [ ] handle overlapping screeings in calendar
+- [ ] filter by movies
+- [ ] filter by cinema
