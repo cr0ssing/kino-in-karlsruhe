@@ -10,9 +10,9 @@ export default async function Home({
 }: {
   searchParams: { weekOffset?: string };
 }) {
-  await searchParams;
+
   // Get week offset from URL params (default to 0)
-  const weekOffset = parseInt(searchParams.weekOffset ?? "0");
+  const weekOffset = parseInt((await searchParams).weekOffset ?? "0");
 
   // Get this week's date range
   const startOfWeek = new Date();
