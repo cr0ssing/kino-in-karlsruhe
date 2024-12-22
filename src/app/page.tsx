@@ -22,7 +22,7 @@ export default async function Home({
   startOfWeek.setDate(startOfWeek.getDate() - daysFromMonday + (weekOffset * 7));
   startOfWeek.setHours(0, 0, 0, 0);
   const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setDate(startOfWeek.getDate() + 7);
 
   // Format dates for display
   const dateFormatter = new Intl.DateTimeFormat('de-DE', {
