@@ -12,7 +12,7 @@ type TimetableColumnProps = {
 
 export function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour }: TimetableColumnProps) {
   return (
-    <Box key={"column" + day} pos="relative" h={hourHeight * (endHour - startHour)}>
+    <Box key={"column-entries" + day} pos="relative" h={hourHeight * (endHour - startHour)}>
       {timeLabels.map((time, j) => (
         <Box
           key={"segment" + day + time}
@@ -38,8 +38,8 @@ export function TimetableColumn({ day, timeLabels, screenings, hourHeight, start
         const left = `calc(4px + ${screening.columnIndex} * (100% - 8px) / ${screening.totalColumns})`;
 
         return (
-          <Popover>
-            <PopoverTarget>
+          <Popover key={"popover" + screening.id}>
+            <PopoverTarget key={"popover-target" + screening.id}>
               <Card
                 key={screening.id}
                 shadow="xs"
