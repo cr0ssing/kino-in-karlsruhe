@@ -1,11 +1,12 @@
 "use client"
 
-import { Box, Stack, Text } from '@mantine/core';
+import { Box, em, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CombinedScreening } from "./types";
 import TimetableHeader from "./TimetableHeader";
 import { TimetableColumn } from "./TimetableColumn";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface ScreeningTimetableProps {
   screenings: Array<Screening & { movie: Movie, cinema: Cinema }>;
@@ -95,14 +96,20 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
   );
 
   // Add state for selected day (-1 means show all days)
-  const [selectedDay, setSelectedDay] = useState(-1);
+  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+  const mondayBasedDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
 
+  useEffect(() => {
+    if (isMobile) {
+      setSelectedDay(mondayBasedDayIndex);
+    }
+  }, [isMobile]);
+
+  const [selectedDay, setSelectedDay] = useState(-1);
   // Filter weekdays based on selection
   const displayedWeekdays = selectedDay === -1
     ? weekdays
     : [weekdays[selectedDay]!];
-
-  console.log(weekdays.indexOf("Montag"))
 
   return (
     <Box style={{
@@ -111,7 +118,7 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
       position: 'relative'
     }}>
       {/* Time labels column */}
-      <Stack gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+      <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
         <TimetableHeader text="Zeit" index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
         {timeLabels.map((time) => (
           <Box
@@ -139,11 +146,13 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
             }}
           >
             <TimetableHeader
+              key={"column-header" + day}
               text={day}
               index={weekdays.indexOf(day)}
               selectedDay={selectedDay}
               setSelectedDay={setSelectedDay} />
             <TimetableColumn
+              key={"column-body" + day}
               day={day}
               timeLabels={timeLabels}
               screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
