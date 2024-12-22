@@ -113,110 +113,109 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
   }
 
   return (
-    <Paper shadow="xs" p="md">
-      <Box style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', position: 'relative' }}>
-        {/* Time labels column */}
-        <Stack gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
-          <Header text="Zeit" />
-          {timeLabels.map((time) => (
-            <Box
-              key={time}
-              h={HOUR_HEIGHT}
-              style={{
-                borderBottom: '1px solid var(--mantine-color-gray-2)',
-                padding: '4px',
-              }}
-            >
-              <Text size="xs" ta="center">{time}</Text>
-            </Box>
-          ))}
-        </Stack>
-
-        {/* Days columns */}
-        {weekdays.map((day, index) => (
+    <Box style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', position: 'relative' }}>
+      {/* Time labels column */}
+      <Stack gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+        <Header text="Zeit" />
+        {timeLabels.map((time) => (
           <Box
-            key={day}
+            key={time}
+            h={HOUR_HEIGHT}
             style={{
-              gridColumn: index + 2,
-              borderRight: '1px solid var(--mantine-color-gray-3)',
-              position: 'relative',
+              borderBottom: '1px solid var(--mantine-color-gray-2)',
+              padding: '4px',
             }}
           >
-            {/* Day header */}
-            <Header text={day} />
-            {/* Time grid */}
-            <Box pos="relative" h={HOUR_HEIGHT * (END_HOUR - START_HOUR)}>
-              {timeLabels.map((time) => (
-                <Box
-                  key={day + time}
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    height: HOUR_HEIGHT,
-                    borderBottom: '1px solid var(--mantine-color-gray-2)',
-                    top: HOUR_HEIGHT * timeLabels.indexOf(time),
-                  }}
-                />
-              ))}
-
-              {/* Screenings */}
-              {groupedByWeekday[index]?.map((screening) => {
-                const hours = screening.startTime.getHours();
-                const minutes = screening.startTime.getMinutes();
-                const top = (hours - START_HOUR + minutes / 60) * HOUR_HEIGHT;
-
-                // Calculate width and position based on column information
-                const width = `calc((100% - 8px) / ${screening.totalColumns})`;
-                const left = `calc(4px + ${screening.columnIndex} * (100% - 8px) / ${screening.totalColumns})`;
-
-                return (
-                  <Popover>
-                    <PopoverTarget>
-                      <Card
-                        key={screening.id}
-                        shadow="xs"
-                        padding="xs"
-                        radius="sm"
-                        pos="absolute"
-                        bg={screening.cinemas.length === 1 ? `${screening.cinemas[0]!.color}11` : undefined}
-                        top={`${top}px`}
-                        left={left}
-                        w={width}
-                        style={{
-                          zIndex: 2,
-                        }}
-                      >
-                        <Stack gap={2}>
-                          <Text size="sm" fw={700} lineClamp={1}>
-                            {screening.movie.title}
-                          </Text>
-                          <Group>
-                            <Text size="xs" c="dimmed" lineClamp={1}>
-                              {screening.cinemas.map(c => c.name).join(', ')}
-                            </Text>
-                          </Group>
-                        </Stack>
-                      </Card>
-                    </PopoverTarget>
-                    <PopoverDropdown>
-                      <Stack gap="xs">
-                        <Text size="xs" c="dimmed">{screening.startTime.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })} • {screening.movie.length} mins</Text>
-                        <Text fw={700}>{screening.movie.title}</Text>
-                        <Text size="sm">{screening.cinemas.map(c => c.name).join(', ')}</Text>
-                        <Text size="xs" c="dimmed">{screening.properties.join(', ')}</Text>
-                      </Stack>
-                    </PopoverDropdown>
-                  </Popover>
-                );
-              })}
-            </Box>
+            <Text size="xs" ta="center">{time}</Text>
           </Box>
         ))}
-      </Box>
-    </Paper>
+      </Stack>
+
+      {/* Days columns */}
+      {weekdays.map((day, index, arr) => (
+        <Box
+          key={day}
+          style={{
+            gridColumn: index + 2,
+            borderRight: index < arr.length - 1 ? '1px solid var(--mantine-color-gray-3)' : undefined,
+            position: 'relative',
+          }}
+        >
+          {/* Day header */}
+          <Header text={day} />
+          {/* Time grid */}
+          <Box pos="relative" h={HOUR_HEIGHT * (END_HOUR - START_HOUR)}>
+            {timeLabels.map((time, i) => (
+              <Box
+                key={day + time}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  height: HOUR_HEIGHT,
+                  borderBottom: '1px solid var(--mantine-color-gray-2)',
+                  top: HOUR_HEIGHT * i,
+                }}
+              />
+            ))}
+
+            {/* Screenings */}
+            {groupedByWeekday[index]?.map((screening) => {
+              const hours = screening.startTime.getHours();
+              const minutes = screening.startTime.getMinutes();
+              const top = (hours - START_HOUR + minutes / 60) * HOUR_HEIGHT;
+
+              // Calculate width and position based on column information
+              const width = `calc((100% - 8px) / ${screening.totalColumns})`;
+              const left = `calc(4px + ${screening.columnIndex} * (100% - 8px) / ${screening.totalColumns})`;
+
+              return (
+                <Popover>
+                  <PopoverTarget>
+                    <Card
+                      key={screening.id}
+                      shadow="xs"
+                      padding="xs"
+                      radius="sm"
+                      pos="absolute"
+                      bg={screening.cinemas.length === 1 ? `${screening.cinemas[0]!.color}11` : undefined}
+                      top={`${top}px`}
+                      left={left}
+                      w={width}
+                      style={{
+                        zIndex: 2,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Stack gap={2}>
+                        <Text size="sm" fw={700} lineClamp={1}>
+                          {screening.movie.title}
+                        </Text>
+                        <Group>
+                          <Text size="xs" c="dimmed" lineClamp={1}>
+                            {screening.cinemas.map(c => c.name).join(', ')}
+                          </Text>
+                        </Group>
+                      </Stack>
+                    </Card>
+                  </PopoverTarget>
+                  <PopoverDropdown>
+                    <Stack gap="xs">
+                      <Text size="xs" c="dimmed">{screening.startTime.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })} • {screening.movie.length} mins</Text>
+                      <Text fw={700}>{screening.movie.title}</Text>
+                      <Text size="sm">{screening.cinemas.map(c => c.name).join(', ')}</Text>
+                      <Text size="xs" c="dimmed">{screening.properties.join(', ')}</Text>
+                    </Stack>
+                  </PopoverDropdown>
+                </Popover>
+              );
+            })}
+          </Box>
+        </Box>
+      ))}
+    </Box>
   );
 }
