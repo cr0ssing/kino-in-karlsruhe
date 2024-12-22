@@ -1,5 +1,11 @@
-import { Paper, Box, Stack, Text, Card, Group, Tooltip, Popover, PopoverTarget, PopoverDropdown } from '@mantine/core';
+"use client"
+
+import { Box, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
+import { useState } from 'react';
+import { CombinedScreening } from "./types";
+import TimetableHeader from "./TimetableHeader";
+import { TimetableColumn } from "./TimetableColumn";
 
 interface ScreeningTimetableProps {
   screenings: Array<Screening & { movie: Movie, cinema: Cinema }>;
@@ -10,13 +16,6 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
 export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
-  type CombinedScreening = Screening & {
-    movie: { title: string, length: number | null },
-    cinemas: { name: string, color: string }[],
-    columnIndex: number,
-    totalColumns: number,
-  };
-
   const combined = new Map<string, CombinedScreening>();
 
   screenings.forEach((screening) => {
@@ -95,28 +94,25 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
     (_, i) => `${(START_HOUR + i).toString().padStart(2, '0')}:00`
   );
 
-  function Header({ text }: { text: string }) {
-    return (
-      <Box
-        p="sm"
-        style={{
-          borderBottom: '1px solid var(--mantine-color-gray-3)',
-          position: 'sticky',
-          top: 0,
-          background: 'var(--mantine-color-body)',
-          zIndex: 1
-        }}
-      >
-        <Text fw={700} ta="center">{text}</Text>
-      </Box>
-    )
-  }
+  // Add state for selected day (-1 means show all days)
+  const [selectedDay, setSelectedDay] = useState(-1);
+
+  // Filter weekdays based on selection
+  const displayedWeekdays = selectedDay === -1
+    ? weekdays
+    : [weekdays[selectedDay]!];
+
+  console.log(weekdays.indexOf("Montag"))
 
   return (
-    <Box style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', position: 'relative' }}>
+    <Box style={{
+      display: 'grid',
+      gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
+      position: 'relative'
+    }}>
       {/* Time labels column */}
       <Stack gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
-        <Header text="Zeit" />
+        <TimetableHeader text="Zeit" index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
         {timeLabels.map((time) => (
           <Box
             key={time}
@@ -132,90 +128,31 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
       </Stack>
 
       {/* Days columns */}
-      {weekdays.map((day, index, arr) => (
-        <Box
-          key={day}
-          style={{
-            gridColumn: index + 2,
-            borderRight: index < arr.length - 1 ? '1px solid var(--mantine-color-gray-3)' : undefined,
-            position: 'relative',
-          }}
-        >
-          {/* Day header */}
-          <Header text={day} />
-          {/* Time grid */}
-          <Box pos="relative" h={HOUR_HEIGHT * (END_HOUR - START_HOUR)}>
-            {timeLabels.map((time, i) => (
-              <Box
-                key={day + time}
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  height: HOUR_HEIGHT,
-                  borderBottom: '1px solid var(--mantine-color-gray-2)',
-                  top: HOUR_HEIGHT * i,
-                }}
-              />
-            ))}
-
-            {/* Screenings */}
-            {groupedByWeekday[index]?.map((screening) => {
-              const hours = screening.startTime.getHours();
-              const minutes = screening.startTime.getMinutes();
-              const top = (hours - START_HOUR + minutes / 60) * HOUR_HEIGHT;
-
-              // Calculate width and position based on column information
-              const width = `calc((100% - 8px) / ${screening.totalColumns})`;
-              const left = `calc(4px + ${screening.columnIndex} * (100% - 8px) / ${screening.totalColumns})`;
-
-              return (
-                <Popover>
-                  <PopoverTarget>
-                    <Card
-                      key={screening.id}
-                      shadow="xs"
-                      padding="xs"
-                      radius="sm"
-                      pos="absolute"
-                      bg={screening.cinemas.length === 1 ? `${screening.cinemas[0]!.color}11` : undefined}
-                      top={`${top}px`}
-                      left={left}
-                      w={width}
-                      style={{
-                        zIndex: 2,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <Stack gap={2}>
-                        <Text size="sm" fw={700} lineClamp={1}>
-                          {screening.movie.title}
-                        </Text>
-                        <Group>
-                          <Text size="xs" c="dimmed" lineClamp={1}>
-                            {screening.cinemas.map(c => c.name).join(', ')}
-                          </Text>
-                        </Group>
-                      </Stack>
-                    </Card>
-                  </PopoverTarget>
-                  <PopoverDropdown>
-                    <Stack gap="xs">
-                      <Text size="xs" c="dimmed">{screening.startTime.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })} • {screening.movie.length} mins</Text>
-                      <Text fw={700}>{screening.movie.title}</Text>
-                      <Text size="sm">{screening.cinemas.map(c => c.name).join(', ')}</Text>
-                      <Text size="xs" c="dimmed">{screening.properties.join(', ')}</Text>
-                    </Stack>
-                  </PopoverDropdown>
-                </Popover>
-              );
-            })}
+      {displayedWeekdays.map((day, i) => {
+        return (
+          <Box
+            key={"column" + day}
+            style={{
+              gridColumn: i + 2,
+              borderRight: i < displayedWeekdays.length - 1 ? '1px solid var(--mantine-color-gray-3)' : undefined,
+              position: 'relative',
+            }}
+          >
+            <TimetableHeader
+              text={day}
+              index={weekdays.indexOf(day)}
+              selectedDay={selectedDay}
+              setSelectedDay={setSelectedDay} />
+            <TimetableColumn
+              day={day}
+              timeLabels={timeLabels}
+              screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
+              hourHeight={HOUR_HEIGHT}
+              startHour={START_HOUR}
+              endHour={END_HOUR} />
           </Box>
-        </Box>
-      ))}
+        );
+      })}
     </Box>
   );
 }
