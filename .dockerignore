@@ -1,0 +1,11 @@
+.env
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+*.md
+start-database.sh
+docker-compose.yaml
+.gitignore
+.next
+.git
