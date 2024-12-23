@@ -53,13 +53,11 @@ export default async function Home({
     dateTo: dayjs(endOfWeek).subtract(7, 'day').toDate(),
   });
 
-
   const uniqueMovies = Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values());
 
   return (
     <HydrateClient>
       <Grid m="xl" gutter="xl">
-        {/* TODO move to own component to use media query to make button text responsive */}
         <GridCol>
           <WeekNavigation weekOffset={weekOffset} dateRange={dateRange} />
           <Title order={2} mb="md">Filme</Title>
