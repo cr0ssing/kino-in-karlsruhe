@@ -3,7 +3,7 @@
 import { Box, em, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import { useEffect, useState } from 'react';
-import { CombinedScreening } from "./types";
+import type { CombinedScreening } from "./types";
 import TimetableHeader from "./TimetableHeader";
 import { TimetableColumn } from "./TimetableColumn";
 import { useMediaQuery } from "@mantine/hooks";
@@ -103,7 +103,7 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
     if (isMobile) {
       setSelectedDay(mondayBasedDayIndex);
     }
-  }, [isMobile]);
+  }, [isMobile, mondayBasedDayIndex]);
 
   const [selectedDay, setSelectedDay] = useState(-1);
   // Filter weekdays based on selection

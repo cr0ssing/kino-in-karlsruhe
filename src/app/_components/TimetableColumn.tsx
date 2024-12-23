@@ -1,5 +1,5 @@
 import { Box, Card, Group, Popover, PopoverDropdown, PopoverTarget, Stack, Text } from "@mantine/core";
-import { CombinedScreening } from "./types";
+import type { CombinedScreening } from "./types";
 
 type TimetableColumnProps = {
   day: string;

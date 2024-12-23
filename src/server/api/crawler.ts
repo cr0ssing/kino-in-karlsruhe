@@ -20,7 +20,7 @@ export async function run() {
     crawlKinemathek(),
     crawlUniversum(),
     crawlFilmpalast()
-  ])).flat();
+  ])).flat() as Screening[];
 
   // Delete existing screenings
   await db.screening.deleteMany({
@@ -102,7 +102,7 @@ async function crawlSchauburg() {
   $('h5').each((_, dateElement) => {
     const dateText = $(dateElement).text().trim();
     // Extract date from formats like "Heute, 20.12." or "Sa, 21.12."
-    const dateMatch = dateText.match(/(\d{1,2})\.(\d{1,2})\./);
+    const dateMatch = /(\d{1,2})\.(\d{1,2})\./.exec(dateText);
     if (!dateMatch) return;
 
     const [, day, month] = dateMatch;
@@ -121,7 +121,7 @@ async function crawlSchauburg() {
 
       const movieCell = $(row).find('td').last();
       // Extract text in brackets at the end of the movie title
-      const bracketMatch = movieCell.text().trim().match(/\(([^)]*)\)$/);
+      const bracketMatch = /\(([^)]*)\)$/.exec(movieCell.text().trim());
       const bracketContent = bracketMatch ? bracketMatch[1]!.trim() : '';
       if (bracketContent) {
         properties.push(bracketContent);
@@ -179,7 +179,7 @@ async function crawlKinemathek() {
   $('.entry-content h3.wpt_listing_group.day').each((_, dateHeader) => {
     const dateText = $(dateHeader).text().trim();
     // Extract date from format like "Donnerstag 2. Januar"
-    const dateMatch = dateText.match(/(\d{1,2})\. (\w+)/);
+    const dateMatch = /(\d{1,2})\. (\w+)/.exec(dateText);
     if (!dateMatch) return;
 
     const [, day, month] = dateMatch;
@@ -234,7 +234,7 @@ async function crawlKinemathek() {
 
 // Helper function to convert German month names to numbers
 function getMonthNumber(monthName: string): number {
-  const months: { [key: string]: number } = {
+  const months: Record<string, number> = {
     'Januar': 1,
     'Februar': 2,
     'März': 3,
@@ -248,7 +248,7 @@ function getMonthNumber(monthName: string): number {
     'November': 11,
     'Dezember': 12
   };
-  return months[monthName] || -1;
+  return months[monthName] ?? -1;
 }
 
 async function crawlUniversum() {
@@ -305,7 +305,7 @@ async function crawlUniversum() {
         const properties: string[] = [];
         const versionData = $screening.find('.buy__btn').attr('data-version');
         if (versionData) {
-          properties.push(...JSON.parse(versionData));
+          properties.push(...(JSON.parse(versionData) as string[]));
         }
 
         screenings.push({
@@ -338,7 +338,7 @@ function parseGermanDate(dayText: string): Date | null {
   }
 
   // Handle format like "So. 22.12."
-  const match = dayText.match(/\d{2}\.\d{2}\./);
+  const match = /\d{2}\.\d{2}\./.exec(dayText);
   if (match) {
     const [day, month] = match[0].split('.').map(Number);
     const date = new Date(today.getFullYear(), month! - 1, day);
@@ -369,19 +369,32 @@ async function crawlFilmpalast() {
 
   const scriptContent = $('script#pmkino-shortcode-program-script-js-extra').text();
   // Extract JSON content between curly braces
-  const jsonMatch = scriptContent.match(/\{.*\}/s);
+  const jsonMatch = /\{.*\}/s.exec(scriptContent);
   if (!jsonMatch) {
     throw new Error('Could not find JSON data in script content');
   }
   const jsonContent = jsonMatch[0];
-  const data = Object.values(JSON.parse(jsonContent).apiData.movies.items).filter((item: any) => !!item.performances);
-  const result = data.map((item: any) => {
+
+  type Movie = {
+    titleDisplay: string;
+    title: string;
+    performances: {
+      timeUtc: string;
+      attributes: {
+        name: string;
+      }[];
+    }[];
+  };
+
+  const parsed = JSON.parse(jsonContent) as { apiData: { movies: { items: Record<string, Movie> } } }
+  const data = Object.values(parsed.apiData.movies.items).filter((item: Movie) => !!item.performances);
+  const result = data.map((item: Movie) => {
     const movieTitle = item.titleDisplay || item.title;
-    return item.performances.map((p: any) => ({
+    return item.performances.map((p: Movie['performances'][number]) => ({
       movieTitle,
       startTime: new Date(p.timeUtc),
       cinemaId,
-      properties: p.attributes.map((a: any) => a.name)
+      properties: p.attributes.map((a: Movie['performances'][number]['attributes'][number]) => a.name)
     }))
   }).flat();
 

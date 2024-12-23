@@ -1,4 +1,4 @@
-import { Screening } from "@prisma/client";
+import type { Screening } from "@prisma/client";
 
 export type CombinedScreening = Screening & {
   movie: { title: string, length: number | null },

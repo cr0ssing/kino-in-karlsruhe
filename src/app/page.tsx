@@ -13,6 +13,7 @@ export default async function Home({
 }) {
 
   // Get week offset from URL params (default to 0)
+  // eslint-disable-next-line @typescript-eslint/await-thenable
   const weekOffset = parseInt((await searchParams).weekOffset ?? "0");
 
   // Get this week's date range

@@ -1,6 +1,6 @@
 import { ActionIcon, Box, Group, Text } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 type TimetableHeaderProps = {
   text: string;
