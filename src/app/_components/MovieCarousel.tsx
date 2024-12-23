@@ -8,6 +8,9 @@ interface MovieCarouselProps {
 
 export async function MovieCarousel({ movies }: MovieCarouselProps) {
   const toShow = 6;
+  function fallbackURL(title: string) {
+    return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
+  }
 
   return (
     <Carousel
@@ -27,10 +30,10 @@ export async function MovieCarousel({ movies }: MovieCarouselProps) {
           <Card shadow="sm">
             <CardSection>
               <Image
-                src={`https://image.tmdb.org/t/p/w500${movie.posterUrl}`}
+                src={movie.posterUrl ? `https://image.tmdb.org/t/p/w500${movie.posterUrl}` : fallbackURL(movie.title)}
                 fit="contain"
                 alt={movie.title}
-                fallbackSrc="https://placehold.co/400x600?text=No+Poster"
+                fallbackSrc={fallbackURL("Kein Poster")}
                 h={375}
               />
             </CardSection>
