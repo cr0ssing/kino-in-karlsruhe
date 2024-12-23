@@ -2,6 +2,7 @@ import { Title, Grid, GridCol, Group, Button, Text } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { MovieCarousel } from "~/app/_components/MovieCarousel";
 import { ScreeningTimetable } from "~/app/_components/ScreeningTimetable";
+import dayjs from "dayjs";
 
 import { api, HydrateClient } from "~/trpc/server";
 
@@ -39,11 +40,25 @@ export default async function Home({
     dateTo: endOfWeek,
   });
 
+  // prefetch next week
+  void api.screening.getAll.prefetch({
+    dateFrom: dayjs(startOfWeek).add(7, 'day').toDate(),
+    dateTo: dayjs(endOfWeek).add(7, 'day').toDate(),
+  });
+
+  // prefetch last week
+  void api.screening.getAll.prefetch({
+    dateFrom: dayjs(startOfWeek).subtract(7, 'day').toDate(),
+    dateTo: dayjs(endOfWeek).subtract(7, 'day').toDate(),
+  });
+
+
   const uniqueMovies = Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values());
 
   return (
     <HydrateClient>
       <Grid m="xl" gutter="xl">
+        {/* TODO move to own component to use media query to make button text responsive */}
         <GridCol>
           <Group justify="center">
             <Button
