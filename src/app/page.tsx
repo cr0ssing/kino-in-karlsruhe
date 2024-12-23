@@ -1,10 +1,10 @@
-import { Title, Grid, GridCol, Group, Button, Text } from "@mantine/core";
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { Title, Grid, GridCol } from "@mantine/core";
 import { MovieCarousel } from "~/app/_components/MovieCarousel";
 import { ScreeningTimetable } from "~/app/_components/ScreeningTimetable";
 import dayjs from "dayjs";
 
 import { api, HydrateClient } from "~/trpc/server";
+import WeekNavigation from "./_components/WeekNavigation";
 
 export default async function Home({
   searchParams,
@@ -60,28 +60,7 @@ export default async function Home({
       <Grid m="xl" gutter="xl">
         {/* TODO move to own component to use media query to make button text responsive */}
         <GridCol>
-          <Group justify="center">
-            <Button
-              component="a"
-              href={`/?weekOffset=${weekOffset - 1}`}
-              variant="subtle"
-              leftSection={<IconChevronLeft size={16} />}
-            >
-              Vorherige Woche
-            </Button>
-
-            <Text fw={500}>{dateRange}</Text>
-
-            <Button
-              component="a"
-              href={`/?weekOffset=${weekOffset + 1}`}
-              variant="subtle"
-              rightSection={<IconChevronRight size={16} />}
-            >
-              Nächste Woche
-            </Button>
-          </Group>
-
+          <WeekNavigation weekOffset={weekOffset} dateRange={dateRange} />
           <Title order={2} mb="md">Filme</Title>
           <MovieCarousel movies={uniqueMovies} />
         </GridCol>
