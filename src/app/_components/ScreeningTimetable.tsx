@@ -18,13 +18,13 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
 export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
-  const cinemas = new Map<string, string>();
-  screenings.forEach(s => cinemas.set(s.cinema.name, s.cinema.color));
+  const cinemas = new Map<number, Cinema>();
+  screenings.forEach(s => cinemas.set(s.cinemaId, s.cinema));
 
-  const [cinemaFilter, setCinemaFilter] = useState<string[]>(Array.from(cinemas.keys()));
+  const [cinemaFilter, setCinemaFilter] = useState<number[]>(Array.from(cinemas.keys()));
 
   const combined = new Map<string, CombinedScreening>();
-  screenings.filter(s => cinemaFilter.includes(s.cinema.name)).forEach((screening) => {
+  screenings.filter(s => cinemaFilter.includes(s.cinemaId)).forEach((screening) => {
     const key = `${screening.movieId}-${screening.startTime.getTime()}`;
     if (!combined.has(key)) {
       combined.set(key, {
@@ -120,13 +120,13 @@ export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimet
     <Stack>
       <Group>
         <PillGroup>
-          {Array.from(cinemas).sort((a, b) => a[0].localeCompare(b[0]))
-            .map(([name, color]) => ({ name, color, enabled: cinemaFilter.includes(name) }))
-            .map(({ name, color, enabled }) =>
+          {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
+            .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
+            .map(({ id, name, color, enabled }) =>
               <Pill
                 key={"cinema-filter-pill-" + name}
                 bg={color + (enabled ? "44" : "15")}
-                onClick={() => setCinemaFilter(enabled ? cinemaFilter.filter(n => n !== name) : [...cinemaFilter, name])}
+                onClick={() => setCinemaFilter(enabled ? cinemaFilter.filter(n => n !== id) : [...cinemaFilter, id])}
                 style={{ cursor: 'pointer' }}
               >
                 {enabled ? "✓ " + name : name}
