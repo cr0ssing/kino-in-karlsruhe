@@ -17,7 +17,7 @@ const START_HOUR = 9;
 const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
-export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
+export default function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
   const cinemas = new Map<number, Cinema>();
   screenings.forEach(s => cinemas.set(s.cinemaId, s.cinema));
 
@@ -119,7 +119,7 @@ export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimet
   return (
     <Stack>
       <Group>
-        <PillGroup>
+        <PillGroup pt="sm">
           {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
             .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
             .map(({ id, name, color, enabled }) =>

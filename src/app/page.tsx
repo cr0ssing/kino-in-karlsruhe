@@ -1,10 +1,9 @@
-import { Title, Grid, GridCol } from "@mantine/core";
-import { MovieCarousel } from "~/app/_components/MovieCarousel";
-import { ScreeningTimetable } from "~/app/_components/ScreeningTimetable";
+import { Container } from "@mantine/core";
 import dayjs from "dayjs";
 
 import { api, HydrateClient } from "~/trpc/server";
 import WeekNavigation from "./_components/WeekNavigation";
+import TimetablePage from "./_components/TimetablePage";
 
 export default async function Home({
   searchParams,
@@ -35,7 +34,6 @@ export default async function Home({
   const dateRange = `${dateFormatter.format(startOfWeek)} - ${dateFormatter.format(endOfWeek)}`;
 
   // Fetch screenings for this week
-  // TODO prefetch only
   const screenings = await api.screening.getAll({
     dateFrom: startOfWeek,
     dateTo: endOfWeek,
@@ -53,22 +51,12 @@ export default async function Home({
     dateTo: dayjs(endOfWeek).subtract(7, 'day').toDate(),
   });
 
-  const uniqueMovies = Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values());
-
   return (
     <HydrateClient>
-      <Grid m="xl" gutter="xl">
-        <GridCol>
-          <WeekNavigation weekOffset={weekOffset} dateRange={dateRange} />
-          <Title order={2} mb="md">Filme</Title>
-          <MovieCarousel movies={uniqueMovies} />
-        </GridCol>
-
-        <GridCol>
-          <Title order={2} mb="md">Vorführungen</Title>
-          <ScreeningTimetable screenings={screenings} isCurrentWeek={weekOffset === 0} />
-        </GridCol>
-      </Grid>
+      <Container m="xl" fluid>
+        <WeekNavigation weekOffset={weekOffset} dateRange={dateRange} />
+        <TimetablePage screenings={screenings} weekOffset={weekOffset} />
+      </Container>
     </HydrateClient>
   );
 }
