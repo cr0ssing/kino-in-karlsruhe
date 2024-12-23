@@ -10,13 +10,14 @@ import { useMediaQuery } from "@mantine/hooks";
 
 interface ScreeningTimetableProps {
   screenings: Array<Screening & { movie: Movie, cinema: Cinema }>;
+  isCurrentWeek: boolean;
 }
 
 const START_HOUR = 9;
 const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
-export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
+export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
   const combined = new Map<string, CombinedScreening>();
 
   screenings.forEach((screening) => {
@@ -97,7 +98,7 @@ export function ScreeningTimetable({ screenings }: ScreeningTimetableProps) {
 
   // Add state for selected day (-1 means show all days)
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
-  const mondayBasedDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  const mondayBasedDayIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : 0;
 
   useEffect(() => {
     if (isMobile) {

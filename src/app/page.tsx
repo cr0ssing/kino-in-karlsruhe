@@ -66,7 +66,7 @@ export default async function Home({
 
         <GridCol>
           <Title order={2} mb="md">Vorführungen</Title>
-          <ScreeningTimetable screenings={screenings} />
+          <ScreeningTimetable screenings={screenings} isCurrentWeek={weekOffset === 0} />
         </GridCol>
       </Grid>
     </HydrateClient>
