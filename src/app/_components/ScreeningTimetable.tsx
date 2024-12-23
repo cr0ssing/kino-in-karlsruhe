@@ -29,13 +29,13 @@ export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimet
     if (!combined.has(key)) {
       combined.set(key, {
         ...screening,
-        cinemas: [{ name: screening.cinema.name, color: screening.cinema.color }],
+        cinemas: [{ name: screening.cinema.name, color: screening.cinema.color, properties: screening.properties }],
         columnIndex: 0,
         totalColumns: 1,
       });
     } else {
       const existing = combined.get(key)!;
-      existing.cinemas.push({ name: screening.cinema.name, color: screening.cinema.color });
+      existing.cinemas.push({ name: screening.cinema.name, color: screening.cinema.color, properties: screening.properties });
     }
 
     return Array.from(combined.values());

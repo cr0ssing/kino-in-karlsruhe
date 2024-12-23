@@ -74,8 +74,12 @@ export function TimetableColumn({ day, timeLabels, screenings, hourHeight, start
                   minute: '2-digit',
                 })} • {screening.movie.length} mins</Text>
                 <Text fw={700}>{screening.movie.title}</Text>
-                <Text size="sm">{screening.cinemas.map(c => c.name).join(', ')}</Text>
-                <Text size="xs" c="dimmed">{screening.properties.join(', ')}</Text>
+                {screening.cinemas.map(c =>
+                  <Group key={screening.id + c.name}>
+                    <Text size="sm">{c.name}</Text>
+                    <Text size="xs" c="dimmed">{c.properties.join(', ')}</Text>
+                  </Group>
+                )}
               </Stack>
             </PopoverDropdown>
           </Popover>
