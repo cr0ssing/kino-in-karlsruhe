@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, em, Stack, Text } from '@mantine/core';
+import { Box, em, Group, Pill, PillGroup, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import type { CombinedScreening } from "./types";
@@ -18,9 +18,13 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
 export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
-  const combined = new Map<string, CombinedScreening>();
+  const cinemas = new Map<string, string>();
+  screenings.forEach(s => cinemas.set(s.cinema.name, s.cinema.color));
 
-  screenings.forEach((screening) => {
+  const [cinemaFilter, setCinemaFilter] = useState<string[]>(Array.from(cinemas.keys()));
+
+  const combined = new Map<string, CombinedScreening>();
+  screenings.filter(s => cinemaFilter.includes(s.cinema.name)).forEach((screening) => {
     const key = `${screening.movieId}-${screening.startTime.getTime()}`;
     if (!combined.has(key)) {
       combined.set(key, {
@@ -113,56 +117,74 @@ export function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimet
     : [weekdays[selectedDay]!];
 
   return (
-    <Box style={{
-      display: 'grid',
-      gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
-      position: 'relative'
-    }}>
-      {/* Time labels column */}
-      <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
-        <TimetableHeader text="Zeit" index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
-        {timeLabels.map((time) => (
-          <Box
-            key={time}
-            h={HOUR_HEIGHT}
-            style={{
-              borderBottom: '1px solid var(--mantine-color-gray-2)',
-              padding: '4px',
-            }}
-          >
-            <Text size="xs" ta="center">{time}</Text>
-          </Box>
-        ))}
-      </Stack>
+    <Stack>
+      <Group>
+        <PillGroup>
+          {Array.from(cinemas).sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([name, color]) => ({ name, color, enabled: cinemaFilter.includes(name) }))
+            .map(({ name, color, enabled }) =>
+              <Pill
+                key={"cinema-filter-pill-" + name}
+                bg={color + (enabled ? "44" : "15")}
+                onClick={() => setCinemaFilter(enabled ? cinemaFilter.filter(n => n !== name) : [...cinemaFilter, name])}
+                style={{ cursor: 'pointer' }}
+              >
+                {enabled ? "✓ " + name : name}
+              </Pill>
+            )}
+        </PillGroup>
+      </Group>
+      <Box style={{
+        display: 'grid',
+        gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
+        position: 'relative'
+      }}>
+        {/* Time labels column */}
+        <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+          <TimetableHeader text="Zeit" index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
+          {timeLabels.map((time) => (
+            <Box
+              key={time}
+              h={HOUR_HEIGHT}
+              style={{
+                borderBottom: '1px solid var(--mantine-color-gray-2)',
+                padding: '4px',
+              }}
+            >
+              <Text size="xs" ta="center">{time}</Text>
+            </Box>
+          ))}
+        </Stack>
 
-      {/* Days columns */}
-      {displayedWeekdays.map((day, i) => {
-        return (
-          <Box
-            key={"column" + day}
-            style={{
-              gridColumn: i + 2,
-              borderRight: i < displayedWeekdays.length - 1 ? '1px solid var(--mantine-color-gray-3)' : undefined,
-              position: 'relative',
-            }}
-          >
-            <TimetableHeader
-              key={"column-header" + day}
-              text={day}
-              index={weekdays.indexOf(day)}
-              selectedDay={selectedDay}
-              setSelectedDay={setSelectedDay} />
-            <TimetableColumn
-              key={"column-body" + day}
-              day={day}
-              timeLabels={timeLabels}
-              screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
-              hourHeight={HOUR_HEIGHT}
-              startHour={START_HOUR}
-              endHour={END_HOUR} />
-          </Box>
-        );
-      })}
-    </Box>
+        {/* Days columns */}
+        {displayedWeekdays.map((day, i) => {
+          return (
+            <Box
+              key={"column" + day}
+              style={{
+                gridColumn: i + 2,
+                borderRight: i < displayedWeekdays.length - 1 ? '1px solid var(--mantine-color-gray-3)' : undefined,
+                position: 'relative',
+              }}
+            >
+              <TimetableHeader
+                key={"column-header" + day}
+                text={day}
+                index={weekdays.indexOf(day)}
+                selectedDay={selectedDay}
+                setSelectedDay={setSelectedDay} />
+              <TimetableColumn
+                key={"column-body" + day}
+                day={day}
+                timeLabels={timeLabels}
+                screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
+                hourHeight={HOUR_HEIGHT}
+                startHour={START_HOUR}
+                endHour={END_HOUR} />
+            </Box>
+          );
+        })}
+      </Box>
+    </Stack>
   );
 }
