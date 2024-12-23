@@ -1,6 +1,6 @@
 "use client";
 
-import { Title } from "@mantine/core";
+import { Button, Group, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
@@ -31,7 +31,10 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
   const filteredScreenings = screenings.filter(s => filteredMovies.includes(s.movieId));
   return (
     <>
-      <Title order={2} mb="sm">Filme</Title>
+      <Group mb="sm">
+        <Title order={2} >Filme</Title>
+        {filteredMovies.length < uniqueMovies.length && <Button variant="outline" size="xs" onClick={() => setFilteredMovies(uniqueMovies.map(m => m.id))}>Alle anzeigen</Button>}
+      </Group>
       <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
 
       <Title order={2} mb="sm">Vorführungen</Title>
