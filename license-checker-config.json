@@ -4,7 +4,8 @@
     ".next/**",
     "**/.DS_Store",
     "**/*.md",
-    "pnpm-lock.yaml"
+    "pnpm-lock.yaml",
+    "COPYING"
   ],
   "licenseFormats": {
     "prisma": {
