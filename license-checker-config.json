@@ -7,16 +7,26 @@
     "pnpm-lock.yaml",
     "COPYING"
   ],
+  "defaultFormat": {
+    "prepend": "/**",
+    "append": " */\n",
+    "eachLine": {
+      "prepend": " * "
+    }
+  },
   "licenseFormats": {
-    "prisma": {
+    "js|cjs|ts|tsx|css|scss": {
+      "prepend": "/**",
+      "append": " */\n",
       "eachLine": {
-        "prepend": "// "
+        "prepend": " * "
       }
     },
-    "env|env-e|env.example|env.local|yaml|yml": {
+    "env|env-e|example|local|yaml|yml|^Dockerfile": {
       "eachLine": {
         "prepend": "# "
-      }
+      },
+      "append": "\n"
     }
   }
 }
