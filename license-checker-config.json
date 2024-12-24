@@ -27,6 +27,12 @@
         "prepend": "# "
       },
       "append": "\n"
+    },
+    "prisma": {
+      "eachLine": {
+        "prepend": "// "
+      },
+      "append": "\n"
     }
   }
 }
