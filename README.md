@@ -1,21 +1,29 @@
-# Create T3 App
+# Kino in Karlsruhe
+
+This project aims to provide an overview of the programs of the cinemas in Karlsruhe. It fetches the programs of all cinemas and displays them in simple web app.
+Further information about the movies is provided by TMDB.
+
+## How to contribute?
+
+Contributions are welcome! Please refer to [CONTRIBUTING.md](./CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) for more information.
+
+To get started, make sure NodeJS (Version 20 or higher) and a package manager are installed on your machine. This project uses [pnpm](https://pnpm.io/) as its package manager. After that, clone the repository and run `pnpm install`.
+
+## How do I deploy this?
+
+This project can be deployed as a standard Next.js application while utilizing a PostgreSQL database.
+
+Deployment via Docker (Compose) is actively maintained. See [docker-compose.yaml](./docker-compose.yaml) to get started. After the app and the database
+are deployed the database needs to be initialized. Run `pnpm db:push` and `pnpm db:seed` for that.
+
+## How does it work?
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-## What's next? How do I make an app with this?
-
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
-
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
-
 - [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
 - [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
 - [Tailwind CSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
-
-## Learn More
 
 To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
 
@@ -24,6 +32,6 @@ To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the fo
 
 You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
 
-## How do I deploy this?
+## License
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+This project is licensed under the [GNU Affero General Public License v3.0](./COPYING).
