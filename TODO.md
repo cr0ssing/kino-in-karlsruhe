@@ -4,6 +4,6 @@
 - [x] integrate movie posters from tmdb
 - [x] save link to poster in db
 - [x] integrate crawler for filmpalast
-- [ ] handle overlapping screeings in calendar
-- [ ] filter by movies
-- [ ] filter by cinema
+- [x] handle overlapping screeings in calendar
+- [x] filter by movies
+- [x] filter by cinema

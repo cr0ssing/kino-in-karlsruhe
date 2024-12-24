@@ -1,0 +1,21 @@
+{
+  "license": "./copyright_header.txt",
+  "ignore": [
+    ".next/**",
+    "**/.DS_Store",
+    "**/*.md",
+    "pnpm-lock.yaml"
+  ],
+  "licenseFormats": {
+    "prisma": {
+      "eachLine": {
+        "prepend": "// "
+      }
+    },
+    "env|env-e|env.example|env.local|yaml|yml": {
+      "eachLine": {
+        "prepend": "# "
+      }
+    }
+  }
+}
