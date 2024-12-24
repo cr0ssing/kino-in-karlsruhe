@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "author": "Robin Lamberti <lamberti.robin@gmail.com>",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
