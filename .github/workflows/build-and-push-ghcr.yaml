@@ -31,23 +31,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    # Set job output to values from filter step
-    outputs:
-      Dockerfile: ${{ steps.filter.outputs.Dockerfile }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          Dockerfile:
-            - 'Dockerfile'
-
   app-container-ghcr:
-    needs: changes
-    if: ${{ needs.changes.outputs.Dockerfile == 'true' || startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
