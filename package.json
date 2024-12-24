@@ -3,6 +3,7 @@
   "version": "0.5.0",
   "private": true,
   "type": "module",
+  "author": "Robin Lamberti <lamberti.robin@gmail.com>",
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
