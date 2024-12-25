@@ -37,7 +37,7 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
   return (
     <Carousel
       height={450}
-      align="center"
+      align="start"
       slidesToScroll={1}
       slideSize={{ xl: `${100 / 7}%`, lg: `${100 / 6}%`, md: `${100 / 5}%`, sm: `${100 / 4}%`, xs: `${100 / 2}%` }}
       slideGap="sm"
