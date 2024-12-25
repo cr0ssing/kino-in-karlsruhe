@@ -19,7 +19,7 @@
 
 "use client";
 
-import { Button, em, Group, Text } from "@mantine/core";
+import { Button, em, Group, Text, Tooltip } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
@@ -27,26 +27,30 @@ export default function WeekNavigation({ weekOffset, dateRange }: { weekOffset: 
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
 
   return (
-    <Group justify="center">
-      <Button
-        component="a"
-        href={`/?weekOffset=${weekOffset - 1}`}
-        variant="subtle"
-        leftSection={<IconChevronLeft size={16} />}
-      >
-        {isMobile ? '' : 'Vorherige Woche'}
-      </Button>
+    <Group justify="center" wrap="nowrap">
+      <Tooltip label="Vorherige Woche" disabled={!isMobile}>
+        <Button
+          component="a"
+          href={`/?weekOffset=${weekOffset - 1}`}
+          variant="subtle"
+          leftSection={<IconChevronLeft size={16} />}
+        >
+          {isMobile ? '' : 'Vorherige Woche'}
+        </Button>
+      </Tooltip>
 
       <Text fw={500}>{dateRange}</Text>
 
-      <Button
-        component="a"
-        href={`/?weekOffset=${weekOffset + 1}`}
-        variant="subtle"
-        rightSection={<IconChevronRight size={16} />}
-      >
-        {isMobile ? '' : 'Nächste Woche'}
-      </Button>
+      <Tooltip label="Nächste Woche" disabled={!isMobile}>
+        <Button
+          component="a"
+          href={`/?weekOffset=${weekOffset + 1}`}
+          variant="subtle"
+          rightSection={<IconChevronRight size={16} />}
+        >
+          {isMobile ? '' : 'Nächste Woche'}
+        </Button>
+      </Tooltip>
     </Group>
   );
 }

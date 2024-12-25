@@ -7,3 +7,4 @@
 - [x] handle overlapping screeings in calendar
 - [x] filter by movies
 - [x] filter by cinema
+- [ ] disable week nav when current week doesn't have movies
