@@ -23,7 +23,7 @@ import { Button, Group, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function TimetablePage({ screenings, weekOffset }: { screenings: (Screening & { movie: Movie, cinema: Cinema })[], weekOffset: number }) {
   const uniqueMovies = Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values());
@@ -47,12 +47,18 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
     }
   };
 
-  const filteredScreenings = screenings.filter(s => filteredMovies.includes(s.movieId));
+  const filteredScreenings = useMemo(() => screenings.filter(s => filteredMovies.includes(s.movieId)), [screenings, filteredMovies]);
   return (
     <>
       <Group mb="sm">
         <Title order={2} >Filme</Title>
-        {filteredMovies.length < uniqueMovies.length && <Button variant="outline" size="xs" onClick={() => setFilteredMovies(uniqueMovies.map(m => m.id))}>Alle anzeigen</Button>}
+        {filteredMovies.length < uniqueMovies.length &&
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={() => setFilteredMovies(uniqueMovies.map(m => m.id))}>
+            Alle anzeigen
+          </Button>}
       </Group>
       <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
 
