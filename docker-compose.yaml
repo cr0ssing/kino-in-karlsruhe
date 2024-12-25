@@ -17,7 +17,7 @@
 
 services:
   app:
-    image: kino-in-karlsruhe
+    image: ghcr.io/cr0ssing/kino-in-karlsruhe:main
     container_name: kino-app
     restart: unless-stopped
     ports:
