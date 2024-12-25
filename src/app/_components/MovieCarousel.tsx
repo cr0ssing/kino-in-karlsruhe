@@ -29,6 +29,7 @@ interface MovieCarouselProps {
 }
 
 export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: MovieCarouselProps) {
+  // TODO adjust this to breakpoints
   const toShow = 6;
   function fallbackURL(title: string) {
     return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;

@@ -7,4 +7,7 @@
 - [x] handle overlapping screeings in calendar
 - [x] filter by movies
 - [x] filter by cinema
+- [ ] add release management
 - [ ] disable week nav when current week doesn't have movies
+- [ ] add footer with impress, data privacy and link to source code
+- [ ] add favicon
