@@ -19,37 +19,63 @@
 
 "use client";
 
-import { Button, em, Group, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, em, Group, Text, Tooltip } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
-export default function WeekNavigation({ weekOffset, dateRange }: { weekOffset: number, dateRange: string }) {
+export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
+  const router = useRouter();
+
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+
+  // Format dates for display
+  const dateFormatter = new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: isMobile ? "2-digit" : "numeric"
+  });
+
+  const iconSize = 16;
+
+  const dateRange = `${dateFormatter.format(startDate)} - ${dateFormatter.format(endDate)}`;
+
+  function navigate(direction: "previous" | "next") {
+    router.push(`/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`);
+  }
 
   return (
     <Group justify="center" wrap="nowrap">
       <Tooltip label="Vorherige Woche" disabled={!isMobile}>
-        <Button
-          component="a"
-          href={`/?weekOffset=${weekOffset - 1}`}
-          variant="subtle"
-          leftSection={<IconChevronLeft size={16} />}
-        >
-          {isMobile ? '' : 'Vorherige Woche'}
-        </Button>
+        {isMobile
+          ? <ActionIcon variant="subtle" onClick={() => navigate("previous")}>
+            <IconChevronLeft size={iconSize} />
+          </ActionIcon>
+          : <Button
+            onClick={() => navigate("previous")}
+            variant="subtle"
+            leftSection={<IconChevronLeft size={iconSize} />}
+          >
+            Vorherige Woche
+          </Button>
+        }
       </Tooltip>
 
       <Text fw={500}>{dateRange}</Text>
 
       <Tooltip label="Nächste Woche" disabled={!isMobile}>
-        <Button
-          component="a"
-          href={`/?weekOffset=${weekOffset + 1}`}
-          variant="subtle"
-          rightSection={<IconChevronRight size={16} />}
-        >
-          {isMobile ? '' : 'Nächste Woche'}
-        </Button>
+        {isMobile
+          ? <ActionIcon variant="subtle" onClick={() => navigate("next")}>
+            <IconChevronRight size={iconSize} />
+          </ActionIcon>
+          : <Button
+            onClick={() => navigate("next")}
+            variant="subtle"
+            rightSection={<IconChevronRight size={iconSize} />}
+          >
+            Nächste Woche
+          </Button>
+        }
       </Tooltip>
     </Group>
   );

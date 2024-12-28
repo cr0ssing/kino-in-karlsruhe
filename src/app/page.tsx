@@ -34,14 +34,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
   const startOfWeek = dayjs().locale("de").startOf("week").add(weekOffset, "week").toDate();
   const endOfWeek = dayjs().locale("de").endOf("week").add(weekOffset, "week").toDate();
 
-  // Format dates for display
-  const dateFormatter = new Intl.DateTimeFormat("de-DE", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
-  const dateRange = `${dateFormatter.format(startOfWeek)} - ${dateFormatter.format(endOfWeek)}`;
-
   // Fetch screenings for this week
   const screenings = await api.screening.getAll({
     dateFrom: startOfWeek,
@@ -51,7 +43,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
   return (
     <HydrateClient>
       <Container m="xl" fluid>
-        <WeekNavigation weekOffset={weekOffset} dateRange={dateRange} />
+        <WeekNavigation weekOffset={weekOffset} startDate={startOfWeek} endDate={endOfWeek} />
         <TimetablePage screenings={screenings} weekOffset={weekOffset} />
       </Container>
     </HydrateClient>
