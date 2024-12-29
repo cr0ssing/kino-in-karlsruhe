@@ -1,0 +1,58 @@
+# Copyright (C) 2024 Robin Lamberti.
+# 
+# This file is part of kino-in-karlsruhe.
+# 
+# kino-in-karlsruhe is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# kino-in-karlsruhe is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kino-app
+    restart: unless-stopped
+    ports:
+      - 3001:3000
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/kino-in-karlsruhe
+      - TMDB_API_KEY=${TMDB_API_KEY}
+
+  db:
+    image: postgres:15
+    container_name: kino-postgres
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=kino-in-karlsruhe
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: kino-pgadmin
+    restart: unless-stopped
+    ports:
+      - 9080:80
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - db
+
+volumes:
+  pg_data:
+  pgadmin_data:
