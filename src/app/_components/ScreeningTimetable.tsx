@@ -37,10 +37,18 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
-  const cinemas = new Map<number, Cinema>();
-  screenings.forEach(s => cinemas.set(s.cinemaId, s.cinema));
-
+  const [cinemas, setCinemas] = useState<Map<number, Cinema>>(new Map());
   const [cinemaFilter, setCinemaFilter] = useState<number[]>(Array.from(cinemas.keys()));
+
+  useEffect(() => {
+    const newCinemas = new Map<number, Cinema>();
+    screenings.forEach(s => newCinemas.set(s.cinemaId, s.cinema));
+    setCinemas(newCinemas);
+  }, [screenings]);
+
+  useEffect(() => {
+    setCinemaFilter(Array.from(cinemas.keys()));
+  }, [cinemas]);
 
   const combined = new Map<string, CombinedScreening>();
   screenings.filter(s => cinemaFilter.includes(s.cinemaId)).forEach((screening) => {

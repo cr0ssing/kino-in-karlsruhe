@@ -23,12 +23,16 @@ import { Button, Group, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function TimetablePage({ screenings, weekOffset }: { screenings: (Screening & { movie: Movie, cinema: Cinema })[], weekOffset: number }) {
-  const uniqueMovies = Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values());
+  const uniqueMovies = useMemo(() => Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values()), [screenings]);
+  const [filteredMovies, setFilteredMovies] = useState<number[]>([]);
 
-  const [filteredMovies, setFilteredMovies] = useState(uniqueMovies.map(m => m.id));
+  // Reset filtered movies whenever screenings/uniqueMovies changes
+  useEffect(() => {
+    setFilteredMovies(uniqueMovies.map(m => m.id));
+  }, [uniqueMovies]);
 
   const toggleMovie = (movieId: number) => {
     const allMoviesEnabled = filteredMovies.length === uniqueMovies.length;
@@ -51,7 +55,7 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
   return (
     <>
       <Group mb="sm">
-        <Title order={2} >Filme</Title>
+        <Title order={2}>Filme</Title>
         {filteredMovies.length < uniqueMovies.length &&
           <Button
             variant="outline"
