@@ -24,6 +24,7 @@ import "dayjs/locale/de";
 import { api, HydrateClient } from "~/trpc/server";
 import WeekNavigation from "./_components/WeekNavigation";
 import TimetablePage from "./_components/TimetablePage";
+import Footer from "./_components/Footer";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ weekOffset?: string }> }) {
 
@@ -46,6 +47,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
         <WeekNavigation weekOffset={weekOffset} startDate={startOfWeek} endDate={endOfWeek} />
         <TimetablePage screenings={screenings} weekOffset={weekOffset} />
       </Container>
+      <Footer />
     </HydrateClient>
   );
 }

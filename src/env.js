@@ -28,6 +28,9 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     TMDB_API_KEY: z.string(),
+    IMPRESS_NAME: z.string(),
+    IMPRESS_ADDRESS: z.string(),
+    IMPRESS_EMAIL: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -49,6 +52,9 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     TMDB_API_KEY: process.env.TMDB_API_KEY,
+    IMPRESS_NAME: process.env.IMPRESS_NAME,
+    IMPRESS_ADDRESS: process.env.IMPRESS_ADDRESS,
+    IMPRESS_EMAIL: process.env.IMPRESS_EMAIL,
     NODE_ENV: process.env.NODE_ENV,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
