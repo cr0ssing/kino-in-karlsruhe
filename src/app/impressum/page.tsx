@@ -1,28 +1,48 @@
+/**
+ * Copyright (C) 2024 Robin Lamberti.
+ * 
+ * This file is part of kino-in-karlsruhe.
+ * 
+ * kino-in-karlsruhe is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * kino-in-karlsruhe is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import { Anchor, Box, Stack, Text, Title } from "@mantine/core";
-import { env } from "~/env";
 import Footer from "../_components/Footer";
 import Link from "next/link";
+import { api } from "~/trpc/server";
 
+export default async function Impressum() {
+  const impress = await api.impress.get();
 
-export default function Impressum() {
   return (
     <>
       <Stack align="start" m="xl">
         <Title>Impressum</Title>
         <Text>Angaben gemäß § 5 DDG</Text>
         <Box>
-          <Text>{env.IMPRESS_NAME}</Text>
-          {env.IMPRESS_ADDRESS?.split('\n').map((line, index) => (
+          <Text>{impress.name}</Text>
+          {impress.address?.split('\\n').map((line, index) => (
             <Text key={"address" + index}>{line}</Text>
           ))}
         </Box>
         <Box>
           <Title order={3}>Vertreten durch</Title>
-          <Text>{env.IMPRESS_NAME}</Text>
+          <Text>{impress.name}</Text>
         </Box>
         <Box>
           <Title order={3}>Kontakt</Title>
-          E-Mail: <Anchor href={`mailto:${env.IMPRESS_EMAIL}`}>{env.IMPRESS_EMAIL}</Anchor>
+          E-Mail: <Anchor href={`mailto:${impress.email}`}>{impress.email}</Anchor>
         </Box>
         <Stack>
           <Title order={3}>Haftungsausschluss</Title>

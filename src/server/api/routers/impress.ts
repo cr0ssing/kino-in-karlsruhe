@@ -17,16 +17,15 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Anchor, Group, Text } from "@mantine/core";
-import Link from "next/link";
+import { createTRPCRouter, publicProcedure } from "../trpc";
+import { env } from "~/env";
 
-export default function Footer() {
-  return (
-    <Group gap={0} justify="center" p="xs" style={{ borderTop: '1px solid var(--mantine-color-gray-4)' }}>
-      <Text size="sm">Made with ❤️ in Karlsruhe
-        • <Anchor component={Link} href="/impressum">Impressum</Anchor>&#20;
-        • <Anchor component={Link} href="https://github.com/cr0ssing/kino-in-karlsruhe">Quellcode</Anchor>
-      </Text>
-    </Group>
-  );
-}
+export const impressRouter = createTRPCRouter({
+  get: publicProcedure.query(async () => {
+    return {
+      name: env.IMPRESS_NAME,
+      address: env.IMPRESS_ADDRESS,
+      email: env.IMPRESS_EMAIL,
+    };
+  })
+});

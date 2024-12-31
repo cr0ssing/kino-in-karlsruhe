@@ -27,6 +27,9 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/kino-in-karlsruhe
       - TMDB_API_KEY=${TMDB_API_KEY}
+      - IMPRESS_NAME=Max Mustermann
+      - IMPRESS_ADDRESS=Musterstraße 123\n12345 Musterstadt
+      - IMPRESS_EMAIL=max@mustermann.de
 
   db:
     image: postgres:15

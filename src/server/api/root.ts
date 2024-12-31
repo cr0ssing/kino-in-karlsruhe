@@ -20,6 +20,7 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { cinemaRouter } from "./routers/cinema";
 import { screeningRouter } from "./routers/screening";
+import { impressRouter } from "./routers/impress";
 import { schedule } from 'node-cron';
 import { run } from "./crawler";
 /**
@@ -30,6 +31,7 @@ import { run } from "./crawler";
 export const appRouter = createTRPCRouter({
   cinema: cinemaRouter,
   screening: screeningRouter,
+  impress: impressRouter,
 });
 
 // export type definition of API
