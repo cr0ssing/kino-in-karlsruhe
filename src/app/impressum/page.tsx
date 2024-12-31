@@ -32,7 +32,7 @@ export default async function Impressum() {
         <Text>Angaben gemäß § 5 DDG</Text>
         <Box>
           <Text>{impress.name}</Text>
-          {impress.address?.split('\\n').map((line, index) => (
+          {impress.address?.split(/\n|\\n/).map((line, index) => (
             <Text key={"address" + index}>{line}</Text>
           ))}
         </Box>
