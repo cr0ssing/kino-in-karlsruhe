@@ -20,7 +20,7 @@
 import { load } from "cheerio";
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
-import { env } from "process";
+import { env } from "~/env";
 import { db } from "~/server/db";
 
 dayjs.extend(minMax);

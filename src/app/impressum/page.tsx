@@ -1,5 +1,5 @@
 import { Anchor, Box, Stack, Text, Title } from "@mantine/core";
-import { env } from "process";
+import { env } from "~/env";
 import Footer from "../_components/Footer";
 import Link from "next/link";
 
@@ -12,7 +12,7 @@ export default function Impressum() {
         <Text>Angaben gemäß § 5 DDG</Text>
         <Box>
           <Text>{env.IMPRESS_NAME}</Text>
-          {env.IMPRESS_ADDRESS!.split('\n').map((line, index) => (
+          {env.IMPRESS_ADDRESS?.split('\n').map((line, index) => (
             <Text key={"address" + index}>{line}</Text>
           ))}
         </Box>
