@@ -18,10 +18,10 @@
  */
 
 import { load } from "cheerio";
-import { db } from "~/server/db";
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
 import { env } from "process";
+import { db } from "~/server/db";
 
 dayjs.extend(minMax);
 
@@ -33,23 +33,13 @@ type Screening = {
 }
 
 export async function run() {
-  console.log("Running crawlers");
+  console.log("Running crawlers...");
   const screenings = (await Promise.all([
     crawlSchauburg(),
     crawlKinemathek(),
     crawlUniversum(),
     crawlFilmpalast()
   ])).flat() as Screening[];
-
-  // Delete existing screenings
-  await db.screening.deleteMany({
-    where: {
-      startTime: {
-        gte: dayjs.min(screenings.map(s => dayjs(s.startTime)))?.toDate(),
-        lte: dayjs.max(screenings.map(s => dayjs(s.startTime)))?.toDate()
-      }
-    }
-  });
 
   const movies = [];
   const insertedScreenings = [];
@@ -92,6 +82,21 @@ export async function run() {
     }));
   }
   return { screenings: insertedScreenings, movies };
+}
+
+async function deleteOldScreenings(screenings: Screening[], cinemaId: number) {
+  if (screenings.length > 0) {
+    // Delete existing screenings
+    await db.screening.deleteMany({
+      where: {
+        startTime: {
+          gte: dayjs.min(screenings.map(s => dayjs(s.startTime)))?.toDate(),
+          lte: dayjs.max(screenings.map(s => dayjs(s.startTime)))?.toDate()
+        },
+        cinemaId
+      }
+    });
+  }
 }
 
 async function crawlSchauburg() {
@@ -174,6 +179,8 @@ async function crawlSchauburg() {
 
   console.log(`Found ${screenings.length} screenings in Schauburg.`);
 
+  await deleteOldScreenings(screenings, cinemaId);
+
   return screenings;
 }
 
@@ -247,6 +254,8 @@ async function crawlKinemathek() {
   });
 
   console.log(`Found ${screenings.length} screenings in Kinemathek.`);
+
+  await deleteOldScreenings(screenings, cinemaId);
 
   return screenings;
 }
@@ -339,6 +348,8 @@ async function crawlUniversum() {
 
   console.log(`Found ${screenings.length} screenings in Universum.`);
 
+  await deleteOldScreenings(screenings, cinemaId);
+
   return screenings;
 }
 
@@ -418,6 +429,8 @@ async function crawlFilmpalast() {
   }).flat();
 
   console.log(`Found ${result.length} screenings in Filmpalast.`);
+
+  await deleteOldScreenings(result, cinemaId);
 
   return result;
 }

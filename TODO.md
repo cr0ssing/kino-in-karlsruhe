@@ -7,11 +7,12 @@
 - [x] handle overlapping screeings in calendar
 - [x] filter by movies
 - [x] filter by cinema
-- [ ] add release management
-- [ ] disable week nav when current week doesn't have movies
 - [x] add footer with impress, data privacy and link to source code
-- [ ] add favicon
+- [x] when crawling delete old screenings individual for each cinema
+- [ ] make carousel images smaller on smaller screens (use AspectRatio)
 - [ ] capitalize properties
-- [ ] fix annotations for docker images
 - [ ] sort movies by popularity
-- [ ] when crawling delete old screenings individual for each cinema
+- [ ] disable week nav when current week doesn't have movies
+- [ ] add release management
+- [ ] add favicon
+- [ ] fix annotations for docker images
