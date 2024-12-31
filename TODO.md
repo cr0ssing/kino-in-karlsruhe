@@ -9,7 +9,7 @@
 - [x] filter by cinema
 - [x] add footer with impress, data privacy and link to source code
 - [x] when crawling delete old screenings individual for each cinema
-- [ ] make carousel images smaller on smaller screens (use AspectRatio)
+- [x] make carousel images smaller on smaller screens (use AspectRatio)
 - [ ] capitalize properties
 - [ ] sort movies by popularity
 - [ ] disable week nav when current week doesn't have movies
