@@ -19,7 +19,7 @@
 
 "use client";
 
-import { Button, Group, Title } from "@mantine/core";
+import { Box, Button, Group, Stack, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
@@ -53,21 +53,25 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
 
   const filteredScreenings = useMemo(() => screenings.filter(s => filteredMovies.includes(s.movieId)), [screenings, filteredMovies]);
   return (
-    <>
-      <Group mb="sm">
-        <Title order={2}>Filme</Title>
-        {filteredMovies.length < uniqueMovies.length &&
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={() => setFilteredMovies(uniqueMovies.map(m => m.id))}>
-            Alle anzeigen
-          </Button>}
-      </Group>
-      <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
+    <Stack>
+      <Box>
+        <Group mb="sm">
+          <Title order={2}>Filme</Title>
+          {filteredMovies.length < uniqueMovies.length &&
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => setFilteredMovies(uniqueMovies.map(m => m.id))}>
+              Alle anzeigen
+            </Button>}
+        </Group>
+        <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
+      </Box>
 
-      <Title order={2} mb="sm">Vorführungen</Title>
-      <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={weekOffset === 0} />
-    </>
+      <Box>
+        <Title order={2} mb="sm">Vorführungen</Title>
+        <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={weekOffset === 0} />
+      </Box>
+    </Stack>
   );
 }

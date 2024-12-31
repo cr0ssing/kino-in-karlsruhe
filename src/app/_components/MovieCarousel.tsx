@@ -18,7 +18,7 @@
  */
 
 import { Carousel, CarouselSlide } from '@mantine/carousel';
-import { ActionIcon, Card, CardSection, Group, Image, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Card, CardSection, Group, Image, Overlay, Text, Tooltip } from '@mantine/core';
 import type { Movie } from '@prisma/client';
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
@@ -34,13 +34,13 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
   function fallbackURL(title: string) {
     return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
   }
-
+  const imageHeights = { xl: 230, lg: 220, md: 220, sm: 200, xs: 130, base: 130 }
+  const imageWidths = Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value * 1 / 1.7]))
   return (
     <Carousel
-      height={450}
       align="start"
       slidesToScroll={1}
-      slideSize={{ xl: `${100 / 7}%`, lg: `${100 / 6}%`, md: `${100 / 5}%`, sm: `${100 / 4}%`, xs: `${100 / 2}%` }}
+      slideSize={{ xl: `${100 / 10}%`, lg: `${100 / 8}%`, md: `${100 / 6}%`, sm: `${100 / 4}%`, xs: `${100 / 3}%`, base: `${100 / 3}%` }}
       slideGap="sm"
       loop
       dragFree={movies.length > toShow}
@@ -49,29 +49,18 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
       withControls={movies.length > toShow}
     >
       {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
-        <CarouselSlide key={movie.id}>
+        <CarouselSlide key={movie.id} w={imageWidths} h={Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value + 90]))}>
           <Card shadow="md">
-            <CardSection pos="relative">
+            <CardSection mb="sm">
               <Image
                 src={movie.posterUrl ? `https://image.tmdb.org/t/p/w500${movie.posterUrl}` : fallbackURL(movie.title)}
                 fit="contain"
                 alt={movie.title}
                 fallbackSrc={fallbackURL("Kein Poster")}
-                h={375}
+                h={imageHeights}
               />
-              {!movie.enabled && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                  }}
-                />
-              )}
             </CardSection>
+            {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
             <Group gap="xs" wrap="nowrap">
               <ActionIcon
                 variant="transparent"
