@@ -34,13 +34,13 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
   function fallbackURL(title: string) {
     return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
   }
-  const imageHeights = { xl: 230, lg: 220, md: 220, sm: 200, xs: 130, base: 130 }
+  const imageHeights = { xl: 235, lg: 225, md: 215, sm: 205, xs: 195, base: 200 }
   const imageWidths = Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value * 1 / 1.7]))
   return (
     <Carousel
       align="start"
       slidesToScroll={1}
-      slideSize={{ xl: `${100 / 10}%`, lg: `${100 / 8}%`, md: `${100 / 6}%`, sm: `${100 / 4}%`, xs: `${100 / 3}%`, base: `${100 / 3}%` }}
+      slideSize={{ xl: `${100 / 10}%`, lg: `${100 / 8}%`, md: `${100 / 7}%`, sm: `${100 / 6}%`, xs: `${100 / 4}%`, base: `${100 / 3}%` }}
       slideGap="sm"
       loop
       dragFree={movies.length > toShow}
@@ -51,18 +51,18 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
       {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
         <CarouselSlide key={movie.id} w={imageWidths} h={Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value + 90]))}>
           <Tooltip label={movie.title}>
-            <Card shadow="md">
-              <CardSection mb="sm">
+            <Card withBorder shadow="md">
+              <CardSection>
                 <Image
                   src={movie.posterUrl ? `https://image.tmdb.org/t/p/w500${movie.posterUrl}` : fallbackURL(movie.title)}
-                  fit="contain"
+                  fit="cover"
                   alt={movie.title}
                   fallbackSrc={fallbackURL("Kein Poster")}
                   h={imageHeights}
                 />
               </CardSection>
               {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
-              <Group gap="xs" wrap="nowrap">
+              <Group gap="xs" mt="sm" wrap="nowrap">
                 <ActionIcon
                   variant="transparent"
                   size="xs"
@@ -71,7 +71,7 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
                   {movie.enabled ? <IconEye size={15} /> : <IconEyeOff size={15} />}
                 </ActionIcon>
 
-                <Text c={movie.enabled ? "inherit" : "dimmed"} fw={500} lineClamp={1}>{movie.title}</Text>
+                <Text c={movie.enabled ? "inherit" : "dimmed"} fz="sm" lineClamp={1}>{movie.title}</Text>
               </Group>
             </Card>
           </Tooltip>
