@@ -50,30 +50,31 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
     >
       {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
         <CarouselSlide key={movie.id} w={imageWidths} h={Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value + 90]))}>
-          <Card shadow="md">
-            <CardSection mb="sm">
-              <Image
-                src={movie.posterUrl ? `https://image.tmdb.org/t/p/w500${movie.posterUrl}` : fallbackURL(movie.title)}
-                fit="contain"
-                alt={movie.title}
-                fallbackSrc={fallbackURL("Kein Poster")}
-                h={imageHeights}
-              />
-            </CardSection>
-            {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
-            <Group gap="xs" wrap="nowrap">
-              <ActionIcon
-                variant="transparent"
-                size="xs"
-                onClick={() => toggleMovie(movie.id)}
-              >
-                {movie.enabled ? <IconEye size={15} /> : <IconEyeOff size={15} />}
-              </ActionIcon>
-              <Tooltip label={movie.title}>
+          <Tooltip label={movie.title}>
+            <Card shadow="md">
+              <CardSection mb="sm">
+                <Image
+                  src={movie.posterUrl ? `https://image.tmdb.org/t/p/w500${movie.posterUrl}` : fallbackURL(movie.title)}
+                  fit="contain"
+                  alt={movie.title}
+                  fallbackSrc={fallbackURL("Kein Poster")}
+                  h={imageHeights}
+                />
+              </CardSection>
+              {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
+              <Group gap="xs" wrap="nowrap">
+                <ActionIcon
+                  variant="transparent"
+                  size="xs"
+                  onClick={() => toggleMovie(movie.id)}
+                >
+                  {movie.enabled ? <IconEye size={15} /> : <IconEyeOff size={15} />}
+                </ActionIcon>
+
                 <Text c={movie.enabled ? "inherit" : "dimmed"} fw={500} lineClamp={1}>{movie.title}</Text>
-              </Tooltip>
-            </Group>
-          </Card>
+              </Group>
+            </Card>
+          </Tooltip>
         </CarouselSlide>
       ))}
     </Carousel>
