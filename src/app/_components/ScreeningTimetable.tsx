@@ -58,7 +58,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
         ...screening,
         cinemas: [{ name: screening.cinema.name, color: screening.cinema.color, properties: screening.properties }],
         columnIndex: 0,
-        totalColumns: 1,
+        totalColumns: 1
       });
     } else {
       const existing = combined.get(key)!;
@@ -83,7 +83,26 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
       if (!timeSlots.has(timeKey)) {
         timeSlots.set(timeKey, []);
       }
-      timeSlots.get(timeKey)!.push(screening);
+      const slot = timeSlots.get(timeKey)!;
+      slot.push(screening);
+
+      if (screening.startTime.getMinutes() % 15 !== 0) {
+        const secSlotKey = timeKey + 1;
+        if (!timeSlots.has(secSlotKey)) {
+          timeSlots.set(secSlotKey, []);
+        }
+        const secSlot = timeSlots.get(secSlotKey)!;
+        secSlot.push({ ...screening, blockColumn: slot.length - 1 });
+      }
+    });
+
+    timeSlots.forEach((screenings, key) => {
+      screenings.map((s, i) => [s, i] as const).filter(([s, i]) => !!s.blockColumn).forEach(([s, i]) => {
+        if (s.blockColumn! !== i) {
+          screenings.splice(screenings.indexOf(s), 1);
+          screenings.splice(s.blockColumn!, 0, s);
+        }
+      });
     });
 
     // Assign column index to each screening
@@ -92,7 +111,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
         (screening.startTime.getHours() * 60 + screening.startTime.getMinutes()) / 15
       );
       const sameTimeScreenings = timeSlots.get(timeKey)!;
-      const columnIndex = sameTimeScreenings.indexOf(screening);
+      const columnIndex = sameTimeScreenings.findIndex(s => s.id === screening.id);
       const totalColumns = sameTimeScreenings.length;
 
       return {
@@ -116,7 +135,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
 
   // Assign columns for each day's screenings
   Object.keys(groupedByWeekday).forEach(day => {
-    groupedByWeekday[Number(day)] = assignScreeningColumns(groupedByWeekday[Number(day)]!);
+    groupedByWeekday[Number(day)] = assignScreeningColumns(groupedByWeekday[Number(day)]!).filter(s => !s.blockColumn);
   });
 
   // Weekday headers (now starting with Monday)
