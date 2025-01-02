@@ -17,6 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { Movie } from "@prisma/client";
 import { load } from "cheerio";
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
@@ -41,18 +42,18 @@ export async function run() {
     crawlFilmpalast()
   ])).flat() as Screening[];
 
-  const movies = [];
-  const insertedScreenings = [];
+  const movies: Movie[] = [];
 
-  // Insert screenings and create movies if they don't exist
-  for (const screening of screenings) {
-    // Find or create the movie
-    let movie = await db.movie.findFirst({
-      where: { title: screening.movieTitle }
+  const uniqueMovies = new Set(screenings.map(s => s.movieTitle));
+  const movieIds = new Map<string, number>();
+  await Promise.all(Array.from(uniqueMovies).map(async m => {
+    const movie = await db.movie.findFirst({
+      where: { title: m }
     });
-
-    if (!movie) {
-      const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${screening.movieTitle}&include_adult=true&language=de-DE`, {
+    if (movie) {
+      movieIds.set(m, movie.id);
+    } else {
+      const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${m}&include_adult=true&language=de-DE`, {
         headers: {
           Authorization: `Bearer ${env.TMDB_API_KEY}`,
         },
@@ -64,23 +65,23 @@ export async function run() {
           Authorization: `Bearer ${env.TMDB_API_KEY}`,
         },
       }).then(r => r.json()) as { runtime: number };
-      movie = await db.movie.create({
-        data: { title: screening.movieTitle, posterUrl: result?.poster_path, tmdbId: result?.id, length: details.runtime }
+      const movie = await db.movie.create({
+        data: { title: m, posterUrl: result?.poster_path, tmdbId: result?.id, length: details.runtime }
       });
+      movieIds.set(m, movie.id);
+      movies.push(movie);
     }
+  }));
 
-    movies.push(movie);
+  const insertedScreenings = await db.screening.createManyAndReturn({
+    data: screenings.map(s => ({
+      movieId: movieIds.get(s.movieTitle)!,
+      startTime: s.startTime,
+      properties: s.properties,
+      cinemaId: s.cinemaId
+    }))
+  });
 
-    // Create the screening
-    insertedScreenings.push(await db.screening.create({
-      data: {
-        movieId: movie.id,
-        startTime: screening.startTime,
-        properties: screening.properties,
-        cinemaId: screening.cinemaId
-      }
-    }));
-  }
   return { screenings: insertedScreenings, movies };
 }
 
@@ -105,6 +106,7 @@ async function crawlSchauburg() {
   const decoder = new TextDecoder('iso-8859-1');
   const html = decoder.decode(buffer);
   const $ = load(html);
+  const trimProperty = "(Das Angebot gilt ausschließlich vor Ort an unserer Kinokasse!)";
 
   const screenings: Screening[] = [];
 
@@ -148,19 +150,20 @@ async function crawlSchauburg() {
       const bracketMatch = /\(([^)]*)\)$/.exec(movieCell.text().trim());
       const bracketContent = bracketMatch ? bracketMatch[1]!.trim() : '';
       if (bracketContent) {
-        properties.push(bracketContent);
+        properties.push(...bracketContent.split(" - "))
       }
       const movieTitle = movieCell.find('a').text().trim().replace(/\s*\([^)]*\)\s*$/, '');
 
       // Extract properties from italic text
-
       movieCell.find('i').each((_, italic) => {
         const propText = $(italic).text().trim();
         if (propText) {
           // Split by comma and clean up each property
           propText.split(',').forEach(prop => {
             const cleanProp = prop.trim();
-            if (cleanProp) properties.push(cleanProp);
+            if (cleanProp) {
+              properties.push(...cleanProp.split(" - ").map(p => p.replaceAll(trimProperty, "")).map(p => p.trim()).filter(p => p.length > 0))
+            }
           });
         }
       });
@@ -171,7 +174,7 @@ async function crawlSchauburg() {
       screenings.push({
         movieTitle,
         startTime,
-        properties,
+        properties: transformProperties(properties),
         cinemaId
       });
     });
@@ -182,6 +185,40 @@ async function crawlSchauburg() {
   await deleteOldScreenings(screenings, cinemaId);
 
   return screenings;
+}
+
+function transformProperties(properties: string[]) {
+  return properties.map(p => {
+    let result = p;
+    switch (p) {
+      case "Englisches Original mit deutschen Untertiteln":
+      case "im engl. Original mit dt. Untertiteln":
+      case "omu":
+        result = "OmU";
+        break;
+      case "englisches OV, ohne Untertitel":
+      case "englische OV, ohne Untertitel":
+      case "Englische Originalfassung":
+      case "englisch":
+      case "ov":
+        result = "OV";
+        break;
+      case "Englisches Original mit engl. Untertiteln":
+      case "omeu":
+        result = "OmeU";
+        break;
+      case "3d":
+        result = "3D";
+        break;
+      case "2d":
+        result = "2D";
+        break;
+      case "dbox":
+        result = "D-BOX";
+        break;
+    }
+    return result;
+  });
 }
 
 async function crawlKinemathek() {
@@ -245,7 +282,7 @@ async function crawlKinemathek() {
         screenings.push({
           movieTitle,
           startTime,
-          properties,
+          properties: transformProperties(properties),
           cinemaId
         });
       }
@@ -339,7 +376,7 @@ async function crawlUniversum() {
         screenings.push({
           movieTitle,
           startTime: date,
-          properties,
+          properties: transformProperties(properties),
           cinemaId
         });
       });
@@ -424,7 +461,7 @@ async function crawlFilmpalast() {
       movieTitle,
       startTime: new Date(p.timeUtc),
       cinemaId,
-      properties: p.attributes.map((a: Movie['performances'][number]['attributes'][number]) => a.name)
+      properties: transformProperties(p.attributes.map((a: Movie['performances'][number]['attributes'][number]) => a.name))
     }))
   }).flat();
 

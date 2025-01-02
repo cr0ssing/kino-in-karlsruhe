@@ -96,8 +96,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
       }
     });
 
-    timeSlots.forEach((screenings, key) => {
-      screenings.map((s, i) => [s, i] as const).filter(([s, i]) => !!s.blockColumn).forEach(([s, i]) => {
+    timeSlots.forEach(screenings => {
+      screenings.map((s, i) => [s, i] as const).filter(([s]) => !!s.blockColumn).forEach(([s, i]) => {
         if (s.blockColumn! !== i) {
           screenings.splice(screenings.indexOf(s), 1);
           screenings.splice(s.blockColumn!, 0, s);
