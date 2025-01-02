@@ -18,7 +18,7 @@
  */
 
 import { Carousel, CarouselSlide } from '@mantine/carousel';
-import { ActionIcon, Card, CardSection, Group, Image, Overlay, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Card, CardSection, Center, Image, Overlay, Tooltip } from '@mantine/core';
 import type { Movie } from '@prisma/client';
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
@@ -26,9 +26,10 @@ interface MovieCarouselProps {
   movies: Movie[];
   filteredMovies: number[];
   toggleMovie: (movieId: number) => void;
+  showFilters: boolean;
 }
 
-export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: MovieCarouselProps) {
+export default function MovieCarousel({ movies, filteredMovies, toggleMovie, showFilters }: MovieCarouselProps) {
   // TODO adjust this to breakpoints
   const toShow = 6;
   function fallbackURL(title: string) {
@@ -49,9 +50,12 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
       withControls={movies.length > toShow}
     >
       {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
-        <CarouselSlide key={movie.id} w={imageWidths} h={Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value + 90]))}>
+        <CarouselSlide
+          key={movie.id}
+          w={imageWidths}
+        >
           <Tooltip label={movie.title}>
-            <Card withBorder shadow="md">
+            <Card withBorder>
               <CardSection>
                 <Image
                   src={movie.posterUrl ? `https://image.tmdb.org/t/p/w500${movie.posterUrl}` : fallbackURL(movie.title)}
@@ -60,19 +64,20 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
                   fallbackSrc={fallbackURL("Kein Poster")}
                   h={imageHeights}
                 />
+                {!movie.enabled && <Overlay h={imageHeights} color="rgb(255,255,255)" backgroundOpacity={0.7} />}
               </CardSection>
-              {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
-              <Group gap="xs" mt="sm" wrap="nowrap">
-                <ActionIcon
-                  variant="transparent"
-                  size="xs"
-                  onClick={() => toggleMovie(movie.id)}
-                >
-                  {movie.enabled ? <IconEye size={15} /> : <IconEyeOff size={15} />}
-                </ActionIcon>
-
-                <Text c={movie.enabled ? "inherit" : "dimmed"} fz="sm" lineClamp={1}>{movie.title}</Text>
-              </Group>
+              {showFilters &&
+                <Center>
+                  <ActionIcon
+                    mt="sm"
+                    variant="transparent"
+                    size="sm"
+                    onClick={() => toggleMovie(movie.id)}
+                  >
+                    {movie.enabled ? <IconEye size={20} /> : <IconEyeOff size={20} />}
+                  </ActionIcon>
+                </Center>
+              }
             </Card>
           </Tooltip>
         </CarouselSlide>

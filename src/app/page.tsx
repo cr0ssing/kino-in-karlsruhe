@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Container } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 
@@ -43,10 +43,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
 
   return (
     <HydrateClient>
-      <Container m="xl" fluid>
+      <Stack m="xl" gap="lg">
         <WeekNavigation weekOffset={weekOffset} startDate={startOfWeek} endDate={endOfWeek} />
         <TimetablePage screenings={screenings} weekOffset={weekOffset} />
-      </Container>
+      </Stack>
       <Footer />
     </HydrateClient>
   );

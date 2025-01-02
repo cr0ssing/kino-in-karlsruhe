@@ -28,6 +28,7 @@ import { useEffect, useMemo, useState } from "react";
 export default function TimetablePage({ screenings, weekOffset }: { screenings: (Screening & { movie: Movie, cinema: Cinema })[], weekOffset: number }) {
   const uniqueMovies = useMemo(() => Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values()), [screenings]);
   const [filteredMovies, setFilteredMovies] = useState<number[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Reset filtered movies whenever screenings/uniqueMovies changes
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
     } else if (filteredMovies.length === 1 && filteredMovies.includes(movieId)) {
       // If only one movie is enabled and it's being toggled, enable all movies
       setFilteredMovies(uniqueMovies.map(m => m.id));
+      setShowFilters(false);
     } else {
       // Otherwise, behave as before
       setFilteredMovies(filteredMovies.includes(movieId)
@@ -53,19 +55,29 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
 
   const filteredScreenings = useMemo(() => screenings.filter(s => filteredMovies.includes(s.movieId)), [screenings, filteredMovies]);
   return (
-    <Stack>
+    <Stack gap="xl">
       <Box>
         <Group mb="sm">
           <Title order={2}>Filme</Title>
-          {filteredMovies.length < uniqueMovies.length &&
+          {showFilters &&
             <Button
               variant="outline"
               size="xs"
-              onClick={() => setFilteredMovies(uniqueMovies.map(m => m.id))}>
+              onClick={() => {
+                setFilteredMovies(uniqueMovies.map(m => m.id));
+                setShowFilters(false);
+              }}>
               Alle anzeigen
             </Button>}
+          {!showFilters &&
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => setShowFilters(true)}>
+              Filtern
+            </Button>}
         </Group>
-        <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
+        <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} showFilters={showFilters} />
       </Box>
 
       <Box>
