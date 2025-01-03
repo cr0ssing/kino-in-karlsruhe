@@ -71,9 +71,9 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
   const combinedScreenings = Array.from(combined.values());
 
   // Add function to group screenings by time slots and assign column positions
-  function assignScreeningColumns(screenings: typeof combinedScreenings) {
+  function assignScreeningColumns(screenings: CombinedScreening[]) {
     // Group screenings that start within 15 minutes of each other
-    const timeSlots = new Map<number, typeof combinedScreenings>();
+    const timeSlots = new Map<number, typeof screenings>();
 
     screenings.forEach(screening => {
       const timeKey = Math.floor(

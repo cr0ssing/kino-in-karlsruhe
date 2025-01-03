@@ -208,7 +208,7 @@ async function crawlSchauburg() {
 }
 
 function transformProperties(properties: string[]) {
-  return properties.map(p => {
+  return Array.from(new Set(properties.map(p => {
     let result = p;
     switch (p) {
       case "Englisches Original mit deutschen Untertiteln":
@@ -238,7 +238,7 @@ function transformProperties(properties: string[]) {
         break;
     }
     return result;
-  });
+  })));
 }
 
 async function crawlKinemathek() {
