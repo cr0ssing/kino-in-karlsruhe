@@ -55,7 +55,7 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie, sho
           w={imageWidths}
         >
           <Tooltip label={movie.title}>
-            <Card>
+            <Card withBorder>
               <CardSection>
                 <Image
                   src={movie.posterUrl ? `https://image.tmdb.org/t/p/w440_and_h660_face${movie.posterUrl}` : fallbackURL(movie.title)}
@@ -67,16 +67,18 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie, sho
                 {!movie.enabled && <Overlay h={imageHeights} color="rgb(255,255,255)" backgroundOpacity={0.7} />}
               </CardSection>
               {showFilters &&
-                <Center>
-                  <ActionIcon
-                    mt="sm"
-                    variant="transparent"
-                    size="sm"
-                    onClick={() => toggleMovie(movie.id)}
-                  >
-                    {movie.enabled ? <IconEye size={20} /> : <IconEyeOff size={20} />}
-                  </ActionIcon>
-                </Center>
+                <CardSection withBorder inheritPadding>
+                  <Center>
+                    <ActionIcon
+                      m="sm"
+                      variant="transparent"
+                      size="sm"
+                      onClick={() => toggleMovie(movie.id)}
+                    >
+                      {movie.enabled ? <IconEye size={20} /> : <IconEyeOff size={20} />}
+                    </ActionIcon>
+                  </Center>
+                </CardSection>
               }
             </Card>
           </Tooltip>
