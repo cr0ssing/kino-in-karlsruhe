@@ -50,23 +50,24 @@ export async function run() {
     const movie = await db.movie.findFirst({
       where: { title: m }
     });
+    // when updatedAt is older than 5 days, update popularity
     if (movie) {
       movieIds.set(m, movie.id);
+      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity)) {
+        const details = await getDetails(movie.tmdbId);
+        await db.movie.update({
+          where: { id: movie.id },
+          data: { popularity: details.popularity }
+        });
+      }
     } else {
-      const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${m}&include_adult=true&language=de-DE`, {
-        headers: {
-          Authorization: `Bearer ${env.TMDB_API_KEY}`,
-        },
-      });
-      const data = await response.json() as { results: { poster_path: string, id: number }[] };
-      const result = data.results[0];
-      const details = await fetch(` https://api.themoviedb.org/3/movie/${result?.id}`, {
-        headers: {
-          Authorization: `Bearer ${env.TMDB_API_KEY}`,
-        },
-      }).then(r => r.json()) as { runtime: number };
+      const result = await searchMovie(m);
+      let details: { runtime: number } | undefined;
+      if (result) {
+        details = await getDetails(result.id);
+      }
       const movie = await db.movie.create({
-        data: { title: m, posterUrl: result?.poster_path, tmdbId: result?.id, length: details.runtime }
+        data: { title: m, posterUrl: result?.poster_path, tmdbId: result?.id, length: details?.runtime, popularity: result?.popularity }
       });
       movieIds.set(m, movie.id);
       movies.push(movie);
@@ -83,6 +84,25 @@ export async function run() {
   });
 
   return { screenings: insertedScreenings, movies };
+}
+
+async function getDetails(id: number) {
+  const response = await fetch(`https://api.themoviedb.org/3/movie/${id}`, {
+    headers: {
+      Authorization: `Bearer ${env.TMDB_API_KEY}`,
+    },
+  });
+  return response.json() as Promise<{ runtime: number, popularity: number }>;
+}
+
+async function searchMovie(title: string) {
+  const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${title}&include_adult=true&language=de-DE`, {
+    headers: {
+      Authorization: `Bearer ${env.TMDB_API_KEY}`,
+    },
+  });
+  const data = await response.json() as { results: { poster_path: string, id: number, popularity: number }[] };
+  return data.results[0];
 }
 
 async function deleteOldScreenings(screenings: Screening[], cinemaId: number) {

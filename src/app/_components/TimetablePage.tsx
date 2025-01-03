@@ -26,7 +26,11 @@ import MovieCarousel from "./MovieCarousel";
 import { useEffect, useMemo, useState } from "react";
 
 export default function TimetablePage({ screenings, weekOffset }: { screenings: (Screening & { movie: Movie, cinema: Cinema })[], weekOffset: number }) {
-  const uniqueMovies = useMemo(() => Array.from(new Map(screenings.map(screening => [screening.movieId, screening.movie])).values()), [screenings]);
+  const uniqueMovies = useMemo(() => Array.from(
+    new Map(screenings
+      .map(screening => [screening.movieId, screening.movie])
+    ).values())
+    .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)), [screenings]);
   const [filteredMovies, setFilteredMovies] = useState<number[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 

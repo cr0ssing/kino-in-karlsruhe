@@ -56,12 +56,13 @@ model Screening {
 }
 
 model Movie {
-  id        Int         @id @default(autoincrement())
-  title     String
-  posterUrl String?
-  tmdbId    Int?
-  length    Int?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  Screening Screening[]
+  id         Int         @id @default(autoincrement())
+  title      String
+  posterUrl  String?
+  tmdbId     Int?
+  length     Int?
+  popularity Float?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  Screening  Screening[]
 }
