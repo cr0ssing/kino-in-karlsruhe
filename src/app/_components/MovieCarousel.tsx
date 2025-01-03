@@ -35,8 +35,8 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie, sho
   function fallbackURL(title: string) {
     return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
   }
-  const imageHeights = { xl: 235, lg: 225, md: 215, sm: 205, xs: 195, base: 200 }
-  const imageWidths = Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value * 1 / 1.7]))
+  const imageHeights = { xl: 240, lg: 225, md: 215, sm: 205, xs: 250, base: 150 }
+  const imageWidths = Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value / 1.7]))
   return (
     <Carousel
       align="start"
@@ -55,11 +55,11 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie, sho
           w={imageWidths}
         >
           <Tooltip label={movie.title}>
-            <Card withBorder>
+            <Card>
               <CardSection>
                 <Image
-                  src={movie.posterUrl ? `https://image.tmdb.org/t/p/w500${movie.posterUrl}` : fallbackURL(movie.title)}
-                  fit="cover"
+                  src={movie.posterUrl ? `https://image.tmdb.org/t/p/w440_and_h660_face${movie.posterUrl}` : fallbackURL(movie.title)}
+                  fit="contain"
                   alt={movie.title}
                   fallbackSrc={fallbackURL("Kein Poster")}
                   h={imageHeights}

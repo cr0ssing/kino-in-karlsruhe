@@ -12,7 +12,10 @@
 - [x] make carousel images smaller on smaller screens (use AspectRatio)
 - [x] capitalize properties
 - [x] sort movies by popularity
+- [x] optimize movie card height for mobile devices
 - [ ] disable week nav when current week doesn't have movies
 - [ ] add release management
 - [ ] add favicon
 - [ ] fix annotations for docker images
+- [ ] setup dependabot
+- [ ] trim "(Best of Cinema)" from movie titles
