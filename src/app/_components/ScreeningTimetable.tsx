@@ -73,7 +73,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
   // Add function to group screenings by time slots and assign column positions
   function assignScreeningColumns(screenings: CombinedScreening[]) {
     // Group screenings that start within 15 minutes of each other
-    const timeSlots = new Map<number, typeof screenings>();
+    const timeSlots = new Map<number, { screenings: typeof screenings, linkedSlots: number[] }>();
 
     screenings.forEach(screening => {
       const timeKey = Math.floor(
@@ -81,22 +81,27 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
       );
 
       if (!timeSlots.has(timeKey)) {
-        timeSlots.set(timeKey, []);
+        timeSlots.set(timeKey, { screenings: [], linkedSlots: [] });
       }
       const slot = timeSlots.get(timeKey)!;
-      slot.push(screening);
+      slot.screenings.push(screening);
 
       if (screening.startTime.getMinutes() % 15 !== 0) {
+        // this screening must not use column of the following time slot
+        // the two slots need to have the same amount of colunms
         const secSlotKey = timeKey + 1;
+        const index = slot.screenings.length - 1;
         if (!timeSlots.has(secSlotKey)) {
-          timeSlots.set(secSlotKey, []);
+          timeSlots.set(secSlotKey, { screenings: [], linkedSlots: [] });
         }
         const secSlot = timeSlots.get(secSlotKey)!;
-        secSlot.push({ ...screening, blockColumn: slot.length - 1 });
+        secSlot.screenings.push({ ...screening, blockColumn: index });
+        slot.linkedSlots.push(secSlotKey);
+        secSlot.linkedSlots.push(timeKey);
       }
     });
 
-    timeSlots.forEach(screenings => {
+    timeSlots.forEach(({ screenings }) => {
       screenings.map((s, i) => [s, i] as const).filter(([s]) => !!s.blockColumn).forEach(([s, i]) => {
         if (s.blockColumn! !== i) {
           screenings.splice(screenings.indexOf(s), 1);
@@ -111,8 +116,11 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
         (screening.startTime.getHours() * 60 + screening.startTime.getMinutes()) / 15
       );
       const sameTimeScreenings = timeSlots.get(timeKey)!;
-      const columnIndex = sameTimeScreenings.findIndex(s => s.id === screening.id);
-      const totalColumns = sameTimeScreenings.length;
+      const columnIndex = sameTimeScreenings.screenings.findIndex(s => s.id === screening.id);
+      const totalColumns = Math.max(
+        ...sameTimeScreenings.linkedSlots.map(k => timeSlots.get(k)!.screenings.length),
+        sameTimeScreenings.screenings.length
+      );
 
       return {
         ...screening,

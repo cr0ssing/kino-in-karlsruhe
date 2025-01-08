@@ -13,7 +13,7 @@
 - [x] capitalize properties
 - [x] sort movies by popularity
 - [x] optimize movie card height for mobile devices
-- [ ] fix bug with overlapping screenings on filter
+- [x] fix bug with overlapping screenings on filter
 - [ ] better placing for show buttons
 - [ ] disable week nav when current week doesn't have movies
 - [ ] add release management
@@ -21,3 +21,6 @@
 - [ ] fix annotations for docker images
 - [ ] setup dependabot
 - [ ] trim "(Best of Cinema)" from movie titles
+- [ ] search text input for movie filter
+- [ ] PWA support
+- [ ] use (localized) title from tmdb
