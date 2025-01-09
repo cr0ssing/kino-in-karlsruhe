@@ -17,7 +17,8 @@
 - [x] better placing for show buttons
 - [x] disable week nav when current week doesn't have movies
 - [ ] use (localized) movie title from tmdb
-- [ ] trim "(Best of Cinema)" from movie titles
+- [ ] add blacklist for movies searched in tmdb
+- [ ] trim "(Best of Cinema)" from movie titles for search
 - [ ] give movies released in this week a border
 - [ ] add release management
 - [ ] add favicon

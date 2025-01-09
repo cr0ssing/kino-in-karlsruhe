@@ -24,6 +24,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { api } from "~/trpc/react";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
@@ -41,12 +42,12 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
 
   const dateRange = `${dateFormatter.format(startDate)} - ${dateFormatter.format(endDate)}`;
 
-  const { data } = api.screening.getDateRange.useQuery(undefined, {
-    staleTime: 60 * 60 * 24 // Cache for 24 hours
-  });
+  const globalDateRangeStaleTime = useMemo(() => dayjs().add(1, "day").hour(2).diff(), []);
+  const { data: globalDateRange } = api.screening.getDateRange.useQuery(undefined, { staleTime: globalDateRangeStaleTime });
+  const { minDate, maxDate } = globalDateRange ?? {};
 
-  const enabledPreviousWeek = data && data.minDate !== null && dayjs(data.minDate).isBefore(startDate);
-  const enabledNextWeek = data && data.maxDate !== null && dayjs(data.maxDate).isAfter(endDate);
+  const enabledPreviousWeek = minDate && dayjs(minDate).isBefore(startDate);
+  const enabledNextWeek = maxDate && dayjs(maxDate).isAfter(endDate);
 
   function navigate(direction: "previous" | "next") {
     router.push(`/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`);
