@@ -18,7 +18,11 @@
  */
 
 import { Box, Card, Group, Popover, PopoverDropdown, PopoverTarget, Stack, Text } from "@mantine/core";
+import dayjs from "dayjs";
 import type { CombinedScreening } from "./types";
+import isoWeekday from "dayjs/plugin/isoWeek";
+
+dayjs.extend(isoWeekday);
 
 type TimetableColumnProps = {
   day: string;
@@ -69,9 +73,13 @@ export function TimetableColumn({ day, timeLabels, screenings, hourHeight, start
                 top={`${top}px`}
                 left={left}
                 w={width}
+                bd={screening.movie.releaseDate &&
+                  dayjs(screening.startTime).diff(dayjs(screening.movie.releaseDate), "days") < 7
+                  ? "1px solid var(--mantine-color-yellow-5)"
+                  : undefined}
                 style={{
                   zIndex: 2,
-                  cursor: 'pointer',
+                  cursor: 'pointer'
                 }}
               >
                 <Stack gap={2}>

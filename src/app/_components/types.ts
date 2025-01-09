@@ -20,7 +20,7 @@
 import type { Screening } from "@prisma/client";
 
 export type CombinedScreening = Screening & {
-  movie: { title: string, length: number | null },
+  movie: { title: string, length: number | null, releaseDate: Date | null },
   cinemas: { name: string, color: string, properties: string[] }[],
   columnIndex: number,
   totalColumns: number,
