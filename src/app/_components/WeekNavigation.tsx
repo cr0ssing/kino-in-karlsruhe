@@ -22,11 +22,12 @@
 import { ActionIcon, Button, em, Group, Text, Tooltip } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import { api } from "~/trpc/react";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
   const router = useRouter();
-
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
 
   // Format dates for display
@@ -40,6 +41,13 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
 
   const dateRange = `${dateFormatter.format(startDate)} - ${dateFormatter.format(endDate)}`;
 
+  const { data } = api.screening.getDateRange.useQuery(undefined, {
+    staleTime: 60 * 60 * 24 // Cache for 24 hours
+  });
+
+  const enabledPreviousWeek = data && data.minDate !== null && dayjs(data.minDate).isBefore(startDate);
+  const enabledNextWeek = data && data.maxDate !== null && dayjs(data.maxDate).isAfter(endDate);
+
   function navigate(direction: "previous" | "next") {
     router.push(`/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`);
   }
@@ -48,10 +56,11 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
     <Group justify="center" wrap="nowrap">
       <Tooltip label="Vorherige Woche" disabled={!isMobile}>
         {isMobile
-          ? <ActionIcon variant="subtle" onClick={() => navigate("previous")}>
+          ? <ActionIcon variant="subtle" onClick={() => navigate("previous")} disabled={!enabledPreviousWeek}>
             <IconChevronLeft size={iconSize} />
           </ActionIcon>
           : <Button
+            disabled={!enabledPreviousWeek}
             onClick={() => navigate("previous")}
             variant="subtle"
             leftSection={<IconChevronLeft size={iconSize} />}
@@ -65,13 +74,14 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
 
       <Tooltip label="Nächste Woche" disabled={!isMobile}>
         {isMobile
-          ? <ActionIcon variant="subtle" onClick={() => navigate("next")}>
+          ? <ActionIcon variant="subtle" onClick={() => navigate("next")} disabled={!enabledNextWeek}>
             <IconChevronRight size={iconSize} />
           </ActionIcon>
           : <Button
             onClick={() => navigate("next")}
             variant="subtle"
             rightSection={<IconChevronRight size={iconSize} />}
+            disabled={!enabledNextWeek}
           >
             Nächste Woche
           </Button>

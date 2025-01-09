@@ -15,7 +15,7 @@
 - [x] optimize movie card height for mobile devices
 - [x] fix bug with overlapping screenings on filter
 - [x] better placing for show buttons
-- [ ] disable week nav when current week doesn't have movies
+- [x] disable week nav when current week doesn't have movies
 - [ ] use (localized) movie title from tmdb
 - [ ] trim "(Best of Cinema)" from movie titles
 - [ ] give movies released in this week a border

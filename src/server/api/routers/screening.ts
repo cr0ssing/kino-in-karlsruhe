@@ -50,4 +50,21 @@ export const screeningRouter = createTRPCRouter({
       });
       return result;
     }),
+
+  getDateRange: publicProcedure
+    .query(async ({ ctx }) => {
+      const aggregations = await ctx.db.screening.aggregate({
+        _min: {
+          startTime: true,
+        },
+        _max: {
+          startTime: true,
+        },
+      });
+
+      return {
+        minDate: aggregations._min.startTime,
+        maxDate: aggregations._max.startTime,
+      };
+    }),
 });
