@@ -53,11 +53,11 @@ export async function run() {
     // when updatedAt is older than 5 days, update popularity
     if (movie) {
       movieIds.set(m, movie.id);
-      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity)) {
+      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity || !movie.releaseDate)) {
         const details = await getDetails(movie.tmdbId);
         await db.movie.update({
           where: { id: movie.id },
-          data: { popularity: details.popularity }
+          data: { popularity: details.popularity, releaseDate: details.releaseDate }
         });
       }
     } else {
@@ -86,13 +86,34 @@ export async function run() {
   return { screenings: insertedScreenings, movies };
 }
 
+type MovieDetails = {
+  title: string,
+  original_title: string,
+  release_date: string
+  runtime: number,
+  popularity: number,
+  release_dates: {
+    results: {
+      iso_3166_1: string,
+      release_dates: { type: number, release_date: string }[]
+    }[]
+  }
+}
+
 async function getDetails(id: number) {
-  const response = await fetch(`https://api.themoviedb.org/3/movie/${id}`, {
+  const response = await fetch(`https://api.themoviedb.org/3/movie/${id}?language=de-DE&append_to_response=release_dates`, {
     headers: {
       Authorization: `Bearer ${env.TMDB_API_KEY}`,
     },
   });
-  return response.json() as Promise<{ runtime: number, popularity: number }>;
+  const data = await response.json() as MovieDetails;
+  const releaseDateForDe = data.release_dates.results.find(e => e.iso_3166_1.toLowerCase() === "de")?.release_dates;
+  // 3 === Theatrical
+  const releaseDate = releaseDateForDe?.find(e => e.type === 3)?.release_date
+    ?? dayjs.min((releaseDateForDe ?? []).map(e => dayjs(e.release_date)))
+    ?? data.release_date ? data.release_date + " 00:00" : null;
+  console.log((releaseDate));
+  return { runtime: data.runtime, popularity: data.popularity, releaseDate: releaseDate ? dayjs(releaseDate).toDate() : null };
 }
 
 async function searchMovie(title: string) {
