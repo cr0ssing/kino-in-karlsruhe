@@ -18,25 +18,24 @@
  */
 
 import { Carousel, CarouselSlide } from '@mantine/carousel';
-import { ActionIcon, Card, CardSection, Center, Image, Overlay, Tooltip } from '@mantine/core';
+import { ActionIcon, Card, CardSection, Image, Overlay, Tooltip, alpha } from '@mantine/core';
 import type { Movie } from '@prisma/client';
-import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import { IconCheck } from "@tabler/icons-react";
 
 interface MovieCarouselProps {
   movies: Movie[];
   filteredMovies: number[];
   toggleMovie: (movieId: number) => void;
-  showFilters: boolean;
 }
 
-export default function MovieCarousel({ movies, filteredMovies, toggleMovie, showFilters }: MovieCarouselProps) {
+export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: MovieCarouselProps) {
   // TODO adjust this to breakpoints
   const toShow = 6;
   function fallbackURL(title: string) {
     return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
   }
   const imageHeights = { xl: 240, lg: 225, md: 215, sm: 205, xs: 250, base: 150 }
-  const imageWidths = Object.fromEntries(Object.entries(imageHeights).map(([key, value]) => [key, value / 1.7]))
+
   return (
     <Carousel
       align="start"
@@ -52,7 +51,6 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie, sho
       {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
         <CarouselSlide
           key={movie.id}
-          w={imageWidths}
         >
           <Tooltip label={movie.title}>
             <Card withBorder>
@@ -65,21 +63,30 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie, sho
                   h={imageHeights}
                 />
                 {!movie.enabled && <Overlay h={imageHeights} color="rgb(255,255,255)" backgroundOpacity={0.7} />}
+                <Tooltip
+                  label={
+                    filteredMovies.length === movies.length
+                      ? "Nur diesen Film einblenden"
+                      : movie.enabled
+                        ? filteredMovies.length === 1
+                          ? "Alle einblenden"
+                          : "Ausblenden"
+                        : "Einblenden"}>
+                  <ActionIcon
+                    variant="filled"
+                    radius="xl"
+                    size="sm"
+                    pos="absolute"
+                    bg={alpha("var(--mantine-color-blue-4)", 0.5)}
+                    bottom={8}
+                    right={8}
+                    onClick={() => toggleMovie(movie.id)}
+                    style={{ zIndex: 200 }}
+                  >
+                    {movie.enabled && <IconCheck size={13} />}
+                  </ActionIcon>
+                </Tooltip>
               </CardSection>
-              {showFilters &&
-                <CardSection withBorder inheritPadding>
-                  <Center>
-                    <ActionIcon
-                      m="sm"
-                      variant="transparent"
-                      size="sm"
-                      onClick={() => toggleMovie(movie.id)}
-                    >
-                      {movie.enabled ? <IconEye size={20} /> : <IconEyeOff size={20} />}
-                    </ActionIcon>
-                  </Center>
-                </CardSection>
-              }
             </Card>
           </Tooltip>
         </CarouselSlide>

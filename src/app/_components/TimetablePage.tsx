@@ -32,7 +32,6 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
     ).values())
     .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)), [screenings]);
   const [filteredMovies, setFilteredMovies] = useState<number[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
 
   // Reset filtered movies whenever screenings/uniqueMovies changes
   useEffect(() => {
@@ -48,7 +47,6 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
     } else if (filteredMovies.length === 1 && filteredMovies.includes(movieId)) {
       // If only one movie is enabled and it's being toggled, enable all movies
       setFilteredMovies(uniqueMovies.map(m => m.id));
-      setShowFilters(false);
     } else {
       // Otherwise, behave as before
       setFilteredMovies(filteredMovies.includes(movieId)
@@ -63,25 +61,17 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
       <Box>
         <Group mb="sm">
           <Title order={2}>Filme</Title>
-          {showFilters &&
+          {filteredMovies.length < uniqueMovies.length &&
             <Button
               variant="outline"
               size="xs"
               onClick={() => {
                 setFilteredMovies(uniqueMovies.map(m => m.id));
-                setShowFilters(false);
               }}>
               Alle anzeigen
             </Button>}
-          {!showFilters &&
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={() => setShowFilters(true)}>
-              Filtern
-            </Button>}
         </Group>
-        <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} showFilters={showFilters} />
+        <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
       </Box>
 
       <Box>
