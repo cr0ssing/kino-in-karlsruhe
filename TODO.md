@@ -16,11 +16,12 @@
 - [x] fix bug with overlapping screenings on filter
 - [ ] better placing for show buttons
 - [ ] disable week nav when current week doesn't have movies
+- [ ] use (localized) movie title from tmdb
+- [ ] trim "(Best of Cinema)" from movie titles
+- [ ] give movies released in this week a border
 - [ ] add release management
 - [ ] add favicon
+- [ ] search text input for movie filter
 - [ ] fix annotations for docker images
 - [ ] setup dependabot
-- [ ] trim "(Best of Cinema)" from movie titles
-- [ ] search text input for movie filter
 - [ ] PWA support
-- [ ] use (localized) title from tmdb
