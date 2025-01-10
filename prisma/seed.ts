@@ -17,44 +17,44 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { PrismaClient } from '@prisma/client'
-import { run } from '~/server/api/crawler';
+import { PrismaClient } from "@prisma/client"
+import { run } from "~/server/api/crawler";
 
 const prisma = new PrismaClient()
 
 async function main() {
   const cinemasData = [
     {
-      name: 'Schauburg',
-      address: 'Marienstraße 16, 76137 Karlsruhe',
-      website: 'www.schauburg.de',
-      color: '#d42013'
+      name: "Schauburg",
+      address: "Marienstraße 16, 76137 Karlsruhe",
+      website: "www.schauburg.de",
+      color: "#d42013"
     },
     {
 
-      name: 'Kinemathek',
-      address: 'Kaiserpassage 6, 76133 Karlsruhe',
-      website: 'www.kinemathek-karlsruhe.de',
-      color: '#10b02b'
+      name: "Kinemathek",
+      address: "Kaiserpassage 6, 76133 Karlsruhe",
+      website: "www.kinemathek-karlsruhe.de",
+      color: "#10b02b"
     },
     {
-      name: 'Universum',
-      address: 'Kaiserstraße 152-154, 76133 Karlsruhe',
-      website: 'www.kinopolis.de/ka',
-      color: '#e6ca19'
+      name: "Universum",
+      address: "Kaiserstraße 152-154, 76133 Karlsruhe",
+      website: "www.kinopolis.de/ka",
+      color: "#e6ca19"
     },
     {
-      name: 'Filmpalast',
-      address: 'Brauerstraße 40 - 76135 Karlsruhe',
-      website: 'www.filmpalast.net',
-      color: '#0e41cc'
+      name: "Filmpalast",
+      address: "Brauerstraße 40 - 76135 Karlsruhe",
+      website: "www.filmpalast.net",
+      color: "#0e41cc"
     }] as const;
 
-  const cinemas = await Promise.all(cinemasData.map(c => prisma.cinema.upsert({
+  await Promise.all(cinemasData.map(c => prisma.cinema.upsert({
     where: { name: c.name },
     update: {},
     create: c
-  })))
+  })));
 
   const { screenings, movies } = await run();
 

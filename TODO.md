@@ -16,10 +16,10 @@
 - [x] fix bug with overlapping screenings on filter
 - [x] better placing for show buttons
 - [x] disable week nav when current week doesn't have movies
-- [ ] use (localized) movie title from tmdb
+- [x] use (localized) movie title from tmdb
 - [ ] add blacklist for movies searched in tmdb
-- [ ] trim "(Best of Cinema)" from movie titles for search
-- [ ] give movies released in this week a border
+- [ ] trim everything between () from movie titles for search
+- [x] give movies released in this week a border
 - [ ] add release management
 - [ ] add favicon
 - [ ] search text input for movie filter

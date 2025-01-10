@@ -45,34 +45,83 @@ export async function run() {
   const movies: Movie[] = [];
 
   const uniqueMovies = new Set(screenings.map(s => s.movieTitle));
-  const movieIds = new Map<string, number>();
-  await Promise.all(Array.from(uniqueMovies).map(async m => {
-    const movie = await db.movie.findFirst({
-      where: { title: m }
+
+  const toUpdate: Promise<void | Movie>[] = [];
+
+  // assign tmdbId to searchTitles either from existing movies or TMDB API
+  const found = await Promise.all(Array.from(uniqueMovies).map(async m => {
+    const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true };
+    let movie = await db.movie.findFirst({
+      where: { searchTitles: { has: m } },
+      select
     });
-    // when updatedAt is older than 5 days, update popularity
-    if (movie) {
-      movieIds.set(m, movie.id);
-      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity || !movie.releaseDate)) {
-        const details = await getDetails(movie.tmdbId);
-        await db.movie.update({
-          where: { id: movie.id },
-          data: { popularity: details.popularity, releaseDate: details.releaseDate }
-        });
-      }
-    } else {
+    let tmdbId = movie?.tmdbId;
+    if (movie === null) {
       const result = await searchMovie(m);
-      let details: { runtime: number } | undefined;
       if (result) {
-        details = await getDetails(result.id);
+        tmdbId = result.id;
+        movie = await db.movie.findUnique({ where: { tmdbId }, select });
+        if (movie) {
+          // if movie exists in db add searchTitle to it
+          toUpdate.push(db.movie.update({ where: { id: movie?.id }, data: { searchTitles: { push: m } } }));
+        }
       }
-      const movie = await db.movie.create({
-        data: { title: m, posterUrl: result?.poster_path, tmdbId: result?.id, length: details?.runtime, popularity: result?.popularity }
-      });
-      movieIds.set(m, movie.id);
-      movies.push(movie);
     }
+    if (movie) {
+      // if movie metadata is not present or old, update it
+      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity || !movie.releaseDate)) {
+        toUpdate.push((async (tmdbId: number) => {
+          const details = await getDetails(tmdbId);
+          await db.movie.update({
+            where: { id: movie.id },
+            data: { popularity: details.popularity, releaseDate: details.releaseDate }
+          });
+        })(movie.tmdbId));
+      }
+    }
+    return { searchTitle: m, tmdbId, movieId: movie?.id };
   }));
+
+  // init movieIds with existing movies
+  const movieIds = new Map<string, number>(found
+    .filter(({ movieId }) => !!movieId)
+    .map(({ searchTitle, movieId }) => [searchTitle, movieId!]));
+
+  // create all movies not found on tmdb
+  found.filter(({ tmdbId, movieId }) => !tmdbId && !movieId).map(async e => {
+    const movie = await db.movie.create({
+      data: {
+        title: e.searchTitle,
+        searchTitles: [e.searchTitle]
+      }
+    });
+    movies.push(movie);
+    movieIds.set(e.searchTitle, movie.id);
+  }).forEach(p => toUpdate.push(p));
+
+  // group new movies with tmdbId by tmdbId
+  const searchTitles = found.filter(({ movieId, tmdbId }) => !movieId && !!tmdbId).reduce((acc, { searchTitle, tmdbId }) => {
+    if (!tmdbId) {
+      return acc;
+    };
+    if (!acc.has(tmdbId)) {
+      acc.set(tmdbId, []);
+    };
+    acc.get(tmdbId)!.push(searchTitle);
+    return acc;
+  }, new Map<number, string[]>());
+
+  // put new movies into db
+  await Promise.all(Array.from(searchTitles.entries()).map(async ([tmdbId, searchTitles]) => {
+    const details = await getDetails(tmdbId);
+    const movie = await db.movie.create({
+      data: { ...details, searchTitles }
+    });
+    movies.push(movie);
+    searchTitles.forEach(st => movieIds.set(st, movie.id));
+  }));
+
+  await Promise.all(toUpdate);
 
   const insertedScreenings = await db.screening.createManyAndReturn({
     data: screenings.map(s => ({
@@ -87,6 +136,8 @@ export async function run() {
 }
 
 type MovieDetails = {
+  id: number,
+  poster_path: string
   title: string,
   original_title: string,
   release_date: string
@@ -108,12 +159,28 @@ async function getDetails(id: number) {
   });
   const data = await response.json() as MovieDetails;
   const releaseDateForDe = data.release_dates.results.find(e => e.iso_3166_1.toLowerCase() === "de")?.release_dates;
-  // 3 === Theatrical
-  const releaseDate = releaseDateForDe?.find(e => e.type === 3)?.release_date
-    ?? dayjs.min((releaseDateForDe ?? []).map(e => dayjs(e.release_date)))
-    ?? data.release_date ? data.release_date + " 00:00" : null;
-  console.log((releaseDate));
-  return { runtime: data.runtime, popularity: data.popularity, releaseDate: releaseDate ? dayjs(releaseDate).toDate() : null };
+
+  let releaseDate: dayjs.Dayjs | null = null;
+  if (releaseDateForDe && releaseDateForDe.length > 0) {
+    // 3 === Theatrical
+    const theatricalRelease = releaseDateForDe.find(e => e.type === 3)?.release_date;
+    if (theatricalRelease) {
+      releaseDate = dayjs(theatricalRelease);
+    } else {
+      releaseDate = dayjs.min(releaseDateForDe.map(e => dayjs(e.release_date)));
+    }
+  }
+  if (!releaseDate) {
+    releaseDate = data.release_date ? dayjs(data.release_date + " 00:00") : null;
+  }
+  return {
+    tmdbId: data.id,
+    title: data.title ?? data.original_title,
+    posterUrl: data.poster_path,
+    length: data.runtime,
+    popularity: data.popularity,
+    releaseDate: !!releaseDate ? releaseDate.toDate() : null
+  };
 }
 
 async function searchMovie(title: string) {
