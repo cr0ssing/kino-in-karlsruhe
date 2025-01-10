@@ -20,7 +20,7 @@
 - [x] add blacklist for movies searched in tmdb
 - [x] trim everything between () from movie titles for search
 - [x] give movies released in this week a border
-- [ ] add release management
+- [x] add release management
 - [ ] exract release year and poster from crawled websites
 - [ ] add favicon
 - [ ] search text input for movie filter
