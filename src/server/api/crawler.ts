@@ -40,7 +40,8 @@ const tmdbBacklistTitles = [
   "All In Sneak Preview",
   "Sneak Preview",
   "Sneak",
-  "Sneak OV"
+  "Sneak OV",
+  "Open Archive"
 ].map(t => t.toLowerCase());
 
 export async function run() {
