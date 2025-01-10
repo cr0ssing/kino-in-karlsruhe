@@ -17,10 +17,11 @@
 - [x] better placing for show buttons
 - [x] disable week nav when current week doesn't have movies
 - [x] use (localized) movie title from tmdb
-- [ ] add blacklist for movies searched in tmdb
-- [ ] trim everything between () from movie titles for search
+- [x] add blacklist for movies searched in tmdb
+- [x] trim everything between () from movie titles for search
 - [x] give movies released in this week a border
 - [ ] add release management
+- [ ] exract release year and poster from crawled websites
 - [ ] add favicon
 - [ ] search text input for movie filter
 - [ ] fix annotations for docker images

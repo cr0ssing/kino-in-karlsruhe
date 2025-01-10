@@ -33,6 +33,16 @@ type Screening = {
   cinemaId: number;
 }
 
+const tmdbBacklistTitles = [
+  "English Version - Sneak Preview",
+  "SNEAK-Preview mit Prosecco und Brezel",
+  "Speakeasy Cinema",
+  "All In Sneak Preview",
+  "Sneak Preview",
+  "Sneak",
+  "Sneak OV"
+].map(t => t.toLowerCase());
+
 export async function run() {
   console.log("Running crawlers...");
   const screenings = (await Promise.all([
@@ -56,8 +66,9 @@ export async function run() {
       select
     });
     let tmdbId = movie?.tmdbId;
-    if (movie === null) {
-      const result = await searchMovie(m);
+    if (movie === null && !tmdbBacklistTitles.includes(m.toLowerCase())) {
+      // trim everything between () at the end of the title
+      const result = await searchMovie(m.replace(/\s*\([^)]*\)\s*$/, '').trim());
       if (result) {
         tmdbId = result.id;
         movie = await db.movie.findUnique({ where: { tmdbId }, select });
