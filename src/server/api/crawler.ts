@@ -21,16 +21,21 @@ import type { Movie } from "@prisma/client";
 import { load } from "cheerio";
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { env } from "~/env";
 import { db } from "~/server/db";
 
 dayjs.extend(minMax);
+dayjs.extend(customParseFormat);
 
 type Screening = {
   movieTitle: string;
   startTime: Date;
   properties: string[];
   cinemaId: number;
+  releaseYear?: number;
+  releaseDate?: Date;
+  length?: number;
 }
 
 const tmdbBacklistTitles = [
@@ -55,7 +60,19 @@ export async function run() {
 
   const movies: Movie[] = [];
 
-  const uniqueMovies = new Set(screenings.map(s => s.movieTitle));
+  const uniqueMovies = new Set<string>();
+  const movieDetails = new Map<string, { length?: number, releaseDate?: Date, releaseYear?: number }>();
+  screenings.forEach(s => {
+    uniqueMovies.add(s.movieTitle);
+    const details = movieDetails.get(s.movieTitle);
+    if (!details || !details.length || !details.releaseDate || !details.releaseYear) {
+      movieDetails.set(s.movieTitle, {
+        length: details?.length ?? s.length,
+        releaseDate: details?.releaseDate ?? s.releaseDate,
+        releaseYear: details?.releaseYear ?? s.releaseYear
+      });
+    }
+  });
 
   const toUpdate: Promise<void | Movie>[] = [];
 
@@ -101,10 +118,20 @@ export async function run() {
 
   // create all movies not found on tmdb
   found.filter(({ tmdbId, movieId }) => !tmdbId && !movieId).map(async e => {
+    const details = movieDetails.get(e.searchTitle)!;
+    let releaseDate: Date | undefined = undefined;
+    if (details.releaseDate) {
+      releaseDate = dayjs(details.releaseDate).toDate();
+    } else if (details.releaseYear) {
+      const now = dayjs();
+      releaseDate = details.releaseYear < now.year() ? dayjs(`${details.releaseYear}-01-01Z`).toDate() : now.toDate();
+    }
     const movie = await db.movie.create({
       data: {
         title: e.searchTitle,
-        searchTitles: [e.searchTitle]
+        searchTitles: [e.searchTitle],
+        length: details.length && details.length > 0 ? details.length : undefined,
+        releaseDate
       }
     });
     movies.push(movie);
@@ -373,7 +400,7 @@ async function crawlKinemathek() {
     // Get all screenings that follow this date header until the next one
     let currentElement = $(dateHeader).next();
 
-    const allowedProperties = ["OmU"];
+    const allowedProperties = ["OmU", "OmeU"];
 
     while (currentElement.length && !currentElement.hasClass('wpt_listing_group')) {
       if (currentElement.hasClass('wp_theatre_event')) {
@@ -387,8 +414,19 @@ async function crawlKinemathek() {
 
         // Add technical specs as properties
         const techSpecs = currentElement.find('.wp_theatre_event_cine_technical_specs').text().trim();
-        const specs = techSpecs.split('|').map(spec => spec.trim());
+        // Kinemathek specs are not separated consistently, so not all specs can be extracted
+        const specs = techSpecs.split(/[|,]/).map(spec => spec.trim());
         specs.filter(spec => allowedProperties.includes(spec)).forEach(spec => properties.push(spec));
+        // Find release year from specs (format: "Country YYYY")
+        const yearSpec = specs.find(spec => {
+          const parts = spec.trim().split(/\s+/);
+          return parts.length === 2 && !isNaN(parseInt(parts[1]!));
+        });
+        const releaseYear = yearSpec ? parseInt(yearSpec.split(/\s+/)[1]!) : undefined;
+        // Find length from specs (format: "XXX Min.")
+        const lengthSpec = specs.find(spec => ["Min.", "Mins.", "Min", "Mins", "′"].map(s => spec.trim().endsWith(s)).some(Boolean))
+          ?.trim().split(/\s+/)[0];
+        const length = lengthSpec ? parseInt(lengthSpec) : undefined;
 
         // Create date object (use next year if month is less than current month)
         const now = new Date();
@@ -403,7 +441,8 @@ async function crawlKinemathek() {
           movieTitle,
           startTime,
           properties: transformProperties(properties),
-          cinemaId
+          cinemaId,
+          releaseYear
         });
       }
       currentElement = currentElement.next();
@@ -442,7 +481,7 @@ async function crawlUniversum() {
   const html = await response.text();
   const $ = load(html);
 
-  // Find cinema ID for Schauburg
+  // Find cinema ID for Universum
   const { id: cinemaId } = await db.cinema.findFirstOrThrow({
     select: {
       id: true
@@ -461,6 +500,13 @@ async function crawlUniversum() {
   // Iterate through each movie section
   $('.movie').each((_, movieSection) => {
     const movieTitle = $(movieSection).find('h2.hl--1 .hl-link').first().text().trim();
+    const releaseDateString = $(movieSection)
+      .find('.movie__specs-el')
+      .filter((_, text) => $(text).text().trim().startsWith("Start: "))
+      .first().text().trim().split(" ")[1];
+    const releaseDate = releaseDateString ? dayjs(releaseDateString, 'DD.MM.YYYY').toDate() : undefined;
+    const lengthString = $(movieSection).find('.movie__specs-el').filter((_, text) => $(text).text().trim().startsWith("Dauer: ")).first().text().trim().split(" ")[1];
+    const length = lengthString ? parseInt(lengthString) : undefined;
 
     // Get all date navigation items
     $(movieSection).find('.prog-nav__item').each((_, dateNav) => {
@@ -497,7 +543,9 @@ async function crawlUniversum() {
           movieTitle,
           startTime: date,
           properties: transformProperties(properties),
-          cinemaId
+          cinemaId,
+          releaseDate,
+          length
         });
       });
     });
@@ -540,7 +588,7 @@ async function crawlFilmpalast() {
   const html = await response.text();
   const $ = load(html);
 
-  // Find cinema ID for Schauburg
+  // Find cinema ID for Filmpalast
   const { id: cinemaId } = await db.cinema.findFirstOrThrow({
     select: {
       id: true
@@ -565,6 +613,8 @@ async function crawlFilmpalast() {
   type Movie = {
     titleDisplay: string;
     title: string;
+    length: number;
+    productionYear: number;
     performances: {
       timeUtc: string;
       attributes: {
@@ -577,11 +627,15 @@ async function crawlFilmpalast() {
   const data = Object.values(parsed.apiData.movies.items).filter((item: Movie) => !!item.performances);
   const result = data.map((item: Movie) => {
     const movieTitle = item.titleDisplay || item.title;
+    const length = item.length;
+    const productionYear = item.productionYear;
     return item.performances.map((p: Movie['performances'][number]) => ({
       movieTitle,
       startTime: new Date(p.timeUtc),
       cinemaId,
-      properties: transformProperties(p.attributes.map((a: Movie['performances'][number]['attributes'][number]) => a.name))
+      properties: transformProperties(p.attributes.map((a: Movie['performances'][number]['attributes'][number]) => a.name)),
+      releaseYear: productionYear,
+      length
     }))
   }).flat();
 

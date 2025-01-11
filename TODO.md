@@ -21,9 +21,10 @@
 - [x] trim everything between () from movie titles for search
 - [x] give movies released in this week a border
 - [x] add release management
-- [ ] exract release year and poster from crawled websites
+- [x] exract release year and poster from crawled websites
 - [ ] add favicon
 - [ ] search text input for movie filter
 - [ ] fix annotations for docker images
 - [ ] setup dependabot
+- [ ] always show week navigation
 - [ ] PWA support
