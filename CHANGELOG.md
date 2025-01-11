@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.6.0...v0.7.0) (2025-01-11)
+
+
+### Features
+
+* extract length and releaseDate from screenings ([820b94f](https://github.com/cr0ssing/kino-in-karlsruhe/commit/820b94f0d0d5bfe75a3eff8526722894f822f214))
+
 ## 0.6.0 (2025-01-10)
 
 
