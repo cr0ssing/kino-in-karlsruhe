@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.7.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.6.0...v0.7.0) (2025-01-12)
+
+
+### Features
+
+* add favicon ([9af40c2](https://github.com/cr0ssing/kino-in-karlsruhe/commit/9af40c25123fde01a35cbe64ace7f0e27a4951c3))
+* add title and icons ([14cf6f7](https://github.com/cr0ssing/kino-in-karlsruhe/commit/14cf6f79dfa09d04f474e2fd3e41d24275018922))
+* change primary color ([38dcb77](https://github.com/cr0ssing/kino-in-karlsruhe/commit/38dcb77134692284bfd5d45beee8e3e8391b48c9))
+* change release please release-type to node ([8c4b73d](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8c4b73d10145ea5c7cadfc664a2f0d36a43dd586))
+* extract length and releaseDate from screenings ([820b94f](https://github.com/cr0ssing/kino-in-karlsruhe/commit/820b94f0d0d5bfe75a3eff8526722894f822f214))
+* make crawler scheduling configurable by env variable ([235ba12](https://github.com/cr0ssing/kino-in-karlsruhe/commit/235ba129450caf2e5e16c42a2909ef1eb054c859))
+* tag latest release docker image with "release" ([bc2a957](https://github.com/cr0ssing/kino-in-karlsruhe/commit/bc2a9579d0f36b5dfd383db47369b8b1e8f5e421))
+
+
+### Bug Fixes
+
+* center title icon responsively ([37ba4f0](https://github.com/cr0ssing/kino-in-karlsruhe/commit/37ba4f01e38d1fdec52a82dc4d9f3ea3e8c28ff8))
+* make height of movie carousel completely dynamic ([b8d326f](https://github.com/cr0ssing/kino-in-karlsruhe/commit/b8d326f22bfcd02b93bb8fdd5a0bbd51f2a7732d))
+* pass length extracted from Kinemathek correctly ([8e5c94a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8e5c94abeafc78191b4a8137f44631a2a6c949b0))
+* test if env var for scheduling pattern is set ([ef00e1b](https://github.com/cr0ssing/kino-in-karlsruhe/commit/ef00e1b6ce411b6c564ee1e074615a9abf5ec93c))
+
 ## 0.6.0 (2025-01-10)
 
 
