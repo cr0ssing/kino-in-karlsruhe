@@ -65,7 +65,7 @@ export async function run() {
   screenings.forEach(s => {
     uniqueMovies.add(s.movieTitle);
     const details = movieDetails.get(s.movieTitle);
-    if (!details || !details.length || !details.releaseDate || !details.releaseYear) {
+    if (!details?.length || !details.releaseDate || !details.releaseYear) {
       movieDetails.set(s.movieTitle, {
         length: details?.length ?? s.length,
         releaseDate: details?.releaseDate ?? s.releaseDate,
@@ -442,7 +442,8 @@ async function crawlKinemathek() {
           startTime,
           properties: transformProperties(properties),
           cinemaId,
-          releaseYear
+          releaseYear,
+          length
         });
       }
       currentElement = currentElement.next();
