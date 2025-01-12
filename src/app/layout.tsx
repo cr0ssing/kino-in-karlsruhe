@@ -39,6 +39,7 @@ const theme = mergeMantineTheme(
   createTheme({
     fontFamily: GeistSans.style.fontFamily,
     breakpoints,
+    primaryColor: "red",
     colors,
   })
 );

@@ -77,7 +77,7 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
                     radius="xl"
                     size="sm"
                     pos="absolute"
-                    bg={alpha("var(--mantine-color-blue-4)", 0.5)}
+                    bg={alpha("var(--mantine-primary-color-filled)", 0.5)}
                     bottom={8}
                     right={8}
                     onClick={() => toggleMovie(movie.id)}
