@@ -19,7 +19,7 @@
 
 "use client";
 
-import { Box, Button, Group, Stack, Title } from "@mantine/core";
+import { Box, Button, Group, Image, Stack, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
@@ -59,8 +59,11 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
   return (
     <Stack gap="xl">
       <Box>
-        <Group mb="sm">
-          <Title order={2}>Filme</Title>
+        <Group align="center" mb="sm">
+          <Group align="center" gap="xs">
+            <Image src="/clapperboard.png" alt="Kino in Karlsruhe" h={20} w={20} />
+            <Title order={2}>Filme</Title>
+          </Group>
           {filteredMovies.length < uniqueMovies.length &&
             <Button
               variant="outline"
@@ -75,7 +78,10 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
       </Box>
 
       <Box>
-        <Title order={2} mb="sm">Vorführungen</Title>
+        <Group align="center" gap="xs" mb="sm">
+          <Image src="/movie-night.png" alt="Kino in Karlsruhe" h={20} w={20} />
+          <Title order={2}>Vorführungen</Title>
+        </Group>
         <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={weekOffset === 0} />
       </Box>
     </Stack>

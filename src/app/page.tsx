@@ -25,6 +25,7 @@ import { api, HydrateClient } from "~/trpc/server";
 import WeekNavigation from "./_components/WeekNavigation";
 import TimetablePage from "./_components/TimetablePage";
 import Footer from "./_components/Footer";
+import Title from "./_components/Title";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ weekOffset?: string }> }) {
 
@@ -43,6 +44,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
 
   return (
     <HydrateClient>
+      <Title />
       <Stack m="xl" mb="md" gap="lg">
         <WeekNavigation weekOffset={weekOffset} startDate={startOfWeek} endDate={endOfWeek} />
         <TimetablePage screenings={screenings} weekOffset={weekOffset} />
