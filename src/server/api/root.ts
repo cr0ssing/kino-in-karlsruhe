@@ -47,7 +47,11 @@ export type AppRouter = typeof appRouter;
  */
 export const createCaller = createCallerFactory(appRouter);
 
-console.log("Starting scheduler");
-schedule(env.SCHEDULING_PATTERN, () => {
-  void run();
-});
+if (env.SCHEDULING_PATTERN) {
+  console.log("Starting scheduler...");
+  schedule(env.SCHEDULING_PATTERN, () => {
+    void run();
+  });
+} else {
+  console.warn("Env variable SCHEDULING_PATTERN is not set. Not starting scheduler.");
+}
