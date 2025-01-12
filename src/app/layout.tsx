@@ -24,10 +24,11 @@ import '@mantine/carousel/styles.css';
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-
 import { MantineProvider, ColorSchemeScript, createTheme, DEFAULT_THEME, mergeMantineTheme, mantineHtmlProps } from "@mantine/core";
+
 import { TRPCReactProvider } from "~/trpc/react";
 import { breakpoints, colors } from "./theme";
+
 export const metadata: Metadata = {
   title: "Kino in Karlsruhe",
   description: "Ein Kalender zum Anzeigen aller Vorführungen von Kinos in Karlsruhe",
