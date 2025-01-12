@@ -1,4 +1,4 @@
-Copyright (C) 2025 Robin Lamberti.
+Copyright (C) 2024 Robin Lamberti.
 
 This file is part of kino-in-karlsruhe.
 
