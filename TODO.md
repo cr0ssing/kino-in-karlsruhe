@@ -29,3 +29,4 @@
 - [ ] setup dependabot
 - [ ] always show week navigation
 - [ ] PWA support
+- [ ] investigate if slide width of movie carousel can be set fixed

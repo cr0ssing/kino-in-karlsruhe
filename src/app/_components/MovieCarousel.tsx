@@ -34,7 +34,6 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
   function fallbackURL(title: string) {
     return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
   }
-  const imageHeights = { xl: 240, lg: 225, md: 215, sm: 205, xs: 250, base: 150 }
 
   return (
     <Carousel
@@ -60,9 +59,8 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
                   fit="contain"
                   alt={movie.title}
                   fallbackSrc={fallbackURL("Kein Poster")}
-                  h={imageHeights}
                 />
-                {!movie.enabled && <Overlay h={imageHeights} color="rgb(255,255,255)" backgroundOpacity={0.7} />}
+                {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
                 <Tooltip
                   label={
                     filteredMovies.length === movies.length
