@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.7.0...v0.7.1) (2025-01-12)
+
+
+### Bug Fixes
+
+* use tag match for tagging "release" for newest release ([52084f8](https://github.com/cr0ssing/kino-in-karlsruhe/commit/52084f8112d48a2fb5de7501d8888c1e7bd5ad8c))
+
 ## [0.7.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.6.0...v0.7.0) (2025-01-12)
 
 
