@@ -17,16 +17,20 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Anchor, Group, Text } from "@mantine/core";
+import { Anchor, Stack, Text } from "@mantine/core";
 import Link from "next/link";
 
 export default function Footer() {
   return (
-    <Group gap={0} justify="center" p="xs" style={{ borderTop: '1px solid var(--mantine-color-gray-4)' }}>
-      <Text size="sm">Made with ❤️ in Karlsruhe
-        • <Anchor component={Link} href="/impressum">Impressum</Anchor>
+    <Stack gap={4} p="xs" style={{ borderTop: '1px solid var(--mantine-color-gray-4)' }}>
+      <Text ta="center" size="sm">
+        Made with ❤️ in Karlsruhe
+      </Text>
+      <Text ta="center" size="sm">
+        <Anchor size="sm" component={Link} href="https://www.flaticon.com/free-icons/food-and-restaurant" title="food-and-restaurant icons">Icons created by Freepik - Flaticon</Anchor>
+        &nbsp;• <Anchor component={Link} href="/impressum">Impressum</Anchor>
         &nbsp;• <Anchor component={Link} href="https://github.com/cr0ssing/kino-in-karlsruhe">Quellcode</Anchor>
       </Text>
-    </Group>
+    </Stack>
   );
 }

@@ -22,7 +22,7 @@
 - [x] give movies released in this week a border
 - [x] add release management
 - [x] exract release year and poster from crawled websites
-- [ ] add favicon
+- [x] add favicon
 - [ ] search text input for movie filter
 - [ ] fix annotations for docker images
 - [ ] setup dependabot
