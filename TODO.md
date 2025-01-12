@@ -24,6 +24,7 @@
 - [x] exract release year and poster from crawled websites
 - [x] add favicon
 - [ ] search text input for movie filter
+- [ ] change cinema filtering to toggle mechanic of movie filtering
 - [ ] fix annotations for docker images
 - [ ] setup dependabot
 - [ ] always show week navigation

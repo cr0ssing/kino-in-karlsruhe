@@ -23,6 +23,7 @@ import { screeningRouter } from "./routers/screening";
 import { impressRouter } from "./routers/impress";
 import { schedule } from 'node-cron';
 import { run } from "./crawler";
+import { env } from "~/env";
 /**
  * This is the primary router for your server.
  *
@@ -47,6 +48,6 @@ export type AppRouter = typeof appRouter;
 export const createCaller = createCallerFactory(appRouter);
 
 console.log("Starting scheduler");
-schedule('0 2 * * *', () => {
+schedule(env.SCHEDULING_PATTERN, () => {
   void run();
 });

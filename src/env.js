@@ -34,6 +34,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    SCHEDULING_PATTERN: z.string().default('30 2 * * *'),
   },
 
   /**
@@ -56,6 +57,7 @@ export const env = createEnv({
     IMPRESS_ADDRESS: process.env.IMPRESS_ADDRESS,
     IMPRESS_EMAIL: process.env.IMPRESS_EMAIL,
     NODE_ENV: process.env.NODE_ENV,
+    SCHEDULING_PATTERN: process.env.SCHEDULING_PATTERN,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

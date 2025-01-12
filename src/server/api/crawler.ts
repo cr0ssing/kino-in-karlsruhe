@@ -171,6 +171,8 @@ export async function run() {
     }))
   });
 
+  console.log("Crawlers finished.")
+
   return { screenings: insertedScreenings, movies };
 }
 

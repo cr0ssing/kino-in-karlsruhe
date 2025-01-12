@@ -30,6 +30,7 @@ services:
       - IMPRESS_NAME=Max Mustermann
       - IMPRESS_ADDRESS=Musterstraße 123\n12345 Musterstadt
       - IMPRESS_EMAIL=max@mustermann.de
+      - SCHEDULING_PATTERN=30 2 * * *
 
   db:
     image: postgres:15
