@@ -27,7 +27,8 @@ export default function Footer() {
         Made with ❤️ in Karlsruhe
       </Text>
       <Text ta="center" size="sm">
-        <Anchor size="sm" component={Link} href="https://www.flaticon.com/free-icons/food-and-restaurant" title="food-and-restaurant icons">Icons created by Freepik - Flaticon</Anchor>
+        <Anchor size="sm" component={Link} href="https://www.creativefabrica.com/designer/vladimirnikolic/" title="Logo Schriftdesign von Vladimir Nikolic">Logo Schriftdesign von Vladimir Nikolic</Anchor>
+        &nbsp;• <Anchor size="sm" component={Link} href="https://www.flaticon.com/free-icons/food-and-restaurant" title="food-and-restaurant icons">Icons designed von Freepik - Flaticon</Anchor>
         &nbsp;• <Anchor component={Link} href="/impressum">Impressum</Anchor>
         &nbsp;• <Anchor component={Link} href="https://github.com/cr0ssing/kino-in-karlsruhe">Quellcode</Anchor>
       </Text>

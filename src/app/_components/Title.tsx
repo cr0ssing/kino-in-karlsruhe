@@ -21,9 +21,12 @@
 
 import { Group, Text, Image, em } from "@mantine/core"
 import { useMediaQuery } from "@mantine/hooks";
+import localFont from "next/font/local";
+
+const font = localFont({ src: "./AcademyFilled3D.woff2", weight: "400", style: "normal" });
 
 export default function Title() {
-  const isNarrow = useMediaQuery(`(max-width: ${em(1100)})`);
+  const isNarrow = useMediaQuery(`(max-width: ${em(1150)})`);
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
 
   return (
@@ -31,8 +34,9 @@ export default function Title() {
       <Image src="/icon.png" alt="Kino in Karlsruhe" h={36} w={36} style={{ transform: isMobile ? "translateY(-8.5px)" : "translateY(-5px)" }} />
       <Text
         hidden={isNarrow}
-        fz={23}
-        fw={700}
+        fz={25}
+        fw={400}
+        ff={font.style.fontFamily}
         variant="gradient"
         gradient={{ from: "var(--mantine-primary-color-filled)", to: "var(--mantine-primary-color-filled-hover)" }}
       >
