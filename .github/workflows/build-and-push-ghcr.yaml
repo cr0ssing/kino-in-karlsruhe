@@ -69,8 +69,6 @@ jobs:
             type=ref,event=branch
             type=raw,value=release,enable=${{ startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '.') }}
             type=raw,value=latest,enable={{is_default_branch}}
-        env:
-          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
 
       - name: Build and push Docker image
         id: build-and-push
@@ -80,16 +78,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           file: ./Dockerfile
+          provenance: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Create manifest
-        uses: int128/docker-manifest-create-action@v2
-        id: build
-        with:
-          index-annotations: ${{ steps.meta.outputs.labels }}
-          tags: ${{ steps.meta.outputs.tags }}
-          sources: |
-            ghcr.io/${{ github.repository }}@${{ steps.build-and-push.outputs.digest }}
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.description'] }}
