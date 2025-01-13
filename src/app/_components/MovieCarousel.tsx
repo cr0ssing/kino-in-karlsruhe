@@ -39,7 +39,7 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
     <Carousel
       align="start"
       slidesToScroll={1}
-      slideSize={{ xl: `${100 / 10}%`, lg: `${100 / 8}%`, md: `${100 / 7}%`, sm: `${100 / 6}%`, xs: `${100 / 4}%`, base: `${100 / 3}%` }}
+      slideSize={{ xl: "150px", lg: `${100 / 9}%`, md: `${100 / 8}%`, sm: `${100 / 7}%`, xs: `${100 / 6}%`, base: `${100 / 4}%` }}
       slideGap="sm"
       loop
       dragFree={movies.length > toShow}

@@ -173,6 +173,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
   return (
     <Stack>
       <Group>
+        {/* TODO replace with Chips */}
         <PillGroup>
           {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
             .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))

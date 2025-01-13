@@ -25,8 +25,9 @@
 - [x] add favicon
 - [ ] search text input for movie filter
 - [ ] change cinema filtering to toggle mechanic of movie filtering
-- [ ] fix annotations for docker images
 - [ ] setup dependabot
 - [ ] always show week navigation
 - [ ] PWA support
-- [ ] investigate if slide width of movie carousel can be set fixed
+- [x] investigate if slide width of movie carousel can be set fixed
+- [ ] highlight today in timetable
+- [ ] use switch to show only new movies
