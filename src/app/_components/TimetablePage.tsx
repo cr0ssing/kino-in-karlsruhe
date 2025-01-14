@@ -25,6 +25,7 @@ import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
 import { useEffect, useMemo, useState } from "react";
 import MovieSearchInput from "./MovieSearchInput";
+import { useToggle } from "../useToggle";
 
 export default function TimetablePage({ screenings, weekOffset }: { screenings: (Screening & { movie: Movie, cinema: Cinema })[], weekOffset: number }) {
   const uniqueMovies = useMemo(() => Array.from(
@@ -32,29 +33,13 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
       .map(screening => [screening.movieId, screening.movie])
     ).values())
     .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)), [screenings]);
-  const [filteredMovies, setFilteredMovies] = useState<number[]>([]);
+
+  const [toggleMovie, filteredMovies, setFilteredMovies] = useToggle(uniqueMovies.map(m => m.id));
 
   // Reset filtered movies whenever screenings/uniqueMovies changes
   useEffect(() => {
     setFilteredMovies(uniqueMovies.map(m => m.id));
-  }, [uniqueMovies]);
-
-  const toggleMovie = (movieId: number) => {
-    const allMoviesEnabled = filteredMovies.length === uniqueMovies.length;
-
-    if (allMoviesEnabled) {
-      // If all movies are enabled, only keep the clicked movie
-      setFilteredMovies([movieId]);
-    } else if (filteredMovies.length === 1 && filteredMovies.includes(movieId)) {
-      // If only one movie is enabled and it's being toggled, enable all movies
-      setFilteredMovies(uniqueMovies.map(m => m.id));
-    } else {
-      // Otherwise, behave as before
-      setFilteredMovies(filteredMovies.includes(movieId)
-        ? filteredMovies.filter(m => m !== movieId)
-        : [...filteredMovies, movieId]);
-    }
-  };
+  }, [uniqueMovies, setFilteredMovies]);
 
   const [searchIndex, setSearchIndex] = useState(-1);
 

@@ -19,13 +19,14 @@
 
 "use client"
 
-import { Box, em, Group, Pill, PillGroup, Stack, Text } from '@mantine/core';
+import { Box, Chip, em, Group, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import type { CombinedScreening } from "./types";
 import TimetableHeader from "./TimetableHeader";
 import { TimetableColumn } from "./TimetableColumn";
 import { useMediaQuery } from "@mantine/hooks";
+import { useToggle } from "../useToggle";
 
 interface ScreeningTimetableProps {
   screenings: Array<Screening & { movie: Movie, cinema: Cinema }>;
@@ -38,7 +39,7 @@ const HOUR_HEIGHT = 250;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
   const [cinemas, setCinemas] = useState<Map<number, Cinema>>(new Map());
-  const [cinemaFilter, setCinemaFilter] = useState<number[]>(Array.from(cinemas.keys()));
+  const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
 
   useEffect(() => {
     const newCinemas = new Map<number, Cinema>();
@@ -48,7 +49,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
 
   useEffect(() => {
     setCinemaFilter(Array.from(cinemas.keys()));
-  }, [cinemas]);
+  }, [cinemas, setCinemaFilter]);
 
   const combined = new Map<string, CombinedScreening>();
   screenings.filter(s => cinemaFilter.includes(s.cinemaId)).forEach((screening) => {
@@ -172,22 +173,21 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
 
   return (
     <Stack>
-      <Group>
-        {/* TODO replace with Chips */}
-        <PillGroup>
-          {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
-            .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
-            .map(({ id, name, color, enabled }) =>
-              <Pill
-                key={"cinema-filter-pill-" + name}
-                bg={color + (enabled ? "44" : "15")}
-                onClick={() => setCinemaFilter(enabled ? cinemaFilter.filter(n => n !== id) : [...cinemaFilter, id])}
-                style={{ cursor: 'pointer' }}
-              >
-                {enabled ? "✓ " + name : name}
-              </Pill>
-            )}
-        </PillGroup>
+      <Group gap="xs">
+        {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
+          .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
+          .map(({ id, name, color, enabled }) =>
+            <Chip
+              key={"cinema-filter-chip-" + name}
+              color={color}
+              variant="light"
+              checked={enabled}
+              size="xs"
+              onClick={() => toggleCinema(id)}
+            >
+              {name}
+            </Chip>
+          )}
       </Group>
       <Box style={{
         display: 'grid',
