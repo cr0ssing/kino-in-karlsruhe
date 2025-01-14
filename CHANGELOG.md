@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.8.0...v0.8.1) (2025-01-14)
+
+
+### Bug Fixes
+
+* add embla to dependencies to avoid type error ([dc4a560](https://github.com/cr0ssing/kino-in-karlsruhe/commit/dc4a5600792b5ac158bfde6342468fd0e3996ef5))
+
 ## [0.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.7.2...v0.8.0) (2025-01-14)
 
 
