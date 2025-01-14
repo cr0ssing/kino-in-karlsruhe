@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.7.2...v0.8.0) (2025-01-14)
+
+
+### Features
+
+* add link to title to go to current week ([cd96a79](https://github.com/cr0ssing/kino-in-karlsruhe/commit/cd96a79af745b3f1fbefc23522dca5f88a9d4c9f))
+* add searchbar to search for movie ([ee147ef](https://github.com/cr0ssing/kino-in-karlsruhe/commit/ee147ef62ef6ea30cf64decc9dc8b6de9e0abe4e))
+* create manifest for docker images ([b858676](https://github.com/cr0ssing/kino-in-karlsruhe/commit/b85867684c6135f4bfa77dfdfc8d1521bc889086))
+* fix width of movie carousel poster for wide windows ([8b2c05b](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8b2c05bd351b18f3afbfd8c84827f1476e6ec419))
+* use special fontfor title ([02226a4](https://github.com/cr0ssing/kino-in-karlsruhe/commit/02226a4b33b38f845e8386dfed699c7723e0ec37))
+
+
+### Bug Fixes
+
+* add the description manually to the output of build step ([9aeacfd](https://github.com/cr0ssing/kino-in-karlsruhe/commit/9aeacfd4dd1dc012bfed2ac96d54ca86f5628089))
+* formatting for annotation output ([a0729e5](https://github.com/cr0ssing/kino-in-karlsruhe/commit/a0729e52bdc680305f2ca6881756d15f4b50ebd0))
+* provide annotations at image index level ([2d1f990](https://github.com/cr0ssing/kino-in-karlsruhe/commit/2d1f990437cc91b0c3d1a1bae6d4d4c4ec20c392))
+* update version of docker/build-push-action to use annotations ([06fdea7](https://github.com/cr0ssing/kino-in-karlsruhe/commit/06fdea76e7827c50efc479e9997d0fddb9ca7c1c))
+* use newer version of buildx for docker build ([097cffe](https://github.com/cr0ssing/kino-in-karlsruhe/commit/097cffe780565b37b705c2a7b0e67d739e7cd318))
+* use updated version of docker build github actions ([6142333](https://github.com/cr0ssing/kino-in-karlsruhe/commit/61423338832f460941f593457580ba854ac96bca))
+
 ## [0.7.2](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.7.1...v0.7.2) (2025-01-12)
 
 
