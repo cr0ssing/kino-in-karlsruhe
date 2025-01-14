@@ -22,6 +22,7 @@
 import { Group, Text, Image, em } from "@mantine/core"
 import { useMediaQuery } from "@mantine/hooks";
 import localFont from "next/font/local";
+import Link from "next/link";
 
 const font = localFont({ src: "./AcademyFilled3D.woff2", weight: "400", style: "normal" });
 
@@ -30,18 +31,29 @@ export default function Title() {
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
 
   return (
-    <Group align="center" wrap="nowrap" gap="xs" top={0} left={0} ml="xl" mt="xl" pos="absolute">
-      <Image src="/icon.png" alt="Kino in Karlsruhe" h={36} w={36} style={{ transform: isMobile ? "translateY(-8.5px)" : "translateY(-5px)" }} />
-      <Text
-        hidden={isNarrow}
-        fz={25}
-        fw={400}
-        ff={font.style.fontFamily}
-        variant="gradient"
-        gradient={{ from: "var(--mantine-primary-color-filled)", to: "var(--mantine-primary-color-filled-hover)" }}
+    <Link href="/">
+      <Group
+        align="center"
+        wrap="nowrap"
+        gap="xs"
+        top={0}
+        left={0}
+        ml="xl"
+        mt="xl"
+        pos="absolute"
       >
-        Kino in Karlsruhe
-      </Text>
-    </Group>
+        <Image src="/icon.png" alt="Kino in Karlsruhe" h={36} w={36} style={{ transform: isMobile ? "translateY(-8.5px)" : "translateY(-5px)" }} />
+        <Text
+          hidden={isNarrow}
+          fz={25}
+          fw={400}
+          ff={font.style.fontFamily}
+          variant="gradient"
+          gradient={{ from: "var(--mantine-primary-color-filled)", to: "var(--mantine-primary-color-filled-hover)" }}
+        >
+          Kino in Karlsruhe
+        </Text>
+      </Group>
+    </Link>
   );
 }
