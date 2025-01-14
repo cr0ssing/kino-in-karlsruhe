@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Carousel, CarouselSlide, Embla } from '@mantine/carousel';
+import { Carousel, CarouselSlide, type Embla } from '@mantine/carousel';
 import { ActionIcon, Card, CardSection, Image, Overlay, Tooltip, alpha } from '@mantine/core';
 import type { Movie } from '@prisma/client';
 import { IconCheck } from "@tabler/icons-react";
@@ -40,13 +40,9 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
   const [emblaApi, setEmblaApi] = useState<Embla | null>(null);
 
   useEffect(() => {
-    scrollToSearchedMovie(searchIndex);
-  }, [searchIndex]);
-
-  function scrollToSearchedMovie(index: number) {
-    if (!emblaApi || index === -1) return;
-    emblaApi.scrollTo(index);
-  }
+    if (!emblaApi || searchIndex === -1) return;
+    emblaApi.scrollTo(searchIndex);
+  }, [searchIndex, emblaApi]);
 
   return (
     <Carousel
@@ -55,6 +51,7 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
       slideSize={{ xl: "150px", lg: `${100 / 9}%`, md: `${100 / 8}%`, sm: `${100 / 7}%`, xs: `${100 / 6}%`, base: `${100 / 4}%` }}
       slideGap="sm"
       loop
+      styles={{ control: { backgroundColor: alpha("var(--mantine-primary-color-filled)", 0.7), color: "white", border: "0px" } }}
       dragFree={movies.length > toShow}
       draggable={movies.length > toShow}
       withIndicators={false}

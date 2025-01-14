@@ -30,8 +30,14 @@ export default function MovieSearchInput({ movies, scrollToIndex }: { movies: Mo
         setSearch(e.currentTarget.value);
         debouncedSearch(e.currentTarget.value);
       }}
-      leftSection={notFound && <Tooltip label="Film nicht gefunden"><IconExclamationMark size={16} color="red" /></Tooltip>}
-      rightSection={search && <CloseButton variant="transparent" onClick={() => { setSearch(""); setNotFound(false); }} />}
+      leftSection={notFound &&
+        <Tooltip label="Film nicht gefunden">
+          <IconExclamationMark size={16} color="red" />
+        </Tooltip>}
+      rightSection={search &&
+        <Tooltip label="Eingabe löschen">
+          <CloseButton size={16} variant="transparent" onClick={() => { setSearch(""); setNotFound(false); }} />
+        </Tooltip>}
     />
   );
 }
