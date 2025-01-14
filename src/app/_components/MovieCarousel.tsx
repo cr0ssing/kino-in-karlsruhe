@@ -17,22 +17,35 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Carousel, CarouselSlide } from '@mantine/carousel';
+import { Carousel, CarouselSlide, Embla } from '@mantine/carousel';
 import { ActionIcon, Card, CardSection, Image, Overlay, Tooltip, alpha } from '@mantine/core';
 import type { Movie } from '@prisma/client';
 import { IconCheck } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 
 interface MovieCarouselProps {
   movies: Movie[];
   filteredMovies: number[];
   toggleMovie: (movieId: number) => void;
+  searchIndex: number;
 }
 
-export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: MovieCarouselProps) {
+export default function MovieCarousel({ searchIndex, movies, filteredMovies, toggleMovie }: MovieCarouselProps) {
   // TODO adjust this to breakpoints
   const toShow = 6;
   function fallbackURL(title: string) {
     return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
+  }
+
+  const [emblaApi, setEmblaApi] = useState<Embla | null>(null);
+
+  useEffect(() => {
+    scrollToSearchedMovie(searchIndex);
+  }, [searchIndex]);
+
+  function scrollToSearchedMovie(index: number) {
+    if (!emblaApi || index === -1) return;
+    emblaApi.scrollTo(index);
   }
 
   return (
@@ -46,6 +59,7 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
       draggable={movies.length > toShow}
       withIndicators={false}
       withControls={movies.length > toShow}
+      getEmblaApi={setEmblaApi}
     >
       {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
         <CarouselSlide
@@ -91,4 +105,4 @@ export default function MovieCarousel({ movies, filteredMovies, toggleMovie }: M
       ))}
     </Carousel>
   );
-} 
+}

@@ -23,7 +23,7 @@
 - [x] add release management
 - [x] exract release year and poster from crawled websites
 - [x] add favicon
-- [ ] search text input for movie filter
+- [x] search text input for movie filter
 - [ ] change cinema filtering to toggle mechanic of movie filtering
 - [ ] setup dependabot
 - [ ] always show week navigation

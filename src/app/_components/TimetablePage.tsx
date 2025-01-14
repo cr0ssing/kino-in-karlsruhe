@@ -24,6 +24,7 @@ import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
 import { useEffect, useMemo, useState } from "react";
+import MovieSearchInput from "./MovieSearchInput";
 
 export default function TimetablePage({ screenings, weekOffset }: { screenings: (Screening & { movie: Movie, cinema: Cinema })[], weekOffset: number }) {
   const uniqueMovies = useMemo(() => Array.from(
@@ -55,6 +56,8 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
     }
   };
 
+  const [searchIndex, setSearchIndex] = useState(-1);
+
   const filteredScreenings = useMemo(() => screenings.filter(s => filteredMovies.includes(s.movieId)), [screenings, filteredMovies]);
   return (
     <Stack gap="xl">
@@ -64,6 +67,7 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
             <Image src="/clapperboard.png" alt="Kino in Karlsruhe" h={20} w={20} />
             <Title order={2}>Filme</Title>
           </Group>
+          <MovieSearchInput movies={uniqueMovies} scrollToIndex={setSearchIndex} />
           {filteredMovies.length < uniqueMovies.length &&
             <Button
               variant="outline"
@@ -74,7 +78,7 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
               Alle anzeigen
             </Button>}
         </Group>
-        <MovieCarousel movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
+        <MovieCarousel searchIndex={searchIndex} movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
       </Box>
 
       <Box>
