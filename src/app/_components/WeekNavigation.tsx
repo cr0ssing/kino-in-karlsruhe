@@ -59,7 +59,7 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
       align="center"
       pos="sticky"
       top={0}
-      mb="sm"
+      mb="lg"
       bg="var(--mantine-color-body)"
       style={{ zIndex: 1000, borderBottom: "1px solid var(--mantine-color-gray-3)" }}
     >

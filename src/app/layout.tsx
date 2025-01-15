@@ -32,7 +32,6 @@ import { breakpoints, colors } from "./theme";
 export const metadata: Metadata = {
   title: "Kino in Karlsruhe",
   description: "Ein Kalender zum Anzeigen aller Vorführungen von Kinos in Karlsruhe",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
 const theme = mergeMantineTheme(
@@ -51,6 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`} {...mantineHtmlProps}>
       <head>
+        <meta name="apple-mobile-web-app-title" content="Kino in Ka" />
         <ColorSchemeScript />
       </head>
       <body>
