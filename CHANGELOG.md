@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.8.1...v0.9.0) (2025-01-15)
+
+
+### Features
+
+* add dependabot version updates ([d76b96a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/d76b96abc9d5afee8409230695ccf4f2dfe4e1e7))
+* stick week nav to the top ([75a1a6b](https://github.com/cr0ssing/kino-in-karlsruhe/commit/75a1a6b7224f0313d26bd9b88e79fbd887fe52d6))
+* use chips for cinema filter ([ae2cc93](https://github.com/cr0ssing/kino-in-karlsruhe/commit/ae2cc93c0a957ee0ba6fa684152a2e4e30aee7cb))
+
 ## [0.8.1](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.8.0...v0.8.1) (2025-01-14)
 
 
