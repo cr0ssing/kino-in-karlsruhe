@@ -36,13 +36,11 @@ export default function Title() {
         align="center"
         wrap="nowrap"
         gap="xs"
-        top={0}
-        left={0}
-        ml="xl"
-        mt="xl"
+        top={17}
+        left={30}
         pos="absolute"
       >
-        <Image src="/icon.png" alt="Kino in Karlsruhe" h={36} w={36} style={{ transform: isMobile ? "translateY(-8.5px)" : "translateY(-5px)" }} />
+        <Image src="/icon.png" alt="Kino in Karlsruhe" h={36} w={36} style={{ transform: isMobile ? "translateY(-8.5px)" : "translateY(-7px)" }} />
         <Text
           hidden={isNarrow}
           fz={25}

@@ -19,13 +19,14 @@
 
 "use client";
 
-import { ActionIcon, Button, em, Group, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, em, Group, Stack, Text, Tooltip } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { api } from "~/trpc/react";
+import Title from "./Title";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
   const router = useRouter();
@@ -54,40 +55,50 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
   }
 
   return (
-    <Group justify="center" wrap="nowrap">
-      <Tooltip label="Vorherige Woche" disabled={!isMobile}>
-        {isMobile
-          ? <ActionIcon variant="subtle" onClick={() => navigate("previous")} disabled={!enabledPreviousWeek}>
-            <IconChevronLeft size={iconSize} />
-          </ActionIcon>
-          : <Button
-            disabled={!enabledPreviousWeek}
-            onClick={() => navigate("previous")}
-            variant="subtle"
-            leftSection={<IconChevronLeft size={iconSize} />}
-          >
-            Vorherige Woche
-          </Button>
-        }
-      </Tooltip>
+    <Stack
+      align="center"
+      pos="sticky"
+      top={0}
+      mb="sm"
+      bg="var(--mantine-color-body)"
+      style={{ zIndex: 1000, borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+    >
+      <Title />
+      <Group justify="center" wrap="nowrap" mr="xl" ml="xl" mb="xs">
+        <Tooltip label="Vorherige Woche" disabled={!isMobile}>
+          {isMobile
+            ? <ActionIcon variant="subtle" onClick={() => navigate("previous")} disabled={!enabledPreviousWeek}>
+              <IconChevronLeft size={iconSize} />
+            </ActionIcon>
+            : <Button
+              disabled={!enabledPreviousWeek}
+              onClick={() => navigate("previous")}
+              variant="subtle"
+              leftSection={<IconChevronLeft size={iconSize} />}
+            >
+              Vorherige Woche
+            </Button>
+          }
+        </Tooltip>
 
-      <Text fw={500}>{dateRange}</Text>
+        <Text fw={500}>{dateRange}</Text>
 
-      <Tooltip label="Nächste Woche" disabled={!isMobile}>
-        {isMobile
-          ? <ActionIcon variant="subtle" onClick={() => navigate("next")} disabled={!enabledNextWeek}>
-            <IconChevronRight size={iconSize} />
-          </ActionIcon>
-          : <Button
-            onClick={() => navigate("next")}
-            variant="subtle"
-            rightSection={<IconChevronRight size={iconSize} />}
-            disabled={!enabledNextWeek}
-          >
-            Nächste Woche
-          </Button>
-        }
-      </Tooltip>
-    </Group>
+        <Tooltip label="Nächste Woche" disabled={!isMobile}>
+          {isMobile
+            ? <ActionIcon variant="subtle" onClick={() => navigate("next")} disabled={!enabledNextWeek}>
+              <IconChevronRight size={iconSize} />
+            </ActionIcon>
+            : <Button
+              onClick={() => navigate("next")}
+              variant="subtle"
+              rightSection={<IconChevronRight size={iconSize} />}
+              disabled={!enabledNextWeek}
+            >
+              Nächste Woche
+            </Button>
+          }
+        </Tooltip>
+      </Group>
+    </Stack>
   );
 }

@@ -26,14 +26,15 @@ type TimetableHeaderProps = {
   index: number;
   selectedDay: number;
   setSelectedDay: Dispatch<SetStateAction<number>>;
+  isMobile: boolean | undefined;
 };
 
-export default function TimetableHeader({ text, index, selectedDay, setSelectedDay }: TimetableHeaderProps) {
+export default function TimetableHeader({ text, index, selectedDay, setSelectedDay, isMobile }: TimetableHeaderProps) {
   return (
     <Group
       justify="center"
       p="sm"
-      top="0"
+      top={isMobile ? "55px" : "63px"}
       pos="sticky"
       bg="var(--mantine-color-body)"
       style={{

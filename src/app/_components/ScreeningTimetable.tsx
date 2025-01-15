@@ -196,7 +196,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
       }}>
         {/* Time labels column */}
         <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
-          <TimetableHeader text="Zeit" index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
+          <TimetableHeader text="Zeit" index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} isMobile={isMobile} />
           {timeLabels.map((time) => (
             <Box
               key={time}
@@ -227,7 +227,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
                 text={day}
                 index={weekdays.indexOf(day)}
                 selectedDay={selectedDay}
-                setSelectedDay={setSelectedDay} />
+                setSelectedDay={setSelectedDay}
+                isMobile={isMobile} />
               <TimetableColumn
                 key={"column-body" + day}
                 day={day}
