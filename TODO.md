@@ -24,10 +24,12 @@
 - [x] exract release year and poster from crawled websites
 - [x] add favicon
 - [x] search text input for movie filter
-- [ ] change cinema filtering to toggle mechanic of movie filtering
-- [ ] setup dependabot
+- [x] change cinema filtering to toggle mechanic of movie filtering
+- [x] setup dependabot
 - [ ] always show week navigation
 - [ ] PWA support
 - [x] investigate if slide width of movie carousel can be set fixed
 - [ ] highlight today in timetable
 - [ ] use switch to show only new movies
+- [x] setup CVE scanning
+- [ ] optimize layout (esp. search bar) for mobile devices
