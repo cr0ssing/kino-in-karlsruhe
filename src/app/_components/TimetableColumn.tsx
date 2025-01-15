@@ -33,7 +33,7 @@ type TimetableColumnProps = {
   screenings: CombinedScreening[];
 };
 
-export function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour }: TimetableColumnProps) {
+export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour }: TimetableColumnProps) {
   return (
     <Box key={"column-entries" + day} pos="relative" h={hourHeight * (endHour - startHour)}>
       {timeLabels.map((time, j) => (

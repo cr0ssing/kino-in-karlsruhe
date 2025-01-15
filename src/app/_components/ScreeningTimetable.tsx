@@ -24,7 +24,7 @@ import type { Screening, Movie, Cinema } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import type { CombinedScreening } from "./types";
 import TimetableHeader from "./TimetableHeader";
-import { TimetableColumn } from "./TimetableColumn";
+import TimetableColumn from "./TimetableColumn";
 import { useMediaQuery } from "@mantine/hooks";
 import { useToggle } from "../useToggle";
 
