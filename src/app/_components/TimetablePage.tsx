@@ -19,13 +19,14 @@
 
 "use client";
 
-import { Box, Button, Group, Image, Stack, Title } from "@mantine/core";
+import { Box, Button, Group, Image, Stack, Switch, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
 import { useEffect, useMemo, useState } from "react";
 import MovieSearchInput from "./MovieSearchInput";
 import { useToggle } from "../useToggle";
+import dayjs from "dayjs";
 
 type TimetablePageProps = {
   screenings: (Screening & { movie: Movie, cinema: Cinema })[],
@@ -34,11 +35,17 @@ type TimetablePageProps = {
 };
 
 export default function TimetablePage({ screenings, isCurrentWeek, startOfWeek }: TimetablePageProps) {
+  const [showNewMovies, setShowNewMovies] = useState(false);
+
+  const filteredByNewScreenings = useMemo(() => screenings.filter(s => !showNewMovies
+    || s.movie.releaseDate && dayjs(startOfWeek).diff(dayjs(s.movie.releaseDate), "days") < 4),
+    [screenings, showNewMovies]);
+
   const uniqueMovies = useMemo(() => Array.from(
-    new Map(screenings
+    new Map(filteredByNewScreenings
       .map(screening => [screening.movieId, screening.movie])
-    ).values())
-    .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)), [screenings]);
+    ).values()).sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)),
+    [filteredByNewScreenings]);
 
   const [toggleMovie, filteredMovies, setFilteredMovies] = useToggle(uniqueMovies.map(m => m.id));
 
@@ -49,7 +56,9 @@ export default function TimetablePage({ screenings, isCurrentWeek, startOfWeek }
 
   const [searchIndex, setSearchIndex] = useState(-1);
 
-  const filteredScreenings = useMemo(() => screenings.filter(s => filteredMovies.includes(s.movieId)), [screenings, filteredMovies]);
+  const filteredScreenings = useMemo(() => filteredByNewScreenings.filter(s => filteredMovies.includes(s.movieId)),
+    [filteredByNewScreenings, filteredMovies]);
+
   return (
     <Stack gap="xl">
       <Box>
@@ -59,6 +68,11 @@ export default function TimetablePage({ screenings, isCurrentWeek, startOfWeek }
             <Title order={2}>Filme</Title>
           </Group>
           <MovieSearchInput movies={uniqueMovies} scrollToIndex={setSearchIndex} />
+          <Switch
+            checked={showNewMovies}
+            onChange={e => setShowNewMovies(e.target.checked)}
+            label="Zeige nur Neuerscheinungen"
+          />
           {filteredMovies.length < uniqueMovies.length &&
             <Button
               variant="outline"
