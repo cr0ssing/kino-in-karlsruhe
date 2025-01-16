@@ -51,7 +51,7 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
   const enabledNextWeek = maxDate && dayjs(maxDate).isAfter(endDate);
 
   function navigate(direction: "previous" | "next") {
-    router.push(`/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`);
+    router.push(`/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`, { scroll: false });
   }
 
   return (

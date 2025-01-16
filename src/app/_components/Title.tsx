@@ -31,7 +31,7 @@ export default function Title() {
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
 
   return (
-    <Link href="/">
+    <Link href="/" scroll={false}>
       <Group
         align="center"
         wrap="nowrap"
