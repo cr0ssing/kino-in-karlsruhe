@@ -155,10 +155,11 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   // Weekday headers  
   const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
   const isNarrow = useMediaQuery(`(max-width: ${em(1450)})`);
+  const isSmall = useMediaQuery(`(max-width: ${em(400)})`);
   const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
-    .map(day => isNarrow && !isMobile ? day.substring(0, 2) : day)
+    .map(day => isSmall || isNarrow && !isMobile ? day.substring(0, 2) : day)
     .map((day, i) => day + ", " + dayjs(startOfWeek).add(i, 'day').format('DD.MM.'));
-  const curDateIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : -1;
+  const curDate = isCurrentWeek ? weekdays[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]! : "-1";
 
   const timeLabels = Array.from(
     { length: END_HOUR - START_HOUR },
@@ -180,6 +181,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   const displayedWeekdays = selectedDay === -1
     ? weekdays
     : [weekdays[selectedDay]!];
+  const curDateIndex = displayedWeekdays.indexOf(curDate);
 
   return (
     <Stack>
