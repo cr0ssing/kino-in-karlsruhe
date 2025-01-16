@@ -27,9 +27,9 @@
 - [x] change cinema filtering to toggle mechanic of movie filtering
 - [x] setup dependabot
 - [x] always show week navigation
-- [ ] PWA support
+- [x] PWA support
 - [x] investigate if slide width of movie carousel can be set fixed
-- [ ] highlight today in timetable
+- [x] highlight today in timetable
 - [ ] use switch to show only new movies
 - [x] setup CVE scanning
 - [ ] optimize layout (esp. search bar) for mobile devices

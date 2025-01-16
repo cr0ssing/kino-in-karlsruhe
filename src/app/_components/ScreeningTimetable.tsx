@@ -27,17 +27,22 @@ import TimetableHeader from "./TimetableHeader";
 import TimetableColumn from "./TimetableColumn";
 import { useMediaQuery } from "@mantine/hooks";
 import { useToggle } from "../useToggle";
+import dayjs from "dayjs";
+import minmax from "dayjs/plugin/minMax";
+
+dayjs.extend(minmax);
 
 interface ScreeningTimetableProps {
   screenings: Array<Screening & { movie: Movie, cinema: Cinema }>;
   isCurrentWeek: boolean;
+  startOfWeek: Date;
 }
 
 const START_HOUR = 9;
 const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
-export default function ScreeningTimetable({ screenings, isCurrentWeek }: ScreeningTimetableProps) {
+export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
   const [cinemas, setCinemas] = useState<Map<number, Cinema>>(new Map());
   const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
 
@@ -147,8 +152,13 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
     groupedByWeekday[Number(day)] = assignScreeningColumns(groupedByWeekday[Number(day)]!).filter(s => !s.blockColumn);
   });
 
-  // Weekday headers (now starting with Monday)
-  const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+  // Weekday headers  
+  const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
+  const isNarrow = useMediaQuery(`(max-width: ${em(1450)})`);
+  const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+    .map(day => isNarrow && !isMobile ? day.substring(0, 2) : day)
+    .map((day, i) => day + ", " + dayjs(startOfWeek).add(i, 'day').format('DD.MM.'));
+  const curDateIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : -1;
 
   const timeLabels = Array.from(
     { length: END_HOUR - START_HOUR },
@@ -156,8 +166,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
   );
 
   // Add state for selected day (-1 means show all days)
-  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
   const mondayBasedDayIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : 0;
+
 
   useEffect(() => {
     if (isMobile) {
@@ -189,14 +199,16 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
             </Chip>
           )}
       </Group>
-      <Box style={{
-        display: 'grid',
-        gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
-        position: 'relative'
-      }}>
+      <Box
+        pos='relative'
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
+          borderTop: '1px solid var(--mantine-color-gray-3)',
+        }}>
         {/* Time labels column */}
         <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
-          <TimetableHeader text="Zeit" index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} isMobile={isMobile} />
+          <TimetableHeader text="Zeit" isToday={false} index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} isMobile={isMobile} />
           {timeLabels.map((time) => (
             <Box
               key={time}
@@ -216,15 +228,17 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek }: Screen
           return (
             <Box
               key={"column" + day}
+              pos="relative"
+              bg={i === curDateIndex ? 'var(--mantine-color-gray-1)' : undefined}
               style={{
                 gridColumn: i + 2,
                 borderRight: i < displayedWeekdays.length - 1 ? '1px solid var(--mantine-color-gray-3)' : undefined,
-                position: 'relative',
               }}
             >
               <TimetableHeader
                 key={"column-header" + day}
                 text={day}
+                isToday={i === curDateIndex}
                 index={weekdays.indexOf(day)}
                 selectedDay={selectedDay}
                 setSelectedDay={setSelectedDay}

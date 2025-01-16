@@ -45,7 +45,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
     <HydrateClient>
       <WeekNavigation weekOffset={weekOffset} startDate={startOfWeek} endDate={endOfWeek} />
       <Stack ml="xl" mr="xl" mb="md" gap="lg">
-        <TimetablePage screenings={screenings} weekOffset={weekOffset} />
+        <TimetablePage screenings={screenings} isCurrentWeek={weekOffset === 0} startOfWeek={startOfWeek} />
         <Center><Text size="xs" c="dimmed">Alle Angaben ohne Gewähr</Text></Center>
       </Stack>
       <Footer />

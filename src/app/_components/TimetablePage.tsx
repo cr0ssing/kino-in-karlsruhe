@@ -27,7 +27,13 @@ import { useEffect, useMemo, useState } from "react";
 import MovieSearchInput from "./MovieSearchInput";
 import { useToggle } from "../useToggle";
 
-export default function TimetablePage({ screenings, weekOffset }: { screenings: (Screening & { movie: Movie, cinema: Cinema })[], weekOffset: number }) {
+type TimetablePageProps = {
+  screenings: (Screening & { movie: Movie, cinema: Cinema })[],
+  isCurrentWeek: boolean,
+  startOfWeek: Date
+};
+
+export default function TimetablePage({ screenings, isCurrentWeek, startOfWeek }: TimetablePageProps) {
   const uniqueMovies = useMemo(() => Array.from(
     new Map(screenings
       .map(screening => [screening.movieId, screening.movie])
@@ -71,7 +77,7 @@ export default function TimetablePage({ screenings, weekOffset }: { screenings: 
           <Image src="/movie-night.png" alt="Kino in Karlsruhe" h={20} w={20} />
           <Title order={2}>Vorführungen</Title>
         </Group>
-        <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={weekOffset === 0} />
+        <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={isCurrentWeek} startOfWeek={startOfWeek} />
       </Box>
     </Stack>
   );

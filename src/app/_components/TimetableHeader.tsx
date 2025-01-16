@@ -27,16 +27,17 @@ type TimetableHeaderProps = {
   selectedDay: number;
   setSelectedDay: Dispatch<SetStateAction<number>>;
   isMobile: boolean | undefined;
+  isToday: boolean;
 };
 
-export default function TimetableHeader({ text, index, selectedDay, setSelectedDay, isMobile }: TimetableHeaderProps) {
+export default function TimetableHeader({ text, index, selectedDay, setSelectedDay, isMobile, isToday }: TimetableHeaderProps) {
   return (
     <Group
       justify="center"
       p="sm"
       top={isMobile ? "55px" : "63px"}
       pos="sticky"
-      bg="var(--mantine-color-body)"
+      bg={isToday ? 'var(--mantine-color-gray-1)' : 'var(--mantine-color-body)'}
       style={{
         borderBottom: '1px solid var(--mantine-color-gray-3)',
         zIndex: 3,

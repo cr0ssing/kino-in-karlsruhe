@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, Group, Popover, PopoverDropdown, PopoverTarget, Stack, Text } from "@mantine/core";
+import { Box, Card, Group, lighten, Popover, PopoverDropdown, PopoverTarget, Stack, Text } from "@mantine/core";
 import dayjs from "dayjs";
 import type { CombinedScreening } from "./types";
 import isoWeekday from "dayjs/plugin/isoWeek";
@@ -39,13 +39,13 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
       {timeLabels.map((time, j) => (
         <Box
           key={"segment" + day + time}
+          pos="absolute"
+          left={0}
+          right={0}
+          h={hourHeight}
+          top={hourHeight * j}
           style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            height: hourHeight,
             borderBottom: '1px solid var(--mantine-color-gray-2)',
-            top: hourHeight * j,
           }}
         />
       ))}
@@ -69,7 +69,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                 padding="xs"
                 radius="sm"
                 pos="absolute"
-                bg={screening.cinemas.length === 1 ? `${screening.cinemas[0]!.color}11` : undefined}
+                bg={screening.cinemas.length === 1 ? lighten(screening.cinemas[0]!.color, .93) : undefined}
                 top={`${top}px`}
                 left={left}
                 w={width}

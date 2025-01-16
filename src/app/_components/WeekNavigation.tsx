@@ -30,7 +30,7 @@ import Title from "./Title";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
   const router = useRouter();
-  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+  const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
 
   // Format dates for display
   const dateFormatter = new Intl.DateTimeFormat("de-DE", {
