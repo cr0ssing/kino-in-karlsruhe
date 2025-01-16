@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.10.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.9.0...v0.10.0) (2025-01-16)
+
+
+### Features
+
+* add PWA support ([c7bd0d3](https://github.com/cr0ssing/kino-in-karlsruhe/commit/c7bd0d39b0ebbe87d15581cdd033293af070c231))
+* highlight today in timetable ([201e0c3](https://github.com/cr0ssing/kino-in-karlsruhe/commit/201e0c39b7cfedd6620197932437d0c15b53ce16))
+* show dates in timetable header ([201e0c3](https://github.com/cr0ssing/kino-in-karlsruhe/commit/201e0c39b7cfedd6620197932437d0c15b53ce16))
+
+
+### Bug Fixes
+
+* abbreviate day names on very narrow displays ([d550531](https://github.com/cr0ssing/kino-in-karlsruhe/commit/d5505316e4e8d578b812d6333a3a4099ae8c370d))
+* do not scroll on routing to different week ([6ad53ac](https://github.com/cr0ssing/kino-in-karlsruhe/commit/6ad53ac9bfe83c30ec7c28a6bc4702fe7dc06ecb))
+* highlight today in timestable even when its only day that is displayed ([d550531](https://github.com/cr0ssing/kino-in-karlsruhe/commit/d5505316e4e8d578b812d6333a3a4099ae8c370d))
+
 ## [0.9.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.8.1...v0.9.0) (2025-01-15)
 
 
