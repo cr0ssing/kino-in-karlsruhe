@@ -20,17 +20,19 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import { Box, Button, Group, Image, Loader, Stack, Switch, Title } from "@mantine/core";
+import { Box, Button, em, Group, Image, Stack, Switch, Title, Transition } from "@mantine/core";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import PullToRefresh from 'pulltorefreshjs';
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { useRouter } from "next/navigation";
 
+import { useToggle } from "../useToggle";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
 import MovieSearchInput from "./MovieSearchInput";
-import { useToggle } from "../useToggle";
+import FilterButton from "./FilterButton";
 
 
 dayjs.extend(isBetween);
@@ -90,6 +92,15 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
   const filteredScreenings = useMemo(() => filteredByNewScreenings.filter(s => filteredMovies.includes(s.movieId)),
     [filteredByNewScreenings, filteredMovies]);
 
+  const movieSearch = <MovieSearchInput movies={uniqueMovies} scrollToIndex={setSearchIndex} />;
+  const newSwitch = <Switch
+    checked={showNewMovies}
+    onChange={e => setShowNewMovies(e.target.checked)}
+    label="Zeige nur Neuerscheinungen"
+  />;
+  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+  const [showFilters, { toggle: toggleFilters }] = useDisclosure(false);
+
   return (
     <Stack gap="xl">
       <Box>
@@ -98,12 +109,12 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
             <Image src="/clapperboard.png" alt="Kino in Karlsruhe" h={20} w={20} />
             <Title order={2}>Filme</Title>
           </Group>
-          <MovieSearchInput movies={uniqueMovies} scrollToIndex={setSearchIndex} />
-          <Switch
-            checked={showNewMovies}
-            onChange={e => setShowNewMovies(e.target.checked)}
-            label="Zeige nur Neuerscheinungen"
-          />
+          {isMobile
+            ? <FilterButton showFilters={showFilters} toggleFilters={toggleFilters} />
+            : <>
+              {movieSearch}
+              {newSwitch}
+            </>}
           {filteredMovies.length < uniqueMovies.length &&
             <Button
               variant="outline"
@@ -114,11 +125,18 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
               Alle anzeigen
             </Button>}
         </Group>
+        {isMobile &&
+          <Transition mounted={showFilters} transition="fade-up" keepMounted timingFunction="ease" duration={200}>
+            {styles => <Stack mb="md" style={styles}>
+              {movieSearch}
+              {newSwitch}
+            </Stack>}
+          </Transition>}
         <MovieCarousel searchIndex={searchIndex} movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
       </Box>
 
       <Box>
-        <Group align="center" gap="xs" mb="sm">
+        <Group align="center" gap="xs">
           <Image src="/movie-night.png" alt="Kino in Karlsruhe" h={20} w={20} />
           <Title order={2}>Vorführungen</Title>
         </Group>
