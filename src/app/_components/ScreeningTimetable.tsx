@@ -188,7 +188,6 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
           <CinemaCombobox
             cinemas={Array.from(cinemas).map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))}
             toggleCinema={toggleCinema}
-            clearFilter={() => setCinemaFilter(Array.from(cinemas.keys()))}
           />
           {cinemaFilter.length < cinemas.size &&
             <Button

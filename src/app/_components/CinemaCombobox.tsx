@@ -41,10 +41,9 @@ type Options = Cinema & {
 interface CinemaComboboxProps {
   cinemas: Options[];
   toggleCinema: (id: number) => void;
-  clearFilter: () => void;
 }
 
-export default function CinemaCombobox({ cinemas, toggleCinema, clearFilter }: CinemaComboboxProps) {
+export default function CinemaCombobox({ cinemas, toggleCinema }: CinemaComboboxProps) {
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     onDropdownOpen: () => combobox.updateSelectedOptionIndex("active"),
