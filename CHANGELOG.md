@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.11.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.10.0...v0.11.0) (2025-01-18)
+
+
+### Features
+
+* add refresh button for desktop PWA ([5ed4987](https://github.com/cr0ssing/kino-in-karlsruhe/commit/5ed4987bb206fc7c0f8d61051fe600b3d17a9fc9))
+* add show all button for cinema filter in mobile ([0adff8e](https://github.com/cr0ssing/kino-in-karlsruhe/commit/0adff8e41703d0f95197070539053e2dac04522b))
+* add switch to only show new releases ([8403d6d](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8403d6d9a921b57c14f1fa5aefb26500aca07788))
+* enable pull to refresh in iOS PWA ([c51cec3](https://github.com/cr0ssing/kino-in-karlsruhe/commit/c51cec373d4a73bff627c3dfe52cb3bb5d43d592))
+* give posters in movie carousel fixed responsive width ([f9f08a5](https://github.com/cr0ssing/kino-in-karlsruhe/commit/f9f08a58eefc1feefc90312435567afedcacf95f))
+* make timetable more compact ([da8f9b1](https://github.com/cr0ssing/kino-in-karlsruhe/commit/da8f9b1fc179c0f119fa55bfa98ef029f193d6a0))
+* prefetch current week for title onClick ([aeb7486](https://github.com/cr0ssing/kino-in-karlsruhe/commit/aeb7486461c99b4f165c3c6b0d9dc1c0be70c7e1))
+* responsively place movie filters ([37701d1](https://github.com/cr0ssing/kino-in-karlsruhe/commit/37701d1a63045c73222f2d9a7ab474ced8e2bdbe))
+* show loading spinner on page load ([025d4f0](https://github.com/cr0ssing/kino-in-karlsruhe/commit/025d4f066b5d75ba971963890b0e31a1c4397f3a))
+* switch timetable to all days if view is not mobile ([0adff8e](https://github.com/cr0ssing/kino-in-karlsruhe/commit/0adff8e41703d0f95197070539053e2dac04522b))
+* use combobox instead of chip in mobile view for cinema filter ([05e3afb](https://github.com/cr0ssing/kino-in-karlsruhe/commit/05e3afbf2b38a42f36096084a7005ce60abaab92))
+* use next router for refreshing on pulldown ([14a989b](https://github.com/cr0ssing/kino-in-karlsruhe/commit/14a989b83f628feaa618901419f3e001728cbf33))
+
+
+### Bug Fixes
+
+* add eslint hint for detecting iOS PWA ([408e4e1](https://github.com/cr0ssing/kino-in-karlsruhe/commit/408e4e10bcc9e3c23a72ea20ee482b72cf60961b))
+* get zIndex of components right ([8935751](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8935751f44525011b30588aa665909c1c19da684))
+* place movie filter buttons above posters ([8d9dde4](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8d9dde4c494127699f6c6ab23e4c5d45faa2b9e6))
+* reset cinemasFilter if available cinemas change ([0adff8e](https://github.com/cr0ssing/kino-in-karlsruhe/commit/0adff8e41703d0f95197070539053e2dac04522b))
+* use pulltorefresh in useEffect ([9285487](https://github.com/cr0ssing/kino-in-karlsruhe/commit/92854875da9e8dd2242b100115fc72c992cee7a6))
+* use pulltorefresh on the client side ([06beda1](https://github.com/cr0ssing/kino-in-karlsruhe/commit/06beda16b9b76adc831f7ff9c30777e272a4ae3a))
+
 ## [0.10.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.9.0...v0.10.0) (2025-01-16)
 
 
