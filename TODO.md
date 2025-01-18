@@ -30,7 +30,7 @@
 - [x] PWA support
 - [x] investigate if slide width of movie carousel can be set fixed
 - [x] highlight today in timetable
-- [ ] use switch to show only new movies
+- [x] use switch to show only new movies
 - [x] setup CVE scanning
 - [ ] optimize layout (esp. search bar) for mobile devices
 - [ ] investigate loading states
