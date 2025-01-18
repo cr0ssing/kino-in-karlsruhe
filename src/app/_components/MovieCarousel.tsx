@@ -44,6 +44,12 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
     emblaApi.scrollTo(searchIndex);
   }, [searchIndex, emblaApi]);
 
+  useEffect(() => {
+    if (emblaApi) {
+      emblaApi.scrollTo(0);
+    }
+  }, [movies, emblaApi]);
+
   return (
     <Carousel
       align="start"
