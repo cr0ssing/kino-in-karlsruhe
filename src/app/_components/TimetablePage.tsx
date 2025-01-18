@@ -25,6 +25,7 @@ import type { Cinema, Movie, Screening } from "@prisma/client";
 import PullToRefresh from 'pulltorefreshjs';
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+import { useRouter } from "next/navigation";
 
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
@@ -41,6 +42,8 @@ type TimetablePageProps = {
 };
 
 export default function TimetablePage({ screenings: screeningsPromise, startOfWeek, endOfWeek }: TimetablePageProps) {
+  const router = useRouter();
+
   useEffect(() => {
     // https://stackoverflow.com/a/78773384
     // if we're on iOS in standalone mode, add support for pull to refresh
@@ -50,11 +53,11 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
       PullToRefresh.init({
         mainElement: 'body',
         onRefresh() {
-          window.location.reload();
+          router.refresh();
         }
       });
     }
-  }, []);
+  }, [router]);
 
   const [showNewMovies, setShowNewMovies] = useState(false);
 
