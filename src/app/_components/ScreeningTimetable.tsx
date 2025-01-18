@@ -43,18 +43,9 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
-  const [cinemas, setCinemas] = useState<Map<number, Cinema>>(new Map());
-  const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
+  const cinemas = new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema]));
 
-  useEffect(() => {
-    const newCinemas = new Map<number, Cinema>();
-    screenings.forEach(s => newCinemas.set(s.cinemaId, s.cinema));
-    setCinemas(newCinemas);
-  }, [screenings]);
-
-  useEffect(() => {
-    setCinemaFilter(Array.from(cinemas.keys()));
-  }, [cinemas, setCinemaFilter]);
+  const [toggleCinema, cinemaFilter] = useToggle(Array.from(cinemas.keys()));
 
   const combined = new Map<string, CombinedScreening>();
   screenings.filter(s => cinemaFilter.includes(s.cinemaId)).forEach((screening) => {
@@ -166,9 +157,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
     (_, i) => `${(START_HOUR + i).toString().padStart(2, '0')}:00`
   );
 
-  // Add state for selected day (-1 means show all days)
   const mondayBasedDayIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : 0;
-
 
   useEffect(() => {
     if (isMobile) {
@@ -177,6 +166,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   }, [isMobile, mondayBasedDayIndex]);
 
   const [selectedDay, setSelectedDay] = useState(-1);
+
   // Filter weekdays based on selection
   const displayedWeekdays = selectedDay === -1
     ? weekdays
