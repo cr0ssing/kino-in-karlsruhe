@@ -20,7 +20,7 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import { Box, Button, Group, Image, Stack, Switch, Title } from "@mantine/core";
+import { Box, Button, Group, Image, Loader, Stack, Switch, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import PullToRefresh from 'pulltorefreshjs';
 import dayjs from "dayjs";
@@ -52,6 +52,9 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
     if (isInWebAppiOS) {
       PullToRefresh.init({
         mainElement: 'body',
+        instructionsPullToRefresh: "Nach unten ziehen zum Aktualisieren",
+        instructionsReleaseToRefresh: "Loslassen zum Aktualisieren",
+        instructionsRefreshing: "Aktualisiere...",
         onRefresh() {
           router.refresh();
         }
