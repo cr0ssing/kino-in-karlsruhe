@@ -54,7 +54,7 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
     <Carousel
       align="start"
       slidesToScroll={1}
-      slideSize={{ xl: "150px", lg: `${100 / 9}%`, md: `${100 / 8}%`, sm: `${100 / 7}%`, xs: `${100 / 6}%`, base: `${100 / 4}%` }}
+      slideSize={{ xl: "150px", lg: "140px", md: "130px", sm: "120px", xs: "110px", base: `${100 / 3}%` }}
       slideGap="sm"
       loop
       styles={{ control: { backgroundColor: alpha("var(--mantine-primary-color-filled)", 0.7), color: "white", border: "0px" } }}
