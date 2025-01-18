@@ -47,7 +47,7 @@ const theme = mergeMantineTheme(
 
 // https://stackoverflow.com/a/78773384
 // if we're on iOS in standalone mode, add support for pull to refresh
-//@ts-ignore typescript doesn't recognize the non-standard standalone property as it only exists on iOS
+// @ts-expect-error typescript doesn't recognize the non-standard standalone property as it only exists on iOS
 const isInWebAppiOS = (window.navigator.standalone === true);
 if (isInWebAppiOS) {
   PullToRefresh.init({
