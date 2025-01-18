@@ -19,8 +19,8 @@
 
 "use client"
 
-import { useEffect, useState } from 'react';
-import { Box, Chip, em, Group, Stack, Text } from '@mantine/core';
+import { useEffect, useMemo, useState } from 'react';
+import { Box, Button, Chip, em, Group, Stack, Text } from '@mantine/core';
 import { useMediaQuery } from "@mantine/hooks";
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import dayjs from "dayjs";
@@ -45,9 +45,13 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 250;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
-  const cinemas = new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema]));
+  const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
 
   const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
+
+  useEffect(() => {
+    setCinemaFilter(Array.from(cinemas.keys()));
+  }, [cinemas, setCinemaFilter]);
 
   const combined = new Map<string, CombinedScreening>();
   screenings.filter(s => cinemaFilter.includes(s.cinemaId)).forEach((screening) => {
@@ -164,6 +168,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   useEffect(() => {
     if (isMobile) {
       setSelectedDay(mondayBasedDayIndex);
+    } else {
+      setSelectedDay(-1);
     }
   }, [isMobile, mondayBasedDayIndex]);
 
@@ -178,12 +184,21 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   return (
     <Stack>
       {isSmall ?
-        <Group>
+        <Group align="end">
           <CinemaCombobox
             cinemas={Array.from(cinemas).map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))}
             toggleCinema={toggleCinema}
             clearFilter={() => setCinemaFilter(Array.from(cinemas.keys()))}
           />
+          {cinemaFilter.length < cinemas.size &&
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => {
+                setCinemaFilter(Array.from(cinemas.keys()));
+              }}>
+              Alle anzeigen
+            </Button>}
         </Group> :
         <Group gap="xs" mt="sm">
           {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))

@@ -20,7 +20,6 @@
 import {
   ActionIcon,
   CheckIcon,
-  CloseButton,
   Combobox,
   ComboboxDropdown,
   ComboboxOption,
@@ -70,18 +69,11 @@ export default function CinemaCombobox({ cinemas, toggleCinema, clearFilter }: C
           onClick={() => combobox.toggleDropdown()}
           label="Kinos filtern"
           size="xs"
-          rightSectionPointerEvents={cinemas.filter(c => c.enabled).length < cinemas.length ? "all" : "none"}
+          rightSectionPointerEvents="none"
           rightSection={
-            cinemas.filter(c => c.enabled).length < cinemas.length ?
-              <CloseButton
-                size={19}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={clearFilter}
-                aria-label="Alle anzeigen"
-              /> :
-              <ActionIcon size="xs" variant="transparent">
-                <IconChevronDown size={12} />
-              </ActionIcon>
+            <ActionIcon size="xs" variant="transparent">
+              <IconChevronDown size={12} />
+            </ActionIcon>
           }>
           {cinemas.filter(c => c.enabled).length > 0
             ? <Text size="xs">

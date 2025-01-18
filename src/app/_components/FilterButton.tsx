@@ -23,7 +23,7 @@ import { IconFilterDown, IconFilterUp } from "@tabler/icons-react";
 export default function FilterButton({ showFilters, toggleFilters }: { showFilters: boolean, toggleFilters: () => void }) {
   return (
     <Tooltip position="bottom" label={showFilters ? "Filter ausblenden" : "Filter anzeigen"}>
-      <ActionIcon variant="light" size="md" radius="xl" onClick={toggleFilters}>
+      <ActionIcon variant="light" size="lg" radius="xl" onClick={toggleFilters}>
         {showFilters ? <IconFilterUp size={15} /> : <IconFilterDown size={15} />}
       </ActionIcon>
     </Tooltip>
