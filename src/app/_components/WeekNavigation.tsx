@@ -23,13 +23,12 @@ import { ActionIcon, Button, em, Group, Stack, Text, Tooltip } from "@mantine/co
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { api } from "~/trpc/react";
 import Title from "./Title";
+import Link, { type LinkProps } from "next/link";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
-  const router = useRouter();
   const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
 
   // Format dates for display
@@ -50,8 +49,13 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
   const enabledPreviousWeek = minDate && dayjs(minDate).isBefore(startDate);
   const enabledNextWeek = maxDate && dayjs(maxDate).isAfter(endDate);
 
-  function navigate(direction: "previous" | "next") {
-    router.push(`/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`, { scroll: false });
+  function navigate(direction: "previous" | "next"): LinkProps & { component: typeof Link } {
+    return {
+      component: Link,
+      scroll: false,
+      prefetch: true,
+      href: `/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`,
+    };
   }
 
   return (
@@ -67,12 +71,12 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
       <Group justify="center" wrap="nowrap" mr="xl" ml="xl" mb="xs">
         <Tooltip label="Vorherige Woche" disabled={!isMobile}>
           {isMobile
-            ? <ActionIcon variant="subtle" onClick={() => navigate("previous")} disabled={!enabledPreviousWeek}>
+            ? <ActionIcon {...navigate("previous")} variant="subtle" disabled={!enabledPreviousWeek}>
               <IconChevronLeft size={iconSize} />
             </ActionIcon>
             : <Button
               disabled={!enabledPreviousWeek}
-              onClick={() => navigate("previous")}
+              {...navigate("previous")}
               variant="subtle"
               leftSection={<IconChevronLeft size={iconSize} />}
             >
@@ -85,11 +89,11 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
 
         <Tooltip label="Nächste Woche" disabled={!isMobile}>
           {isMobile
-            ? <ActionIcon variant="subtle" onClick={() => navigate("next")} disabled={!enabledNextWeek}>
+            ? <ActionIcon {...navigate("next")} variant="subtle" disabled={!enabledNextWeek}>
               <IconChevronRight size={iconSize} />
             </ActionIcon>
             : <Button
-              onClick={() => navigate("next")}
+              {...navigate("next")}
               variant="subtle"
               rightSection={<IconChevronRight size={iconSize} />}
               disabled={!enabledNextWeek}
