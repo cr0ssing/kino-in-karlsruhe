@@ -66,7 +66,6 @@ export default function CinemaCombobox({ cinemas, toggleCinema }: CinemaCombobox
           type="button"
           pointer
           onClick={() => combobox.toggleDropdown()}
-          label="Kinos filtern"
           size="xs"
           rightSectionPointerEvents="none"
           rightSection={
@@ -80,7 +79,7 @@ export default function CinemaCombobox({ cinemas, toggleCinema }: CinemaCombobox
                 ? cinemas.find(c => c.enabled)!.name
                 : cinemas.filter(c => c.enabled).length === cinemas.length
                   ? "Alle Kinos"
-                  : `${cinemas.filter(c => c.enabled).length} Kinos`) + " ausgewählt"}</Text>
+                  : `${cinemas.filter(c => c.enabled).length} Kinos`) + " anzeigen"}</Text>
             : <InputPlaceholder>Kinos auswählen</InputPlaceholder>
           }
         </InputBase>

@@ -136,7 +136,7 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
       </Box>
 
       <Box>
-        <Group align="center" gap="xs">
+        <Group align="center" gap="xs" mb="sm">
           <Image src="/movie-night.png" alt="Kino in Karlsruhe" h={20} w={20} />
           <Title order={2}>Vorführungen</Title>
         </Group>

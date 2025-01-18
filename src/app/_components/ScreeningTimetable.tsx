@@ -42,7 +42,7 @@ interface ScreeningTimetableProps {
 
 const START_HOUR = 9;
 const END_HOUR = 24;
-const HOUR_HEIGHT = 250;
+const HOUR_HEIGHT = 170;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
@@ -199,7 +199,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
               Alle anzeigen
             </Button>}
         </Group> :
-        <Group gap="xs" mt="sm">
+        <Group gap="xs">
           {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
             .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
             .map(({ id, name, color, enabled }) =>

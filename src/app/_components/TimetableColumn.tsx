@@ -82,16 +82,9 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                   cursor: 'pointer'
                 }}
               >
-                <Stack gap={2}>
-                  <Text size="sm" fw={700} lineClamp={1}>
-                    {screening.movie.title}
-                  </Text>
-                  <Group>
-                    <Text size="xs" c="dimmed" lineClamp={1}>
-                      {screening.cinemas.map(c => c.name).join(', ')}
-                    </Text>
-                  </Group>
-                </Stack>
+                <Text size="sm" fw={700} lineClamp={1}>
+                  {screening.movie.title}
+                </Text>
               </Card>
             </PopoverTarget>
             <PopoverDropdown>
