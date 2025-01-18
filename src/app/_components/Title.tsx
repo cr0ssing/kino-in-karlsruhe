@@ -28,7 +28,7 @@ const font = localFont({ src: "./AcademyFilled3D.woff2", weight: "400", style: "
 
 export default function Title() {
   const isNarrow = useMediaQuery(`(max-width: ${em(1150)})`);
-  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+  const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
 
   return (
     <Link href="/" scroll={false}>
@@ -36,8 +36,8 @@ export default function Title() {
         align="center"
         wrap="nowrap"
         gap="xs"
-        top={17}
-        left={30}
+        top={16}
+        left={12}
         pos="absolute"
       >
         <Image src="/icon.png" alt="Kino in Karlsruhe" h={36} w={36} style={{ transform: isMobile ? "translateY(-8.5px)" : "translateY(-7px)" }} />

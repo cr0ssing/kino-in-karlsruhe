@@ -19,17 +19,21 @@
 
 "use client";
 
+import { useMemo } from "react";
+import Link, { type LinkProps } from "next/link";
 import { ActionIcon, Button, em, Group, Stack, Text, Tooltip } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useMemo } from "react";
+
 import { api } from "~/trpc/react";
 import Title from "./Title";
-import Link, { type LinkProps } from "next/link";
+import RefreshButton from "./RefreshButton";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
   const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
+  const isStandalone = useMediaQuery("(display-mode: standalone)");
+  const isMobileAgent = /mobile/.exec(navigator.userAgent.toLowerCase());
 
   // Format dates for display
   const dateFormatter = new Intl.DateTimeFormat("de-DE", {
@@ -65,7 +69,7 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
       top={0}
       mb="lg"
       bg="var(--mantine-color-body)"
-      style={{ zIndex: 1000, borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+      style={{ zIndex: 2, borderBottom: "1px solid var(--mantine-color-gray-3)" }}
     >
       <Title />
       <Group justify="center" wrap="nowrap" mr="xl" ml="xl" mb="xs">
@@ -103,6 +107,8 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
           }
         </Tooltip>
       </Group>
+      {isStandalone && !isMobileAgent && <RefreshButton />}
     </Stack>
   );
 }
+
