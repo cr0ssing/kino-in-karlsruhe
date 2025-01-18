@@ -41,18 +41,20 @@ type TimetablePageProps = {
 };
 
 export default function TimetablePage({ screenings: screeningsPromise, startOfWeek, endOfWeek }: TimetablePageProps) {
-  // https://stackoverflow.com/a/78773384
-  // if we're on iOS in standalone mode, add support for pull to refresh
-  // @ts-expect-error typescript doesn't recognize the non-standard standalone property as it only exists on iOS
-  const isInWebAppiOS = (window.navigator.standalone === true);
-  if (isInWebAppiOS) {
-    PullToRefresh.init({
-      mainElement: 'body',
-      onRefresh() {
-        window.location.reload();
-      }
-    });
-  }
+  useEffect(() => {
+    // https://stackoverflow.com/a/78773384
+    // if we're on iOS in standalone mode, add support for pull to refresh
+    // @ts-expect-error typescript doesn't recognize the non-standard standalone property as it only exists on iOS
+    const isInWebAppiOS = (window.navigator.standalone === true);
+    if (isInWebAppiOS) {
+      PullToRefresh.init({
+        mainElement: 'body',
+        onRefresh() {
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
 
   const [showNewMovies, setShowNewMovies] = useState(false);
 
