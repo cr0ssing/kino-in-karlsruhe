@@ -32,6 +32,6 @@
 - [x] highlight today in timetable
 - [x] use switch to show only new movies
 - [x] setup CVE scanning
-- [ ] optimize layout (esp. search bar) for mobile devices
+- [x] optimize layout (esp. search bar) for mobile devices
 - [x] investigate loading states
 - [ ] update dependencies
