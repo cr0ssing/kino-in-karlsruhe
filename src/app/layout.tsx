@@ -25,6 +25,7 @@ import '@mantine/carousel/styles.css';
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { MantineProvider, ColorSchemeScript, createTheme, DEFAULT_THEME, mergeMantineTheme, mantineHtmlProps } from "@mantine/core";
+import PullToRefresh from 'pulltorefreshjs';
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { breakpoints, colors } from "./theme";
@@ -43,6 +44,19 @@ const theme = mergeMantineTheme(
     colors,
   })
 );
+
+// https://stackoverflow.com/a/78773384
+// if we're on iOS in standalone mode, add support for pull to refresh
+//@ts-ignore typescript doesn't recognize the non-standard standalone property as it only exists on iOS
+const isInWebAppiOS = (window.navigator.standalone === true);
+if (isInWebAppiOS) {
+  PullToRefresh.init({
+    mainElement: 'body',
+    onRefresh() {
+      window.location.reload();
+    }
+  });
+}
 
 export default function RootLayout({
   children,
