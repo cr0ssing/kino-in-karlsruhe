@@ -78,7 +78,6 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                   ? "1px solid var(--mantine-color-yellow-5)"
                   : undefined}
                 style={{
-                  zIndex: 2,
                   cursor: 'pointer'
                 }}
               >

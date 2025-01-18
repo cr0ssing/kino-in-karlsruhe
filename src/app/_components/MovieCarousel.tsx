@@ -96,7 +96,7 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
                     bottom={8}
                     right={8}
                     onClick={() => toggleMovie(movie.id)}
-                    style={{ zIndex: 200 }}
+                    style={{ zIndex: 2 }}
                   >
                     {movie.enabled && <IconCheck size={13} />}
                   </ActionIcon>

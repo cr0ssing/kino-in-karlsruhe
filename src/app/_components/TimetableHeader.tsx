@@ -40,7 +40,7 @@ export default function TimetableHeader({ text, index, selectedDay, setSelectedD
       bg={isToday ? 'var(--mantine-color-gray-1)' : 'var(--mantine-color-body)'}
       style={{
         borderBottom: '1px solid var(--mantine-color-gray-3)',
-        zIndex: 3,
+        zIndex: 2,
       }}>
       {index !== -1 && selectedDay !== -1 && (
         <ActionIcon
