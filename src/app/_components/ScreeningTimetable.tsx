@@ -19,16 +19,18 @@
 
 "use client"
 
-import { Box, Chip, em, Group, Stack, Text } from '@mantine/core';
-import type { Screening, Movie, Cinema } from '@prisma/client';
 import { useEffect, useState } from 'react';
+import { Box, Chip, em, Group, Stack, Text } from '@mantine/core';
+import { useMediaQuery } from "@mantine/hooks";
+import type { Screening, Movie, Cinema } from '@prisma/client';
+import dayjs from "dayjs";
+import minmax from "dayjs/plugin/minMax";
+
+import { useToggle } from "../useToggle";
 import type { CombinedScreening } from "./types";
 import TimetableHeader from "./TimetableHeader";
 import TimetableColumn from "./TimetableColumn";
-import { useMediaQuery } from "@mantine/hooks";
-import { useToggle } from "../useToggle";
-import dayjs from "dayjs";
-import minmax from "dayjs/plugin/minMax";
+import CinemaCombobox from "./CinemaCombobox";
 
 dayjs.extend(minmax);
 
@@ -45,7 +47,7 @@ const HOUR_HEIGHT = 250;
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
   const cinemas = new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema]));
 
-  const [toggleCinema, cinemaFilter] = useToggle(Array.from(cinemas.keys()));
+  const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
 
   const combined = new Map<string, CombinedScreening>();
   screenings.filter(s => cinemaFilter.includes(s.cinemaId)).forEach((screening) => {
@@ -146,7 +148,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   // Weekday headers  
   const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
   const isNarrow = useMediaQuery(`(max-width: ${em(1450)})`);
-  const isSmall = useMediaQuery(`(max-width: ${em(400)})`);
+  const isSmall = useMediaQuery(`(max-width: ${em(475)})`);
   const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
     .map(day => isSmall || isNarrow && !isMobile ? day.substring(0, 2) : day)
     .map((day, i) => day + ", " + dayjs(startOfWeek).add(i, 'day').format('DD.MM.'));
@@ -175,22 +177,31 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
 
   return (
     <Stack>
-      <Group gap="xs">
-        {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
-          .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
-          .map(({ id, name, color, enabled }) =>
-            <Chip
-              key={"cinema-filter-chip-" + name}
-              color={color}
-              variant="light"
-              checked={enabled}
-              size="xs"
-              onClick={() => toggleCinema(id)}
-            >
-              {name}
-            </Chip>
-          )}
-      </Group>
+      {isSmall ?
+        <Group>
+          <CinemaCombobox
+            cinemas={Array.from(cinemas).map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))}
+            toggleCinema={toggleCinema}
+            clearFilter={() => setCinemaFilter(Array.from(cinemas.keys()))}
+          />
+        </Group> :
+        <Group gap="xs" mt="sm">
+          {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
+            .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
+            .map(({ id, name, color, enabled }) =>
+              <Chip
+                key={"cinema-filter-chip-" + name}
+                color={color}
+                variant="light"
+                checked={enabled}
+                size="xs"
+                onClick={() => toggleCinema(id)}
+              >
+                {name}
+              </Chip>
+            )}
+        </Group>
+      }
       <Box
         pos='relative'
         style={{
