@@ -23,23 +23,30 @@ import { Box, Button, Group, Image, Stack, Switch, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import MovieSearchInput from "./MovieSearchInput";
 import { useToggle } from "../useToggle";
 import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+
+dayjs.extend(isBetween);
 
 type TimetablePageProps = {
-  screenings: (Screening & { movie: Movie, cinema: Cinema })[],
-  isCurrentWeek: boolean,
-  startOfWeek: Date
+  screenings: Promise<(Screening & { movie: Movie, cinema: Cinema })[]>,
+  startOfWeek: Date,
+  endOfWeek: Date
 };
 
-export default function TimetablePage({ screenings, isCurrentWeek, startOfWeek }: TimetablePageProps) {
+export default function TimetablePage({ screenings: screeningsPromise, startOfWeek, endOfWeek }: TimetablePageProps) {
   const [showNewMovies, setShowNewMovies] = useState(false);
+
+  const isCurrentWeek = dayjs().isBetween(startOfWeek, endOfWeek);
+
+  const screenings = use(screeningsPromise);
 
   const filteredByNewScreenings = useMemo(() => screenings.filter(s => !showNewMovies
     || s.movie.releaseDate && dayjs(startOfWeek).diff(dayjs(s.movie.releaseDate), "days") < 4),
-    [screenings, showNewMovies]);
+    [screenings, showNewMovies, startOfWeek]);
 
   const uniqueMovies = useMemo(() => Array.from(
     new Map(filteredByNewScreenings

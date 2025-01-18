@@ -17,7 +17,8 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Center, Stack, Text } from "@mantine/core";
+import { Suspense } from "react";
+import { Center, Flex, Loader, Stack, Text } from "@mantine/core";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 
@@ -36,7 +37,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
   const endOfWeek = dayjs().locale("de").endOf("week").add(weekOffset, "week").toDate();
 
   // Fetch screenings for this week
-  const screenings = await api.screening.getAll({
+  const screenings = api.screening.getAll({
     dateFrom: startOfWeek,
     dateTo: endOfWeek,
   });
@@ -44,10 +45,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
   return (
     <HydrateClient>
       <WeekNavigation weekOffset={weekOffset} startDate={startOfWeek} endDate={endOfWeek} />
-      <Stack ml="xl" mr="xl" mb="md" gap="lg">
-        <TimetablePage screenings={screenings} isCurrentWeek={weekOffset === 0} startOfWeek={startOfWeek} />
-        <Center><Text size="xs" c="dimmed">Alle Angaben ohne Gewähr</Text></Center>
-      </Stack>
+      <Suspense key={"timetable-page-" + weekOffset} fallback={<Flex align="center" justify="center" h="84vh"><Loader /></Flex>}>
+        <Stack ml="xl" mr="xl" mb="md" gap="lg">
+          <TimetablePage key={"timetable-page-" + weekOffset} screenings={screenings} startOfWeek={startOfWeek} endOfWeek={endOfWeek} />
+          <Center><Text size="xs" c="dimmed">Alle Angaben ohne Gewähr</Text></Center>
+        </Stack>
+      </Suspense>
       <Footer />
     </HydrateClient>
   );

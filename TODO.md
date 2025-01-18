@@ -33,5 +33,5 @@
 - [x] use switch to show only new movies
 - [x] setup CVE scanning
 - [ ] optimize layout (esp. search bar) for mobile devices
-- [ ] investigate loading states
+- [x] investigate loading states
 - [ ] update dependencies
