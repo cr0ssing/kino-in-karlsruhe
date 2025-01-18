@@ -5,7 +5,9 @@
     "**/.DS_Store",
     "**/*.md",
     "pnpm-lock.yaml",
-    "COPYING"
+    "COPYING",
+    "**/*.woff2",
+    "**/*.svg"
   ],
   "defaultFormat": {
     "prepend": "/**",
