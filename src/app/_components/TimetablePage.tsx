@@ -19,15 +19,18 @@
 
 "use client";
 
+import { use, useEffect, useMemo, useState } from "react";
 import { Box, Button, Group, Image, Stack, Switch, Title } from "@mantine/core";
 import type { Cinema, Movie, Screening } from "@prisma/client";
-import ScreeningTimetable from "./ScreeningTimetable";
-import MovieCarousel from "./MovieCarousel";
-import { use, useEffect, useMemo, useState } from "react";
-import MovieSearchInput from "./MovieSearchInput";
-import { useToggle } from "../useToggle";
+import PullToRefresh from 'pulltorefreshjs';
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+
+import ScreeningTimetable from "./ScreeningTimetable";
+import MovieCarousel from "./MovieCarousel";
+import MovieSearchInput from "./MovieSearchInput";
+import { useToggle } from "../useToggle";
+
 
 dayjs.extend(isBetween);
 
@@ -38,6 +41,19 @@ type TimetablePageProps = {
 };
 
 export default function TimetablePage({ screenings: screeningsPromise, startOfWeek, endOfWeek }: TimetablePageProps) {
+  // https://stackoverflow.com/a/78773384
+  // if we're on iOS in standalone mode, add support for pull to refresh
+  // @ts-expect-error typescript doesn't recognize the non-standard standalone property as it only exists on iOS
+  const isInWebAppiOS = (window.navigator.standalone === true);
+  if (isInWebAppiOS) {
+    PullToRefresh.init({
+      mainElement: 'body',
+      onRefresh() {
+        window.location.reload();
+      }
+    });
+  }
+
   const [showNewMovies, setShowNewMovies] = useState(false);
 
   const isCurrentWeek = dayjs().isBetween(startOfWeek, endOfWeek);
