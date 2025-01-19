@@ -17,31 +17,29 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { useRouter } from "next/navigation";
-import { ActionIcon, Tooltip } from "@mantine/core";
-import { IconRefresh } from "@tabler/icons-react";
-import { useContext } from "react";
-import { ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
+import { createContext } from "react";
 
-export default function RefreshButton() {
-  const viewportSize = useContext(ViewportSizeContext);
-  const isMobile = viewportSize <= ViewportSize.narrow;
+export enum ViewportSize {
+  wide = 6,
+  normal = 5,
+  tight = 4,
+  narrow = 3,
+  mobile = 2,
+  small = 1,
+};
 
-  const router = useRouter();
-
-  return (
-    <Tooltip label={"Aktualisieren"}>
-      <ActionIcon
-        right={12}
-        top={isMobile ? 11 : 15}
-        pos="absolute"
-        variant="light"
-        size="lg"
-        radius="xl"
-        onClick={() => router.refresh()}
-      >
-        <IconRefresh size={15} />
-      </ActionIcon>
-    </Tooltip>
-  );
+export function getViewportSize(viewportWidth: number) {
+  return viewportWidth < 1500
+    ? viewportWidth < 1150
+      ? viewportWidth < 940
+        ? viewportWidth < 770
+          ? viewportWidth < 500
+            ? ViewportSize.small
+            : ViewportSize.mobile
+          : ViewportSize.narrow
+        : ViewportSize.tight
+      : ViewportSize.normal
+    : ViewportSize.wide;
 }
+
+export const ViewportSizeContext = createContext<ViewportSize>(ViewportSize.wide);

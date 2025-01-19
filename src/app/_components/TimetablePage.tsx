@@ -20,8 +20,8 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import { Box, Button, em, Group, Image, Stack, Switch, Title, Transition } from "@mantine/core";
-import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { Box, Button, Group, Image, Stack, Switch, Title, Transition } from "@mantine/core";
+import { useDisclosure, useViewportSize } from "@mantine/hooks";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import PullToRefresh from 'pulltorefreshjs';
 import dayjs from "dayjs";
@@ -33,6 +33,7 @@ import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
 import MovieSearchInput from "./MovieSearchInput";
 import FilterButton from "./FilterButton";
+import { getViewportSize, ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
 
 
 dayjs.extend(isBetween);
@@ -98,50 +99,55 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
     onChange={e => setShowNewMovies(e.target.checked)}
     label="Zeige nur Neuerscheinungen"
   />;
-  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+
   const [showFilters, { toggle: toggleFilters }] = useDisclosure(false);
 
-  return (
-    <Stack gap="xl">
-      <Box>
-        <Group align="center" mb="sm">
-          <Group align="center" gap="xs">
-            <Image src="/clapperboard.png" alt="Kino in Karlsruhe" h={20} w={20} />
-            <Title order={2}>Filme</Title>
-          </Group>
-          {isMobile
-            ? <FilterButton showFilters={showFilters} toggleFilters={toggleFilters} />
-            : <>
-              {movieSearch}
-              {newSwitch}
-            </>}
-          {filteredMovies.length < uniqueMovies.length &&
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={() => {
-                setFilteredMovies(uniqueMovies.map(m => m.id));
-              }}>
-              Alle anzeigen
-            </Button>}
-        </Group>
-        {isMobile &&
-          <Transition mounted={showFilters} transition="fade-up" keepMounted timingFunction="ease" duration={200}>
-            {styles => <Stack mb="md" style={styles}>
-              {movieSearch}
-              {newSwitch}
-            </Stack>}
-          </Transition>}
-        <MovieCarousel searchIndex={searchIndex} movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
-      </Box>
+  const { width: viewportWidth } = useViewportSize();
+  const viewportSize = getViewportSize(viewportWidth);
 
-      <Box>
-        <Group align="center" gap="xs" mb="sm">
-          <Image src="/movie-night.png" alt="Kino in Karlsruhe" h={20} w={20} />
-          <Title order={2}>Vorführungen</Title>
-        </Group>
-        <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={isCurrentWeek} startOfWeek={startOfWeek} />
-      </Box>
-    </Stack>
+  return (
+    <ViewportSizeContext.Provider value={viewportSize}>
+      <Stack gap="xl">
+        <Box>
+          <Group align="center" mb="sm">
+            <Group align="center" gap="xs">
+              <Image src="/clapperboard.png" alt="Kino in Karlsruhe" h={20} w={20} />
+              <Title order={2}>Filme</Title>
+            </Group>
+            {viewportSize < ViewportSize.narrow
+              ? <FilterButton showFilters={showFilters} toggleFilters={toggleFilters} />
+              : <>
+                {movieSearch}
+                {newSwitch}
+              </>}
+            {filteredMovies.length < uniqueMovies.length &&
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => {
+                  setFilteredMovies(uniqueMovies.map(m => m.id));
+                }}>
+                Alle anzeigen
+              </Button>}
+          </Group>
+          {viewportSize < ViewportSize.narrow &&
+            <Transition mounted={showFilters} transition="fade-up" keepMounted timingFunction="ease" duration={200}>
+              {styles => <Stack mb="md" style={styles}>
+                {movieSearch}
+                {newSwitch}
+              </Stack>}
+            </Transition>}
+          <MovieCarousel searchIndex={searchIndex} movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
+        </Box>
+
+        <Box>
+          <Group align="center" gap="xs" mb="sm">
+            <Image src="/movie-night.png" alt="Kino in Karlsruhe" h={20} w={20} />
+            <Title order={2}>Vorführungen</Title>
+          </Group>
+          <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={isCurrentWeek} startOfWeek={startOfWeek} />
+        </Box>
+      </Stack>
+    </ViewportSizeContext.Provider>
   );
 }

@@ -19,16 +19,18 @@
 
 "use client";
 
-import { Group, Text, Image, em } from "@mantine/core"
-import { useMediaQuery } from "@mantine/hooks";
+import { Group, Text, Image } from "@mantine/core"
 import localFont from "next/font/local";
 import Link from "next/link";
+import { useContext } from "react";
+import { ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
 
 const font = localFont({ src: "./AcademyFilled3D.woff2", weight: "400", style: "normal" });
 
 export default function Title() {
-  const isNarrow = useMediaQuery(`(max-width: ${em(1150)})`);
-  const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
+  const viewportSize = useContext(ViewportSizeContext);
+  const isNarrow = viewportSize < ViewportSize.normal;
+  const isMobile = viewportSize <= ViewportSize.narrow;
 
   return (
     <Link href="/" scroll={false} prefetch={true}>

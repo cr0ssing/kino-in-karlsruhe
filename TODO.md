@@ -34,4 +34,8 @@
 - [x] setup CVE scanning
 - [x] optimize layout (esp. search bar) for mobile devices
 - [x] investigate loading states
+- [x] refactor media queries
+- [ ] limit max-zoom on pwa
+- [ ] refactor used colors
+- [ ] fix icons made from svg
 - [ ] update dependencies

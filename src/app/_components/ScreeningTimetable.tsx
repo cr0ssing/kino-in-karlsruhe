@@ -19,9 +19,8 @@
 
 "use client"
 
-import { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Chip, em, Group, Stack, Text } from '@mantine/core';
-import { useMediaQuery } from "@mantine/hooks";
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Box, Button, Chip, Group, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import dayjs from "dayjs";
 import minmax from "dayjs/plugin/minMax";
@@ -31,6 +30,7 @@ import type { CombinedScreening } from "./types";
 import TimetableHeader from "./TimetableHeader";
 import TimetableColumn from "./TimetableColumn";
 import CinemaCombobox from "./CinemaCombobox";
+import { ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
 
 dayjs.extend(minmax);
 
@@ -149,12 +149,13 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
     groupedByWeekday[Number(day)] = assignScreeningColumns(groupedByWeekday[Number(day)]!).filter(s => !s.blockColumn);
   });
 
+  const viewportSize = useContext(ViewportSizeContext);
+
   // Weekday headers  
-  const isMobile = useMediaQuery(`(max-width: ${em(900)})`);
-  const isNarrow = useMediaQuery(`(max-width: ${em(1450)})`);
-  const isSmall = useMediaQuery(`(max-width: ${em(475)})`);
+  const isMobile = viewportSize < ViewportSize.tight;
+  const isSmall = viewportSize === ViewportSize.small;
   const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
-    .map(day => isSmall || isNarrow && !isMobile ? day.substring(0, 2) : day)
+    .map(day => isSmall || viewportSize === ViewportSize.normal || viewportSize === ViewportSize.tight ? day.substring(0, 2) : day)
     .map((day, i) => day + ", " + dayjs(startOfWeek).add(i, 'day').format('DD.MM.'));
   const curDate = isCurrentWeek ? weekdays[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]! : "-1";
 
