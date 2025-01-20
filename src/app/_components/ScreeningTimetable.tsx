@@ -45,7 +45,7 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 170;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
-  const colorScheme = useComputedColorScheme();
+  const colorScheme = useComputedColorScheme("light");
   const timetableTodayColor = timetableTodayColors[colorScheme];
   const timetableBorderColor = timetableBorderColors[colorScheme];
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);

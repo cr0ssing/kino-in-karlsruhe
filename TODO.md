@@ -36,5 +36,6 @@
 - [x] investigate loading states
 - [x] refactor media queries
 - [x] refactor used colors
-- [ ] fix icons made from svg
+- [x] fix icons made from svg
+- [x] fix font color on pulltorefresh in dark mode
 - [ ] update dependencies

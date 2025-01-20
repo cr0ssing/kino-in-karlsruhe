@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 export default function NavigationMenu() {
   const [burgerMenuOpened, { toggle: toggleBurgerMenu }] = useDisclosure(false);
 
-  const colorScheme = useComputedColorScheme();
+  const colorScheme = useComputedColorScheme("light");
   const { setColorScheme } = useMantineColorScheme();
 
   const router = useRouter();

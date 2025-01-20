@@ -35,7 +35,7 @@ type TimetableColumnProps = {
 };
 
 export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour }: TimetableColumnProps) {
-  const colorScheme = useComputedColorScheme();
+  const colorScheme = useComputedColorScheme("light");
   const timetableBorderColor = timetableBorderColors[colorScheme];
 
   return (

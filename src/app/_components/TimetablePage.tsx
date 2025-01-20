@@ -34,7 +34,7 @@ import MovieCarousel from "./MovieCarousel";
 import MovieSearchInput from "./MovieSearchInput";
 import FilterButton from "./FilterButton";
 import { getViewportSize, ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
-
+import pullToRefreshStyles from "./pulltorefreshStyles";
 
 dayjs.extend(isBetween);
 
@@ -58,9 +58,8 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
         instructionsPullToRefresh: "Nach unten ziehen zum Aktualisieren",
         instructionsReleaseToRefresh: "Loslassen zum Aktualisieren",
         instructionsRefreshing: "Aktualisiere...",
-        onRefresh() {
-          router.refresh();
-        }
+        onRefresh: () => router.refresh(),
+        getStyles: () => pullToRefreshStyles,
       });
     }
   }, [router]);

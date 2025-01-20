@@ -32,7 +32,7 @@ type TimetableHeaderProps = {
 };
 
 export default function TimetableHeader({ text, index, selectedDay, setSelectedDay, isMobile, isToday }: TimetableHeaderProps) {
-  const colorScheme = useComputedColorScheme();
+  const colorScheme = useComputedColorScheme("light");
   const timetableTodayColor = timetableTodayColors[colorScheme];
   const timetableBorderColor = timetableBorderColors[colorScheme];
 
