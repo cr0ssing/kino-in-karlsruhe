@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.12.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.11.0...v0.12.0) (2025-01-20)
+
+
+### Features
+
+* add context menu for refresh and change color scheme ([c0d7453](https://github.com/cr0ssing/kino-in-karlsruhe/commit/c0d7453709d2451df06bd0c9b162b45f29ec615d))
+* add dark mode ([c0d7453](https://github.com/cr0ssing/kino-in-karlsruhe/commit/c0d7453709d2451df06bd0c9b162b45f29ec615d))
+* adjust text color of pulltorefresh to color scheme ([0142bd6](https://github.com/cr0ssing/kino-in-karlsruhe/commit/0142bd6d5f1bc8bf3831465c382a2f0cef696744))
+* consolidate responsive breakpoint with useContext ([a2b4e9a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/a2b4e9ad086ae5e643e8d727533e9c65d2d712ff))
+* consolidate used color ([c0d7453](https://github.com/cr0ssing/kino-in-karlsruhe/commit/c0d7453709d2451df06bd0c9b162b45f29ec615d))
+
+
+### Bug Fixes
+
+* replace generated icons with better versions ([04dec4f](https://github.com/cr0ssing/kino-in-karlsruhe/commit/04dec4fa46d2d6b4d0c42beb95efd329dc7d68d2))
+
 ## [0.11.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.10.0...v0.11.0) (2025-01-18)
 
 
