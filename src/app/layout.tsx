@@ -51,11 +51,11 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable}`} {...mantineHtmlProps}>
       <head>
         <meta name="apple-mobile-web-app-title" content="Kino in Ka" />
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
         <TRPCReactProvider>
-          <MantineProvider theme={theme}>{children}</MantineProvider>
+          <MantineProvider defaultColorScheme="auto" theme={theme}>{children}</MantineProvider>
         </TRPCReactProvider>
       </body>
     </html>

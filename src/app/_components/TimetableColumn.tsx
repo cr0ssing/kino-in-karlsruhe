@@ -17,10 +17,11 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, Group, lighten, Popover, PopoverDropdown, PopoverTarget, Stack, Text } from "@mantine/core";
+import { Box, Card, Group, lighten, Popover, PopoverDropdown, PopoverTarget, Stack, Text, useComputedColorScheme } from "@mantine/core";
 import dayjs from "dayjs";
 import type { CombinedScreening } from "./types";
 import isoWeekday from "dayjs/plugin/isoWeek";
+import { timetableBorderColors } from "../theme";
 
 dayjs.extend(isoWeekday);
 
@@ -34,6 +35,9 @@ type TimetableColumnProps = {
 };
 
 export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour }: TimetableColumnProps) {
+  const colorScheme = useComputedColorScheme();
+  const timetableBorderColor = timetableBorderColors[colorScheme];
+
   return (
     <Box key={"column-entries" + day} pos="relative" h={hourHeight * (endHour - startHour)}>
       {timeLabels.map((time, j) => (
@@ -45,7 +49,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
           h={hourHeight}
           top={hourHeight * j}
           style={{
-            borderBottom: '1px solid var(--mantine-color-gray-2)',
+            borderBottom: `1px solid ${timetableBorderColor}`,
           }}
         />
       ))}
@@ -69,7 +73,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                 padding="xs"
                 radius="sm"
                 pos="absolute"
-                bg={screening.cinemas.length === 1 ? lighten(screening.cinemas[0]!.color, .93) : undefined}
+                bg={screening.cinemas.length === 1 ? lighten(screening.cinemas[0]!.color, colorScheme === "dark" ? .3 : .93) : undefined}
                 top={`${top}px`}
                 left={left}
                 w={width}
@@ -81,7 +85,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                   cursor: 'pointer'
                 }}
               >
-                <Text size="sm" fw={700} lineClamp={1}>
+                <Text size="sm" c={colorScheme === "dark" ? "white" : "black"} fw={700} lineClamp={1}>
                   {screening.movie.title}
                 </Text>
               </Card>

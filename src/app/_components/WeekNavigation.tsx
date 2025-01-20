@@ -22,21 +22,19 @@
 import { useMemo } from "react";
 import Link, { type LinkProps } from "next/link";
 import { ActionIcon, Button, Group, Stack, Text, Tooltip } from "@mantine/core";
-import { useMediaQuery, useViewportSize } from "@mantine/hooks";
+import { useViewportSize } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
 
 import { api } from "~/trpc/react";
 import Title from "./Title";
-import RefreshButton from "./RefreshButton";
 import { getViewportSize, ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
+import NavigationMenu from "./NavigationMenu";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
   const { width: viewportWidth } = useViewportSize();
   const viewportSize = getViewportSize(viewportWidth);
   const isMobile = viewportSize <= ViewportSize.narrow;
-  const isStandalone = useMediaQuery("(display-mode: standalone)");
-  const isMobileAgent = /mobile/.exec(navigator.userAgent.toLowerCase());
 
   // Format dates for display
   const dateFormatter = new Intl.DateTimeFormat("de-DE", {
@@ -65,7 +63,6 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
     };
   }
 
-
   return (
     <ViewportSizeContext.Provider value={viewportSize}>
       <Stack
@@ -74,10 +71,10 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
         top={0}
         mb="lg"
         bg="var(--mantine-color-body)"
-        style={{ zIndex: 2, borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+        style={{ zIndex: 2, borderBottom: "1px solid var(--mantine-color-default-border)" }}
       >
         <Title />
-        <Group justify="center" wrap="nowrap" mr="xl" ml="xl" mb="xs">
+        <Group justify="center" wrap="nowrap" mr="xl" ml="xl" mb="sm">
           <Tooltip label="Vorherige Woche" disabled={!isMobile}>
             {isMobile
               ? <ActionIcon {...navigate("previous")} variant="subtle" disabled={!enabledPreviousWeek}>
@@ -112,7 +109,14 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
             }
           </Tooltip>
         </Group>
-        {isStandalone && !isMobileAgent && <RefreshButton />}
+        <Group
+          gap="xs"
+          right={12}
+          top={isMobile ? 11 : 15}
+          pos="absolute"
+        >
+          <NavigationMenu />
+        </Group>
       </Stack>
     </ViewportSizeContext.Provider>
   );

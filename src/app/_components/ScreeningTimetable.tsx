@@ -20,7 +20,7 @@
 "use client"
 
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Box, Button, Chip, Group, Stack, Text } from '@mantine/core';
+import { Box, Button, Chip, Group, Stack, Text, useComputedColorScheme } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import dayjs from "dayjs";
 import minmax from "dayjs/plugin/minMax";
@@ -31,7 +31,7 @@ import TimetableHeader from "./TimetableHeader";
 import TimetableColumn from "./TimetableColumn";
 import CinemaCombobox from "./CinemaCombobox";
 import { ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
-
+import { timetableBorderColors, timetableTodayColors } from "../theme";
 dayjs.extend(minmax);
 
 interface ScreeningTimetableProps {
@@ -45,6 +45,9 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 170;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
+  const colorScheme = useComputedColorScheme();
+  const timetableTodayColor = timetableTodayColors[colorScheme];
+  const timetableBorderColor = timetableBorderColors[colorScheme];
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
 
   const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
@@ -222,17 +225,17 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
         style={{
           display: 'grid',
           gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
-          borderTop: '1px solid var(--mantine-color-gray-3)',
+          borderTop: `1px solid ${timetableBorderColor}`,
         }}>
         {/* Time labels column */}
-        <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+        <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: `1px solid ${timetableBorderColor}` }}>
           <TimetableHeader text="Zeit" isToday={false} index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} isMobile={isMobile} />
           {timeLabels.map((time) => (
             <Box
               key={time}
               h={HOUR_HEIGHT}
               style={{
-                borderBottom: '1px solid var(--mantine-color-gray-2)',
+                borderBottom: `1px solid ${timetableBorderColor}`,
                 padding: '4px',
               }}
             >
@@ -247,10 +250,10 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
             <Box
               key={"column" + day}
               pos="relative"
-              bg={i === curDateIndex ? 'var(--mantine-color-gray-1)' : undefined}
+              bg={i === curDateIndex ? timetableTodayColor : undefined}
               style={{
                 gridColumn: i + 2,
-                borderRight: i < displayedWeekdays.length - 1 ? '1px solid var(--mantine-color-gray-3)' : undefined,
+                borderRight: i < displayedWeekdays.length - 1 ? `1px solid ${timetableBorderColor}` : undefined,
               }}
             >
               <TimetableHeader

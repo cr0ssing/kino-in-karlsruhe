@@ -21,7 +21,17 @@ import {
   DEFAULT_THEME,
   type MantineThemeColors,
   type MantineBreakpointsValues,
+  lighten,
 } from "@mantine/core";
 
 export const colors: MantineThemeColors = DEFAULT_THEME.colors;
 export const breakpoints: MantineBreakpointsValues = DEFAULT_THEME.breakpoints;
+
+export const timetableBorderColors = {
+  light: lighten("var(--mantine-color-default-border)", .4),
+  dark: lighten("var(--mantine-color-default-border)", .2)
+};
+export const timetableTodayColors = {
+  light: "var(--mantine-color-gray-1)",
+  dark: "var(--mantine-color-dark-4)"
+};

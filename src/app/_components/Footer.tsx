@@ -22,7 +22,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <Stack gap={4} p="xs" style={{ borderTop: '1px solid var(--mantine-color-gray-4)' }}>
+    <Stack gap={4} p="xs" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
       <Text ta="center" size="sm">
         Made with ❤️ in Karlsruhe
       </Text>
