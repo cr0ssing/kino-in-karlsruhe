@@ -42,7 +42,7 @@ interface ScreeningTimetableProps {
 
 const START_HOUR = 9;
 const END_HOUR = 24;
-const HOUR_HEIGHT = 170;
+const HOUR_HEIGHT = 152;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
   const colorScheme = useComputedColorScheme("light");
@@ -222,10 +222,10 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
       }
       <Box
         pos='relative'
+        bd={`1px solid ${timetableBorderColor}`}
         style={{
           display: 'grid',
           gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
-          borderTop: `1px solid ${timetableBorderColor}`,
         }}>
         {/* Time labels column */}
         <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: `1px solid ${timetableBorderColor}` }}>

@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, Group, lighten, Popover, PopoverDropdown, PopoverTarget, Stack, Text, useComputedColorScheme } from "@mantine/core";
+import { Box, Button, Card, Group, lighten, Popover, PopoverDropdown, PopoverTarget, Stack, Text, useComputedColorScheme } from "@mantine/core";
 import dayjs from "dayjs";
 import type { CombinedScreening } from "./types";
 import isoWeekday from "dayjs/plugin/isoWeek";
@@ -60,20 +60,23 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
         const minutes = screening.startTime.getMinutes();
         const top = (hours - startHour + minutes / 60) * hourHeight;
 
+        const leftRightPadding = 1;
         // Calculate width and position based on column information
-        const width = `calc((100% - 8px) / ${screening.totalColumns})`;
-        const left = `calc(4px + ${screening.columnIndex} * (100% - 8px) / ${screening.totalColumns})`;
+        const widthTerm = `${100 / screening.totalColumns}% - ${2 * leftRightPadding}px`;
+        const width = `calc(${widthTerm})`;
+        const left = `calc(${(1 + screening.columnIndex * 2) * leftRightPadding}px + ${screening.columnIndex} * (${widthTerm}))`;
 
         return (
           <Popover key={"popover" + screening.id}>
             <PopoverTarget key={"popover-target" + screening.id}>
               <Card
+                component={Button}
                 key={screening.id}
                 shadow="xs"
                 padding="xs"
                 radius="sm"
                 pos="absolute"
-                bg={screening.cinemas.length === 1 ? lighten(screening.cinemas[0]!.color, colorScheme === "dark" ? .3 : .93) : undefined}
+                bg={screening.cinemas.length === 1 ? lighten(screening.cinemas[0]!.color, colorScheme === "dark" ? .3 : .93) : "var(--mantine-color-default)"}
                 top={`${top}px`}
                 left={left}
                 w={width}
@@ -81,9 +84,6 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                   dayjs(screening.startTime).diff(dayjs(screening.movie.releaseDate), "days") < 7
                   ? "1px solid var(--mantine-color-yellow-5)"
                   : undefined}
-                style={{
-                  cursor: 'pointer'
-                }}
               >
                 <Text size="sm" c={colorScheme === "dark" ? "white" : "black"} fw={700} lineClamp={1}>
                   {screening.movie.title}
