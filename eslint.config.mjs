@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2024 Robin Lamberti.
+ * 
+ * This file is part of kino-in-karlsruhe.
+ * 
+ * kino-in-karlsruhe is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * kino-in-karlsruhe is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import path from "node:path";
@@ -8,49 +27,50 @@ import { FlatCompat } from "@eslint/eslintrc";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all
 });
 
 export default [...compat.extends(
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended-type-checked",
-    "plugin:@typescript-eslint/stylistic-type-checked",
-), {
-    plugins: {
-        "@typescript-eslint": typescriptEslint,
+  "next/core-web-vitals",
+  "plugin:@typescript-eslint/recommended-type-checked",
+  "plugin:@typescript-eslint/stylistic-type-checked",
+),
+{
+  plugins: {
+    "@typescript-eslint": typescriptEslint,
+  },
+
+  languageOptions: {
+    parser: tsParser,
+    ecmaVersion: 5,
+    sourceType: "script",
+
+    parserOptions: {
+      project: true,
     },
+  },
 
-    languageOptions: {
-        parser: tsParser,
-        ecmaVersion: 5,
-        sourceType: "script",
+  rules: {
+    "@typescript-eslint/array-type": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
 
-        parserOptions: {
-            project: true,
-        },
-    },
+    "@typescript-eslint/consistent-type-imports": ["warn", {
+      prefer: "type-imports",
+      fixStyle: "inline-type-imports",
+    }],
 
-    rules: {
-        "@typescript-eslint/array-type": "off",
-        "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      argsIgnorePattern: "^_",
+    }],
 
-        "@typescript-eslint/consistent-type-imports": ["warn", {
-            prefer: "type-imports",
-            fixStyle: "inline-type-imports",
-        }],
+    "@typescript-eslint/require-await": "off",
 
-        "@typescript-eslint/no-unused-vars": ["warn", {
-            argsIgnorePattern: "^_",
-        }],
-
-        "@typescript-eslint/require-await": "off",
-
-        "@typescript-eslint/no-misused-promises": ["error", {
-            checksVoidReturn: {
-                attributes: false,
-            },
-        }],
-    },
+    "@typescript-eslint/no-misused-promises": ["error", {
+      checksVoidReturn: {
+        attributes: false,
+      },
+    }],
+  },
 }];
