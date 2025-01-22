@@ -17,6 +17,8 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
+"use client";
+
 import { ActionIcon, Box, Burger, Menu, MenuDropdown, MenuItem, MenuTarget, useComputedColorScheme, useMantineColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconMoon, IconRefresh, IconSun } from "@tabler/icons-react";

@@ -38,4 +38,10 @@
 - [x] refactor used colors
 - [x] fix icons made from svg
 - [x] fix font color on pulltorefresh in dark mode
-- [ ] update dependencies
+- [x] update dependencies
+- [ ] movie detail modal
+- [ ] extended movie grid
+- [ ] more granular suspense with skeletons
+- [ ] investigate optimizing image loading
+- [ ] swipe gestures for touch
+- [ ] auto reloading for PWA

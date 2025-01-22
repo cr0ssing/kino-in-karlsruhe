@@ -17,10 +17,10 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use client"
+"use client";
 
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Box, Button, Chip, Group, Stack, Text, useComputedColorScheme } from '@mantine/core';
+import { Box, Button, Chip, Group, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import dayjs from "dayjs";
 import minmax from "dayjs/plugin/minMax";
@@ -31,7 +31,7 @@ import TimetableHeader from "./TimetableHeader";
 import TimetableColumn from "./TimetableColumn";
 import CinemaCombobox from "./CinemaCombobox";
 import { ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
-import { timetableBorderColors, timetableTodayColors } from "../theme";
+
 dayjs.extend(minmax);
 
 interface ScreeningTimetableProps {
@@ -45,9 +45,6 @@ const END_HOUR = 24;
 const HOUR_HEIGHT = 152;
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
-  const colorScheme = useComputedColorScheme("light");
-  const timetableTodayColor = timetableTodayColors[colorScheme];
-  const timetableBorderColor = timetableBorderColors[colorScheme];
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
 
   const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
@@ -168,6 +165,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   );
 
   const mondayBasedDayIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : 0;
+  const [selectedDay, setSelectedDay] = useState(-1);
 
   useEffect(() => {
     if (isMobile) {
@@ -175,9 +173,9 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
     } else {
       setSelectedDay(-1);
     }
-  }, [isMobile, mondayBasedDayIndex]);
+  }, [isMobile, mondayBasedDayIndex, setSelectedDay]);
 
-  const [selectedDay, setSelectedDay] = useState(-1);
+
 
   // Filter weekdays based on selection
   const displayedWeekdays = selectedDay === -1
@@ -222,20 +220,27 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
       }
       <Box
         pos='relative'
-        bd={`1px solid ${timetableBorderColor}`}
+        bd={`1px solid var(--mantine-color-timetable-border)`}
         style={{
           display: 'grid',
           gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
         }}>
         {/* Time labels column */}
-        <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: `1px solid ${timetableBorderColor}` }}>
-          <TimetableHeader text="Zeit" isToday={false} index={-1} selectedDay={selectedDay} setSelectedDay={setSelectedDay} isMobile={isMobile} />
+        <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: `1px solid var(--mantine-color-timetable-border)` }}>
+          <TimetableHeader
+            text="Zeit"
+            isToday={false}
+            index={-1}
+            selectedDay={selectedDay}
+            setSelectedDay={setSelectedDay}
+            isMobile={isMobile}
+          />
           {timeLabels.map((time) => (
             <Box
               key={time}
               h={HOUR_HEIGHT}
               style={{
-                borderBottom: `1px solid ${timetableBorderColor}`,
+                borderBottom: `1px solid var(--mantine-color-timetable-border)`,
                 padding: '4px',
               }}
             >
@@ -250,10 +255,10 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
             <Box
               key={"column" + day}
               pos="relative"
-              bg={i === curDateIndex ? timetableTodayColor : undefined}
+              bg={i === curDateIndex ? "var(--mantine-color-timetable-today)" : undefined}
               style={{
                 gridColumn: i + 2,
-                borderRight: i < displayedWeekdays.length - 1 ? `1px solid ${timetableBorderColor}` : undefined,
+                borderRight: i < displayedWeekdays.length - 1 ? `1px solid var(--mantine-color-timetable-border)` : undefined,
               }}
             >
               <TimetableHeader

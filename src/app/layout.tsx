@@ -24,29 +24,20 @@ import '@mantine/carousel/styles.css';
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-import { MantineProvider, ColorSchemeScript, createTheme, DEFAULT_THEME, mergeMantineTheme, mantineHtmlProps } from "@mantine/core";
+import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { breakpoints, colors } from "./theme";
+import ClientLayout from "./clientLayout";
 
 export const metadata: Metadata = {
   title: "Kino in Karlsruhe",
   description: "Ein Kalender zum Anzeigen aller Vorführungen von Kinos in Karlsruhe",
 };
 
-const theme = mergeMantineTheme(
-  DEFAULT_THEME,
-  createTheme({
-    fontFamily: GeistSans.style.fontFamily,
-    breakpoints,
-    primaryColor: "red",
-    colors,
-  })
-);
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+
   return (
     <html lang="en" className={`${GeistSans.variable}`} {...mantineHtmlProps}>
       <head>
@@ -55,7 +46,9 @@ export default function RootLayout({
       </head>
       <body>
         <TRPCReactProvider>
-          <MantineProvider defaultColorScheme="auto" theme={theme}>{children}</MantineProvider>
+          <ClientLayout>
+            {children}
+          </ClientLayout>
         </TRPCReactProvider>
       </body>
     </html>

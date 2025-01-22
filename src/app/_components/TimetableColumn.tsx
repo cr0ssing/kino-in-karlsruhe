@@ -17,11 +17,10 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Card, Group, lighten, Popover, PopoverDropdown, PopoverTarget, Stack, Text, useComputedColorScheme } from "@mantine/core";
+import { Box, Button, Card, Group, lighten, Popover, PopoverDropdown, PopoverTarget, Stack, Text } from "@mantine/core";
 import dayjs from "dayjs";
 import type { CombinedScreening } from "./types";
 import isoWeekday from "dayjs/plugin/isoWeek";
-import { timetableBorderColors } from "../theme";
 
 dayjs.extend(isoWeekday);
 
@@ -35,9 +34,6 @@ type TimetableColumnProps = {
 };
 
 export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour }: TimetableColumnProps) {
-  const colorScheme = useComputedColorScheme("light");
-  const timetableBorderColor = timetableBorderColors[colorScheme];
-
   return (
     <Box key={"column-entries" + day} pos="relative" h={hourHeight * (endHour - startHour)}>
       {timeLabels.map((time, j) => (
@@ -49,7 +45,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
           h={hourHeight}
           top={hourHeight * j}
           style={{
-            borderBottom: `1px solid ${timetableBorderColor}`,
+            borderBottom: `1px solid var(--mantine-color-timetable-border)`,
           }}
         />
       ))}
@@ -76,7 +72,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                 padding="xs"
                 radius="sm"
                 pos="absolute"
-                bg={screening.cinemas.length === 1 ? lighten(screening.cinemas[0]!.color, colorScheme === "dark" ? .3 : .93) : "var(--mantine-color-default)"}
+                bg={screening.cinemas.length === 1 ? lighten(screening.cinemas[0]!.color, .6) : "white"}
                 top={`${top}px`}
                 left={left}
                 w={width}
@@ -85,7 +81,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                   ? "1px solid var(--mantine-color-yellow-5)"
                   : undefined}
               >
-                <Text size="sm" c={colorScheme === "dark" ? "white" : "black"} fw={700} lineClamp={1}>
+                <Text size="sm" c="black" fw={700} lineClamp={1}>
                   {screening.movie.title}
                 </Text>
               </Card>

@@ -17,10 +17,9 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ActionIcon, Box, Group, Text, useComputedColorScheme } from "@mantine/core";
+import { ActionIcon, Box, Group, Text } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { Dispatch, SetStateAction } from "react";
-import { timetableBorderColors, timetableTodayColors } from "../theme";
 
 type TimetableHeaderProps = {
   text: string;
@@ -32,9 +31,6 @@ type TimetableHeaderProps = {
 };
 
 export default function TimetableHeader({ text, index, selectedDay, setSelectedDay, isMobile, isToday }: TimetableHeaderProps) {
-  const colorScheme = useComputedColorScheme("light");
-  const timetableTodayColor = timetableTodayColors[colorScheme];
-  const timetableBorderColor = timetableBorderColors[colorScheme];
 
   return (
     <Group
@@ -42,9 +38,9 @@ export default function TimetableHeader({ text, index, selectedDay, setSelectedD
       p="sm"
       top={isMobile ? "57px" : "65px"}
       pos="sticky"
-      bg={isToday ? timetableTodayColor : 'var(--mantine-color-body)'}
+      bg={isToday ? "var(--mantine-color-timetable-today)" : 'var(--mantine-color-body)'}
       style={{
-        borderBottom: `1px solid ${timetableBorderColor}`,
+        borderBottom: `1px solid var(--mantine-color-timetable-border)`,
         zIndex: 2,
       }}>
       {index !== -1 && selectedDay !== -1 && (
