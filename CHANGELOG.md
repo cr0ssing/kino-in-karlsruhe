@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.12.0...v1.0.0) (2025-01-21)
+
+
+### Features
+
+* update all dependencies to latest possible version ([e249ee7](https://github.com/cr0ssing/kino-in-karlsruhe/commit/e249ee7a872bac85b88cbe0c78aa0ed2f43b2bbe))
+* use latest node lts ([d6a6005](https://github.com/cr0ssing/kino-in-karlsruhe/commit/d6a60050956058e1468869a24400cfde16bde7fb))
+
+
+### Bug Fixes
+
+* migrate eslint config file to version 9 flat config ([8c24804](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8c2480416429badb689357f53a6422dda225d2be))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([e249ee7](https://github.com/cr0ssing/kino-in-karlsruhe/commit/e249ee7a872bac85b88cbe0c78aa0ed2f43b2bbe))
+
 ## [0.12.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.11.0...v0.12.0) (2025-01-20)
 
 
