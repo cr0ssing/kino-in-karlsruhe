@@ -59,7 +59,7 @@
   "devDependencies": {
     "@types/eslint": "^9.6.1",
     "@types/eslint__eslintrc": "^2.1.2",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.12.0",
     "@types/node-cron": "^3.0.11",
     "@types/pulltorefreshjs": "^0.1.7",
     "@types/react": "19.0.7",
