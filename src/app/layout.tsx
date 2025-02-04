@@ -25,6 +25,7 @@ import '@mantine/carousel/styles.css';
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
+import "dayjs/locale/de";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import ClientLayout from "./clientLayout";

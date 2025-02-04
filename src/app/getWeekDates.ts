@@ -17,29 +17,11 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { createContext } from "react";
+import dayjs from "dayjs";
+import "dayjs/locale/de";
 
-export enum ViewportSize {
-  wide = 6,
-  normal = 5,
-  tight = 4,
-  narrow = 3,
-  mobile = 2,
-  small = 1,
-};
-
-export function getViewportSize(viewportWidth: number) {
-  return viewportWidth < 1500
-    ? viewportWidth < 1150
-      ? viewportWidth < 940
-        ? viewportWidth < 790
-          ? viewportWidth < 500
-            ? ViewportSize.small
-            : ViewportSize.mobile
-          : ViewportSize.narrow
-        : ViewportSize.tight
-      : ViewportSize.normal
-    : ViewportSize.wide;
+export function getWeekDates(weekOffset: number) {
+  const startOfWeek = dayjs().locale("de").startOf("week").add(weekOffset, "week").toDate();
+  const endOfWeek = dayjs().locale("de").endOf("week").add(weekOffset, "week").toDate();
+  return { startOfWeek, endOfWeek };
 }
-
-export const ViewportSizeContext = createContext<ViewportSize>(ViewportSize.wide);

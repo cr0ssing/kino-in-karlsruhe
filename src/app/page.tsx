@@ -19,22 +19,19 @@
 
 import { Suspense } from "react";
 import { Center, Flex, Loader, Stack, Text } from "@mantine/core";
-import dayjs from "dayjs";
-import "dayjs/locale/de";
 
 import { api, HydrateClient } from "~/trpc/server";
 import WeekNavigation from "./_components/WeekNavigation";
 import TimetablePage from "./_components/TimetablePage";
 import Footer from "./_components/Footer";
+import { getWeekDates } from "./getWeekDates";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ weekOffset?: string }> }) {
 
   // Get week offset from URL params (default to 0)
   const weekOffset = parseInt((await searchParams).weekOffset ?? "0");
 
-  // Get this week's date range
-  const startOfWeek = dayjs().locale("de").startOf("week").add(weekOffset, "week").toDate();
-  const endOfWeek = dayjs().locale("de").endOf("week").add(weekOffset, "week").toDate();
+  const { startOfWeek, endOfWeek } = getWeekDates(weekOffset);
 
   // Fetch screenings for this week
   const screenings = api.screening.getAll({

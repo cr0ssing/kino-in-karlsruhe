@@ -175,8 +175,6 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
     }
   }, [isMobile, mondayBasedDayIndex, setSelectedDay]);
 
-
-
   // Filter weekdays based on selection
   const displayedWeekdays = selectedDay === -1
     ? weekdays

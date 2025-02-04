@@ -20,7 +20,7 @@
 import { CloseButton, TextInput, Tooltip } from "@mantine/core";
 import { useDebouncedCallback } from "@mantine/hooks";
 import type { Movie } from "@prisma/client";
-import { IconExclamationMark } from "@tabler/icons-react";
+import { IconExclamationMark, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 
 export default function MovieSearchInput({ movies, scrollToIndex }: { movies: Movie[], scrollToIndex: (index: number) => void }) {
@@ -49,10 +49,11 @@ export default function MovieSearchInput({ movies, scrollToIndex }: { movies: Mo
         setSearch(e.currentTarget.value);
         debouncedSearch(e.currentTarget.value);
       }}
-      leftSection={notFound &&
+      leftSection={notFound ?
         <Tooltip label="Film nicht gefunden">
           <IconExclamationMark size={16} color="red" />
-        </Tooltip>}
+        </Tooltip> :
+        <IconSearch size={16} />}
       rightSection={search &&
         <Tooltip label="Eingabe löschen">
           <CloseButton size={16} variant="transparent" onClick={() => { setSearch(""); setNotFound(false); }} />
