@@ -131,7 +131,7 @@ export async function run() {
         title: e.searchTitle,
         searchTitles: [e.searchTitle],
         length: !!details.length && details.length > 0 ? details.length : Prisma.skip,
-        releaseDate: releaseDate ? releaseDate : Prisma.skip
+        releaseDate: releaseDate ?? Prisma.skip
       }
     });
     movies.push(movie);
