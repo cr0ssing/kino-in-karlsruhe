@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.0.0...v1.1.0) (2025-02-04)
+
+
+### Features
+
+* add movie modal ([7e911ce](https://github.com/cr0ssing/kino-in-karlsruhe/commit/7e911ce83c867447174f0f7dedacb8308f8fddbb))
+* add search icon on search bar ([35eca87](https://github.com/cr0ssing/kino-in-karlsruhe/commit/35eca8795f03357affa21e927fa3c723eee5771a))
+* adjust viewport size narrow ([35eca87](https://github.com/cr0ssing/kino-in-karlsruhe/commit/35eca8795f03357affa21e927fa3c723eee5771a))
+* crawl movie backdrop urls ([7e911ce](https://github.com/cr0ssing/kino-in-karlsruhe/commit/7e911ce83c867447174f0f7dedacb8308f8fddbb))
+
+
+### Bug Fixes
+
+* hydration error on loading page in dark mode ([681f6f6](https://github.com/cr0ssing/kino-in-karlsruhe/commit/681f6f64f6e01f15bea7886764198005452dbb04))
+* install newest version of corepack in docker image ([fc544cd](https://github.com/cr0ssing/kino-in-karlsruhe/commit/fc544cd88273502c978ba563544c13aa3b528452))
+
 ## [1.0.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v0.12.0...v1.0.0) (2025-01-21)
 
 
