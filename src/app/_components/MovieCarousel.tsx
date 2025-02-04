@@ -18,10 +18,11 @@
  */
 
 import { Carousel, CarouselSlide, type Embla } from '@mantine/carousel';
-import { ActionIcon, Card, CardSection, Image, Overlay, Tooltip, alpha } from '@mantine/core';
+import { alpha } from '@mantine/core';
 import type { Movie } from '@prisma/client';
-import { IconCheck } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import MoviePoster from "./MoviePoster";
+import MovieModal from "./MovieModal";
 
 interface MovieCarouselProps {
   movies: Movie[];
@@ -33,9 +34,6 @@ interface MovieCarouselProps {
 export default function MovieCarousel({ searchIndex, movies, filteredMovies, toggleMovie }: MovieCarouselProps) {
   // TODO adjust this to breakpoints
   const toShow = 6;
-  function fallbackURL(title: string) {
-    return `https://placehold.co/400x600?text=${encodeURIComponent(title)}`;
-  }
 
   const [emblaApi, setEmblaApi] = useState<Embla | null>(null);
 
@@ -50,62 +48,41 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
     }
   }, [movies, emblaApi]);
 
+  const moviesById = useMemo(() => new Map(movies.map(movie => [movie.id, movie])), [movies]);
+
+  const [openedMovie, setOpenedMovie] = useState<number | null>(null);
+
   return (
-    <Carousel
-      align="start"
-      slidesToScroll={1}
-      slideSize={{ xl: "150px", lg: "140px", md: "130px", sm: "120px", xs: "110px", base: `${100 / 3}%` }}
-      slideGap="sm"
-      loop
-      styles={{ control: { backgroundColor: alpha("var(--mantine-primary-color-filled)", 0.7), color: "white", border: "0px" } }}
-      dragFree={movies.length > toShow}
-      draggable={movies.length > toShow}
-      withIndicators={false}
-      withControls={movies.length > toShow}
-      getEmblaApi={setEmblaApi}
-    >
-      {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
-        <CarouselSlide
-          key={movie.id}
-        >
-          <Tooltip label={movie.title}>
-            <Card withBorder>
-              <CardSection>
-                <Image
-                  src={movie.posterUrl ? `https://image.tmdb.org/t/p/w440_and_h660_face${movie.posterUrl}` : fallbackURL(movie.title)}
-                  fit="contain"
-                  alt={movie.title}
-                  fallbackSrc={fallbackURL("Kein Poster")}
-                />
-                {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
-                <Tooltip
-                  label={
-                    filteredMovies.length === movies.length
-                      ? "Nur diesen Film einblenden"
-                      : movie.enabled
-                        ? filteredMovies.length === 1
-                          ? "Alle einblenden"
-                          : "Ausblenden"
-                        : "Einblenden"}>
-                  <ActionIcon
-                    variant="filled"
-                    radius="xl"
-                    size="sm"
-                    pos="absolute"
-                    bg={alpha("var(--mantine-primary-color-filled)", 0.5)}
-                    bottom={8}
-                    right={8}
-                    onClick={() => toggleMovie(movie.id)}
-                    style={{ zIndex: 200 }}
-                  >
-                    {movie.enabled && <IconCheck size={13} />}
-                  </ActionIcon>
-                </Tooltip>
-              </CardSection>
-            </Card>
-          </Tooltip>
-        </CarouselSlide>
-      ))}
-    </Carousel>
+    <>
+      <Carousel
+        align="start"
+        slidesToScroll={1}
+        slideSize={{ xl: "150px", lg: "140px", md: "130px", sm: "120px", xs: "110px", base: `${100 / 3}%` }}
+        slideGap="sm"
+        loop
+        styles={{ control: { backgroundColor: alpha("var(--mantine-primary-color-filled)", 0.7), color: "white", border: "0px" } }}
+        dragFree={movies.length > toShow}
+        draggable={movies.length > toShow}
+        withIndicators={false}
+        withControls={movies.length > toShow}
+        getEmblaApi={setEmblaApi}
+      >
+        {movies.map(movie => ({ ...movie, enabled: filteredMovies.includes(movie.id) })).map((movie) => (
+          <CarouselSlide key={movie.id}>
+            <MoviePoster
+              movie={movie}
+              filteredMoviesCount={filteredMovies.length}
+              moviesCount={movies.length}
+              toggleMovie={toggleMovie}
+              openMovieModal={setOpenedMovie}
+            />
+          </CarouselSlide>
+        ))}
+      </Carousel>
+      <MovieModal
+        movie={openedMovie !== null ? moviesById.get(openedMovie)! : null}
+        close={() => setOpenedMovie(null)}
+      />
+    </>
   );
 }

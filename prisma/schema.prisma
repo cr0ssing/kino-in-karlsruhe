@@ -19,7 +19,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["strictUndefinedChecks"]
 }
 
 datasource db {
@@ -58,6 +59,7 @@ model Movie {
   title        String
   searchTitles String[]
   posterUrl    String?
+  backdropUrl  String?
   tmdbId       Int?        @unique
   length       Int?
   popularity   Float?

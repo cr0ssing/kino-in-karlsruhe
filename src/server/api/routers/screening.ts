@@ -19,6 +19,8 @@
 
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import dayjs from "dayjs";
+import { Prisma } from "@prisma/client";
 
 export const screeningRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -51,8 +53,18 @@ export const screeningRouter = createTRPCRouter({
       return result;
     }),
 
-  getDateRange: publicProcedure
-    .query(async ({ ctx }) => {
+  getInfiniteScreenings: publicProcedure.input(
+    z.object({
+      dayAmount: z.number(),
+      movieId: z.number().optional(),
+      cursor: z.date().nullish()
+    })
+  )
+    .query(async ({ ctx, input }) => {
+      const { dayAmount, movieId, cursor } = input;
+
+      let startDate = cursor;
+
       const aggregations = await ctx.db.screening.aggregate({
         _min: {
           startTime: true,
@@ -60,6 +72,72 @@ export const screeningRouter = createTRPCRouter({
         _max: {
           startTime: true,
         },
+        where: {
+          movieId: movieId ?? Prisma.skip
+        }
+      });
+      if (!startDate) {
+        startDate = aggregations._min.startTime;
+      }
+
+      if (!startDate) {
+        return {
+          screenings: [],
+          cursor: null,
+        };
+      }
+
+      let result = [];
+      let hasNextPage;
+      do {
+        const endDate = dayjs(startDate).add(dayAmount - 1, 'day').endOf('day').toDate();
+        result = await ctx.db.screening.findMany({
+          where: {
+            AND: [
+              { startTime: { gte: startDate } },
+              { startTime: { lte: endDate } },
+              movieId ? { movieId } : {},
+            ],
+          },
+          orderBy: [
+            { startTime: 'asc' },
+            { id: 'asc' },
+          ],
+          include: {
+            movie: true,
+            cinema: true,
+          },
+        });
+
+        startDate = dayjs(endDate).add(1, "day").startOf("day").toDate();
+        hasNextPage = !dayjs(startDate).isAfter(aggregations._max.startTime);
+      } while (result.length === 0 && hasNextPage);
+
+      return {
+        screenings: result,
+        cursor: !hasNextPage ? undefined : startDate,
+      };
+    }),
+
+  getDateRange: publicProcedure
+    .input(
+      z.object({
+        movieId: z.number().optional()
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { movieId } = input;
+
+      const aggregations = await ctx.db.screening.aggregate({
+        _min: {
+          startTime: true,
+        },
+        _max: {
+          startTime: true,
+        },
+        where: {
+          movieId: movieId ?? Prisma.skip
+        }
       });
 
       return {

@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Movie } from "@prisma/client";
+import { Prisma, type Movie } from "@prisma/client";
 import { load } from "cheerio";
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
@@ -78,7 +78,7 @@ export async function run() {
 
   // assign tmdbId to searchTitles either from existing movies or TMDB API
   const found = await Promise.all(Array.from(uniqueMovies).map(async m => {
-    const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true };
+    const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true, backdropUrl: true };
     let movie = await db.movie.findFirst({
       where: { searchTitles: { has: m } },
       select
@@ -98,12 +98,12 @@ export async function run() {
     }
     if (movie) {
       // if movie metadata is not present or old, update it
-      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity || !movie.releaseDate)) {
+      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity || !movie.releaseDate || !movie.backdropUrl)) {
         toUpdate.push((async (tmdbId: number) => {
           const details = await getDetails(tmdbId);
           await db.movie.update({
             where: { id: movie.id },
-            data: { popularity: details.popularity, releaseDate: details.releaseDate }
+            data: { popularity: details.popularity, releaseDate: details.releaseDate, backdropUrl: details.backdropUrl }
           });
         })(movie.tmdbId));
       }
@@ -130,8 +130,8 @@ export async function run() {
       data: {
         title: e.searchTitle,
         searchTitles: [e.searchTitle],
-        length: details.length && details.length > 0 ? details.length : undefined,
-        releaseDate
+        length: !!details.length && details.length > 0 ? details.length : Prisma.skip,
+        releaseDate: releaseDate ? releaseDate : Prisma.skip
       }
     });
     movies.push(movie);
@@ -178,7 +178,8 @@ export async function run() {
 
 type MovieDetails = {
   id: number,
-  poster_path: string
+  poster_path: string,
+  backdrop_path: string,
   title: string,
   original_title: string,
   release_date: string
@@ -218,6 +219,7 @@ async function getDetails(id: number) {
     tmdbId: data.id,
     title: data.title ?? data.original_title,
     posterUrl: data.poster_path,
+    backdropUrl: data.backdrop_path,
     length: data.runtime,
     popularity: data.popularity,
     releaseDate: !!releaseDate ? releaseDate.toDate() : null

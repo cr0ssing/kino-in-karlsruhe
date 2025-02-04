@@ -39,7 +39,7 @@
 - [x] fix icons made from svg
 - [x] fix font color on pulltorefresh in dark mode
 - [x] update dependencies
-- [ ] movie detail modal
+- [x] movie detail modal
 - [ ] extended movie grid
 - [ ] more granular suspense with skeletons
 - [ ] investigate optimizing image loading

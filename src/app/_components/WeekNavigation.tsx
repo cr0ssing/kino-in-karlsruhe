@@ -48,7 +48,7 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
   const dateRange = `${dateFormatter.format(startDate)} - ${dateFormatter.format(endDate)}`;
 
   const globalDateRangeStaleTime = useMemo(() => dayjs().add(1, "day").hour(2).diff(), []);
-  const { data: globalDateRange } = api.screening.getDateRange.useQuery(undefined, { staleTime: globalDateRangeStaleTime });
+  const { data: globalDateRange } = api.screening.getDateRange.useQuery({}, { staleTime: globalDateRangeStaleTime });
   const { minDate, maxDate } = globalDateRange ?? {};
 
   const enabledPreviousWeek = minDate && dayjs(minDate).isBefore(startDate);
