@@ -42,6 +42,7 @@
     "@trpc/client": "^11.0.0-rc.446",
     "@trpc/react-query": "^11.0.0-rc.446",
     "@trpc/server": "^11.0.0-rc.446",
+    "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "cheerio": "^1.0.0",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",

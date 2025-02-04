@@ -28,6 +28,7 @@ const config = {
   output: "standalone",
   experimental: {
     optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
+    reactCompiler: true,
   },
 };
 export default config;
