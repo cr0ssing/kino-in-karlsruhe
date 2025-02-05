@@ -19,9 +19,9 @@
 
 import { Prisma, type Movie } from "@prisma/client";
 import { load } from "cheerio";
-import dayjs from 'dayjs';
-import minMax from 'dayjs/plugin/minMax';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
+import dayjs from "dayjs";
+import minMax from "dayjs/plugin/minMax";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { env } from "~/env";
 import { db } from "~/server/db";
 
@@ -86,7 +86,7 @@ export async function run() {
     let tmdbId = movie?.tmdbId;
     if (movie === null && !tmdbBacklistTitles.includes(m.toLowerCase())) {
       // trim everything between () at the end of the title
-      const result = await searchMovie(m.replace(/\s*\([^)]*\)\s*$/, '').trim());
+      const result = await searchMovie(m.replace(/\s*\([^)]*\)\s*$/, "").trim());
       if (result) {
         tmdbId = result.id;
         movie = await db.movie.findUnique({ where: { tmdbId }, select });
@@ -98,7 +98,7 @@ export async function run() {
     }
     if (movie) {
       // if movie metadata is not present or old, update it
-      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, 'days').toDate() || !movie.popularity || !movie.releaseDate || !movie.backdropUrl)) {
+      if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, "days").toDate() || !movie.popularity || !movie.releaseDate || !movie.backdropUrl)) {
         toUpdate.push((async (tmdbId: number) => {
           const details = await getDetails(tmdbId);
           await db.movie.update({
@@ -254,10 +254,10 @@ async function deleteOldScreenings(screenings: Screening[], cinemaId: number) {
 async function crawlSchauburg() {
   const response = await fetch("https://schauburg.de/programm.php");
   const buffer = await response.arrayBuffer();
-  const decoder = new TextDecoder('iso-8859-1');
+  const decoder = new TextDecoder("iso-8859-1");
   const html = decoder.decode(buffer);
   const $ = load(html);
-  const trimProperty = "(Das Angebot gilt ausschließlich vor Ort an unserer Kinokasse!)";
+  const trimProperty = "Das Angebot gilt ausschließlich vor Ort an unserer Kinokasse!";
 
   const screenings: Screening[] = [];
 
@@ -267,16 +267,16 @@ async function crawlSchauburg() {
       id: true
     },
     where: {
-      name: 'Schauburg'
+      name: "Schauburg"
     }
   });
 
   if (!cinemaId) {
-    throw new Error('Cinema "Schauburg" not found');
+    throw new Error("Cinema 'Schauburg' not found");
   }
 
   // Process each date section (h5) and its following table
-  $('h5').each((_, dateElement) => {
+  $("h5").each((_, dateElement) => {
     const dateText = $(dateElement).text().trim();
     // Extract date from formats like "Heute, 20.12." or "Sa, 21.12."
     const dateMatch = /(\d{1,2})\.(\d{1,2})\./.exec(dateText);
@@ -287,33 +287,41 @@ async function crawlSchauburg() {
     const year = new Date().getFullYear();
 
     // Get the table that follows this h5
-    const table = $(dateElement).next('table');
+    const table = $(dateElement).next("table");
 
     // Process each row in the table
-    table.find('tr').each((_, row) => {
-      const timeText = $(row).find('td').first().text().trim();
-      const [hours, minutes] = timeText.split('.').map(n => parseInt(n));
+    table.find("tr").each((_, row) => {
+      const timeText = $(row).find("td").first().text().trim();
+      const [hours, minutes] = timeText.split(".").map(n => parseInt(n));
 
       const properties: string[] = [];
 
-      const movieCell = $(row).find('td').last();
+      function cleanProperty(props: string[]) {
+        return props.map(p => p.replaceAll("(", ""))
+          .map(p => p.replaceAll(")", ""))
+          .map(p => p.replaceAll(trimProperty, ""))
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
+      }
+
+      const movieCell = $(row).find("td").last();
       // Extract text in brackets at the end of the movie title
       const bracketMatch = /\(([^)]*)\)$/.exec(movieCell.text().trim());
-      const bracketContent = bracketMatch ? bracketMatch[1]!.trim() : '';
+      const bracketContent = bracketMatch ? bracketMatch[1]!.trim() : "";
       if (bracketContent) {
-        properties.push(...bracketContent.split(" - "))
+        properties.push(...cleanProperty(bracketContent.split(" - ")))
       }
-      const movieTitle = movieCell.find('a').text().trim().replace(/\s*\([^)]*\)\s*$/, '');
+      const movieTitle = movieCell.find("a").text().trim().replace(/\s*\([^)]*\)\s*$/, "");
 
       // Extract properties from italic text
-      movieCell.find('i').each((_, italic) => {
+      movieCell.find("i").each((_, italic) => {
         const propText = $(italic).text().trim();
         if (propText) {
           // Split by comma and clean up each property
-          propText.split(',').forEach(prop => {
+          propText.split(",").forEach(prop => {
             const cleanProp = prop.trim();
             if (cleanProp) {
-              properties.push(...cleanProp.split(" - ").map(p => p.replaceAll(trimProperty, "")).map(p => p.trim()).filter(p => p.length > 0))
+              properties.push(...cleanProperty(cleanProp.split(" - ")));
             }
           });
         }
@@ -343,6 +351,7 @@ function transformProperties(properties: string[]) {
     let result = p;
     switch (p) {
       case "Englisches Original mit deutschen Untertiteln":
+      case "Originalfassung mit dt. Untertitel":
       case "im engl. Original mit dt. Untertiteln":
       case "omu":
         result = "OmU";
@@ -385,12 +394,12 @@ async function crawlKinemathek() {
       id: true
     },
     where: {
-      name: 'Kinemathek'
+      name: "Kinemathek"
     }
   });
 
   // Find all date headers (h3 with class wpt_listing_group day)
-  $('.entry-content h3.wpt_listing_group.day').each((_, dateHeader) => {
+  $(".entry-content h3.wpt_listing_group.day").each((_, dateHeader) => {
     const dateText = $(dateHeader).text().trim();
     // Extract date from format like "Donnerstag 2. Januar"
     const dateMatch = /(\d{1,2})\. (\w+)/.exec(dateText);
@@ -406,18 +415,18 @@ async function crawlKinemathek() {
 
     const allowedProperties = ["OmU", "OmeU"];
 
-    while (currentElement.length && !currentElement.hasClass('wpt_listing_group')) {
-      if (currentElement.hasClass('wp_theatre_event')) {
-        const timeText = currentElement.find('.wp_theatre_event_datetime').text().trim();
-        const [hours, minutes] = timeText.split(':').map(n => parseInt(n));
+    while (currentElement.length && !currentElement.hasClass("wpt_listing_group")) {
+      if (currentElement.hasClass("wp_theatre_event")) {
+        const timeText = currentElement.find(".wp_theatre_event_datetime").text().trim();
+        const [hours, minutes] = timeText.split(":").map(n => parseInt(n));
 
-        const movieTitle = currentElement.find('.wp_theatre_event_title a').text().trim();
+        const movieTitle = currentElement.find(".wp_theatre_event_title a").text().trim();
 
         // Extract properties from tags
         const properties: string[] = [];
 
         // Add technical specs as properties
-        const techSpecs = currentElement.find('.wp_theatre_event_cine_technical_specs').text().trim();
+        const techSpecs = currentElement.find(".wp_theatre_event_cine_technical_specs").text().trim();
         // Kinemathek specs are not separated consistently, so not all specs can be extracted
         const specs = techSpecs.split(/[|,]/).map(spec => spec.trim());
         specs.filter(spec => allowedProperties.includes(spec)).forEach(spec => properties.push(spec));
@@ -464,24 +473,24 @@ async function crawlKinemathek() {
 // Helper function to convert German month names to numbers
 function getMonthNumber(monthName: string): number {
   const months: Record<string, number> = {
-    'Januar': 1,
-    'Februar': 2,
-    'März': 3,
-    'April': 4,
-    'Mai': 5,
-    'Juni': 6,
-    'Juli': 7,
-    'August': 8,
-    'September': 9,
-    'Oktober': 10,
-    'November': 11,
-    'Dezember': 12
+    "Januar": 1,
+    "Februar": 2,
+    "März": 3,
+    "April": 4,
+    "Mai": 5,
+    "Juni": 6,
+    "Juli": 7,
+    "August": 8,
+    "September": 9,
+    "Oktober": 10,
+    "November": 11,
+    "Dezember": 12
   };
   return months[monthName] ?? -1;
 }
 
 async function crawlUniversum() {
-  const url = 'https://www.kinopolis.de/ka/programm';
+  const url = "https://www.kinopolis.de/ka/programm";
   const response = await fetch(url);
   const html = await response.text();
   const $ = load(html);
@@ -492,45 +501,45 @@ async function crawlUniversum() {
       id: true
     },
     where: {
-      name: 'Universum'
+      name: "Universum"
     }
   });
 
   if (!cinemaId) {
-    throw new Error('Cinema "Universum" not found');
+    throw new Error("Cinema 'Universum' not found");
   }
 
   const screenings: Screening[] = [];
 
   // Iterate through each movie section
-  $('.movie').each((_, movieSection) => {
-    const movieTitle = $(movieSection).find('h2.hl--1 .hl-link').first().text().trim();
+  $(".movie").each((_, movieSection) => {
+    const movieTitle = $(movieSection).find("h2.hl--1 .hl-link").first().text().trim();
     const releaseDateString = $(movieSection)
-      .find('.movie__specs-el')
+      .find(".movie__specs-el")
       .filter((_, text) => $(text).text().trim().startsWith("Start: "))
       .first().text().trim().split(" ")[1];
-    const releaseDate = releaseDateString ? dayjs(releaseDateString, 'DD.MM.YYYY').toDate() : undefined;
-    const lengthString = $(movieSection).find('.movie__specs-el').filter((_, text) => $(text).text().trim().startsWith("Dauer: ")).first().text().trim().split(" ")[1];
+    const releaseDate = releaseDateString ? dayjs(releaseDateString, "DD.MM.YYYY").toDate() : undefined;
+    const lengthString = $(movieSection).find(".movie__specs-el").filter((_, text) => $(text).text().trim().startsWith("Dauer: ")).first().text().trim().split(" ")[1];
     const length = lengthString ? parseInt(lengthString) : undefined;
 
     // Get all date navigation items
-    $(movieSection).find('.prog-nav__item').each((_, dateNav) => {
+    $(movieSection).find(".prog-nav__item").each((_, dateNav) => {
       const $dateNav = $(dateNav);
-      const dayText = $dateNav.find('.prog-nav__day').text().trim();
+      const dayText = $dateNav.find(".prog-nav__day").text().trim();
 
-      // Skip if no performance IDs or it's a "weitere Spielzeiten" link
-      const performanceIds = $dateNav.attr('data-performance-ids')!;
-      if (!performanceIds || performanceIds.includes('»')) return;
+      // Skip if no performance IDs or it"s a "weitere Spielzeiten" link
+      const performanceIds = $dateNav.attr("data-performance-ids")!;
+      if (!performanceIds || performanceIds.includes("»")) return;
 
       // Parse the IDs and find corresponding screenings
-      const ids = performanceIds.replace(/\[|\]/g, '').split(',');
+      const ids = performanceIds.replace(/\[|\]/g, "").split(",");
 
       ids.forEach(id => {
         const $screening = $(movieSection).find(`[data-performance-id="${id}"]`);
         if (!$screening.length) return;
 
-        const timeText = $screening.find('.prog2__time').text().trim();
-        const [hours, minutes] = timeText.split(':').map(Number);
+        const timeText = $screening.find(".prog2__time").text().trim();
+        const [hours, minutes] = timeText.split(":").map(Number);
 
         // Create date from day text and time
         const date = parseGermanDate(dayText);
@@ -539,7 +548,7 @@ async function crawlUniversum() {
         date.setHours(hours!, minutes, 0, 0);
 
         const properties: string[] = [];
-        const versionData = $screening.find('.buy__btn').attr('data-version');
+        const versionData = $screening.find(".buy__btn").attr("data-version");
         if (versionData) {
           properties.push(...(JSON.parse(versionData) as string[]));
         }
@@ -567,11 +576,11 @@ async function crawlUniversum() {
 function parseGermanDate(dayText: string): Date | null {
   const today = new Date();
 
-  if (dayText.includes('Heute')) {
+  if (dayText.includes("Heute")) {
     return today;
   }
 
-  if (dayText.includes('Morgen')) {
+  if (dayText.includes("Morgen")) {
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
     return tomorrow;
@@ -580,7 +589,7 @@ function parseGermanDate(dayText: string): Date | null {
   // Handle format like "So. 22.12."
   const match = /\d{2}\.\d{2}\./.exec(dayText);
   if (match) {
-    const [day, month] = match[0].split('.').map(Number);
+    const [day, month] = match[0].split(".").map(Number);
     const date = new Date(today.getFullYear(), month! - 1, day);
     return date;
   }
@@ -589,7 +598,7 @@ function parseGermanDate(dayText: string): Date | null {
 }
 
 async function crawlFilmpalast() {
-  const response = await fetch('https://www.filmpalast.net/programm/?time=week');
+  const response = await fetch("https://www.filmpalast.net/programm/?time=week");
   const html = await response.text();
   const $ = load(html);
 
@@ -599,19 +608,19 @@ async function crawlFilmpalast() {
       id: true
     },
     where: {
-      name: 'Filmpalast'
+      name: "Filmpalast"
     }
   });
 
   if (!cinemaId) {
-    throw new Error('Cinema "Filmpalast" not found');
+    throw new Error("Cinema 'Filmpalast' not found");
   }
 
-  const scriptContent = $('script#pmkino-shortcode-program-script-js-extra').text();
+  const scriptContent = $("script#pmkino-shortcode-program-script-js-extra").text();
   // Extract JSON content between curly braces
   const jsonMatch = /\{.*\}/s.exec(scriptContent);
   if (!jsonMatch) {
-    throw new Error('Could not find JSON data in script content');
+    throw new Error("Could not find JSON data in script content");
   }
   const jsonContent = jsonMatch[0];
 
@@ -634,11 +643,11 @@ async function crawlFilmpalast() {
     const movieTitle = item.titleDisplay || item.title;
     const length = item.length;
     const productionYear = item.productionYear;
-    return item.performances.map((p: Movie['performances'][number]) => ({
+    return item.performances.map((p: Movie["performances"][number]) => ({
       movieTitle,
       startTime: new Date(p.timeUtc),
       cinemaId,
-      properties: transformProperties(p.attributes.map((a: Movie['performances'][number]['attributes'][number]) => a.name)),
+      properties: transformProperties(p.attributes.map((a: Movie["performances"][number]["attributes"][number]) => a.name)),
       releaseYear: productionYear,
       length
     }))
