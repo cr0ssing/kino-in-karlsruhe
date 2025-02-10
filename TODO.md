@@ -45,3 +45,7 @@
 - [ ] investigate optimizing image loading
 - [ ] swipe gestures for touch
 - [ ] auto reloading for PWA
+- [ ] enable moving to next search result by hitting enter
+- [x] fix flickering on timetable on loading
+- [ ] add properties filter
+- [ ] add ical export

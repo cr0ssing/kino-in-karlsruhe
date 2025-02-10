@@ -92,6 +92,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                   hour: '2-digit',
                   minute: '2-digit',
                 })} • {screening.movie.length} mins</Text>
+                {/* TODO add link to movie modal */}
                 <Text fw={700}>{screening.movie.title}</Text>
                 {screening.cinemas.map(c =>
                   <Group key={screening.id + c.name}>

@@ -29,6 +29,9 @@ export enum ViewportSize {
 };
 
 export function getViewportSize(viewportWidth: number) {
+  if (!viewportWidth || viewportWidth === 0) {
+    return undefined;
+  }
   return viewportWidth < 1500
     ? viewportWidth < 1150
       ? viewportWidth < 940
@@ -42,4 +45,4 @@ export function getViewportSize(viewportWidth: number) {
     : ViewportSize.wide;
 }
 
-export const ViewportSizeContext = createContext<ViewportSize>(ViewportSize.wide);
+export const ViewportSizeContext = createContext<ViewportSize | undefined>(ViewportSize.wide);

@@ -19,8 +19,8 @@
 
 "use client";
 
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { Box, Button, Chip, Group, Stack, Text } from '@mantine/core';
+import { useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { Box, Button, Center, Chip, Group, Loader, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import dayjs from "dayjs";
 import minmax from "dayjs/plugin/minMax";
@@ -152,8 +152,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   const viewportSize = useContext(ViewportSizeContext);
 
   // Weekday headers  
-  const isMobile = viewportSize < ViewportSize.tight;
-  const isSmall = viewportSize === ViewportSize.small;
+  const isMobile = viewportSize && viewportSize < ViewportSize.tight;
+  const isSmall = viewportSize && viewportSize === ViewportSize.small;
   const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
     .map(day => isSmall || viewportSize === ViewportSize.normal || viewportSize === ViewportSize.tight ? day.substring(0, 2) : day)
     .map((day, i) => day + ", " + dayjs(startOfWeek).add(i, 'day').format('DD.MM.'));
@@ -167,7 +167,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   const mondayBasedDayIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : 0;
   const [selectedDay, setSelectedDay] = useState(-1);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isMobile) {
       setSelectedDay(mondayBasedDayIndex);
     } else {
@@ -182,103 +182,105 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   const curDateIndex = displayedWeekdays.indexOf(curDate);
 
   return (
-    <Stack>
-      {isSmall ?
-        <Group align="end">
-          <CinemaCombobox
-            cinemas={Array.from(cinemas).map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))}
-            toggleCinema={toggleCinema}
-          />
-          {cinemaFilter.length < cinemas.size &&
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={() => {
-                setCinemaFilter(Array.from(cinemas.keys()));
-              }}>
-              Alle anzeigen
-            </Button>}
-        </Group> :
-        <Group gap="xs">
-          {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
-            .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
-            .map(({ id, name, color, enabled }) =>
-              <Chip
-                key={"cinema-filter-chip-" + name}
-                color={color}
-                variant="light"
-                checked={enabled}
+    !viewportSize ?
+      <Center><Loader /></Center>
+      : <Stack>
+        {isSmall ?
+          <Group align="end">
+            <CinemaCombobox
+              cinemas={Array.from(cinemas).map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))}
+              toggleCinema={toggleCinema}
+            />
+            {cinemaFilter.length < cinemas.size &&
+              <Button
+                variant="outline"
                 size="xs"
-                onClick={() => toggleCinema(id)}
+                onClick={() => {
+                  setCinemaFilter(Array.from(cinemas.keys()));
+                }}>
+                Alle anzeigen
+              </Button>}
+          </Group> :
+          <Group gap="xs">
+            {Array.from(cinemas).sort((a, b) => a[1].name.localeCompare(b[1].name))
+              .map(([id, cinema]) => ({ ...cinema, enabled: cinemaFilter.includes(id) }))
+              .map(({ id, name, color, enabled }) =>
+                <Chip
+                  key={"cinema-filter-chip-" + name}
+                  color={color}
+                  variant="light"
+                  checked={enabled}
+                  size="xs"
+                  onClick={() => toggleCinema(id)}
+                >
+                  {name}
+                </Chip>
+              )}
+          </Group>
+        }
+        <Box
+          pos='relative'
+          bd={`1px solid var(--mantine-color-timetable-border)`}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
+          }}>
+          {/* Time labels column */}
+          <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: `1px solid var(--mantine-color-timetable-border)` }}>
+            <TimetableHeader
+              text="Zeit"
+              isToday={false}
+              index={-1}
+              selectedDay={selectedDay}
+              setSelectedDay={setSelectedDay}
+              isMobile={isMobile}
+            />
+            {timeLabels.map((time) => (
+              <Box
+                key={time}
+                h={HOUR_HEIGHT}
+                style={{
+                  borderBottom: `1px solid var(--mantine-color-timetable-border)`,
+                  padding: '4px',
+                }}
               >
-                {name}
-              </Chip>
-            )}
-        </Group>
-      }
-      <Box
-        pos='relative'
-        bd={`1px solid var(--mantine-color-timetable-border)`}
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `60px repeat(${selectedDay === -1 ? 7 : 1}, 1fr)`,
-        }}>
-        {/* Time labels column */}
-        <Stack key="time-labels" gap={0} style={{ gridColumn: '1', borderRight: `1px solid var(--mantine-color-timetable-border)` }}>
-          <TimetableHeader
-            text="Zeit"
-            isToday={false}
-            index={-1}
-            selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
-            isMobile={isMobile}
-          />
-          {timeLabels.map((time) => (
-            <Box
-              key={time}
-              h={HOUR_HEIGHT}
-              style={{
-                borderBottom: `1px solid var(--mantine-color-timetable-border)`,
-                padding: '4px',
-              }}
-            >
-              <Text size="xs" ta="center">{time}</Text>
-            </Box>
-          ))}
-        </Stack>
+                <Text size="xs" ta="center">{time}</Text>
+              </Box>
+            ))}
+          </Stack>
 
-        {/* Days columns */}
-        {displayedWeekdays.map((day, i) => {
-          return (
-            <Box
-              key={"column" + day}
-              pos="relative"
-              bg={i === curDateIndex ? "var(--mantine-color-timetable-today)" : undefined}
-              style={{
-                gridColumn: i + 2,
-                borderRight: i < displayedWeekdays.length - 1 ? `1px solid var(--mantine-color-timetable-border)` : undefined,
-              }}
-            >
-              <TimetableHeader
-                key={"column-header" + day}
-                text={day}
-                isToday={i === curDateIndex}
-                index={weekdays.indexOf(day)}
-                selectedDay={selectedDay}
-                setSelectedDay={setSelectedDay}
-                isMobile={isMobile} />
-              <TimetableColumn
-                key={"column-body" + day}
-                day={day}
-                timeLabels={timeLabels}
-                screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
-                hourHeight={HOUR_HEIGHT}
-                startHour={START_HOUR}
-                endHour={END_HOUR} />
-            </Box>
-          );
-        })}
-      </Box>
-    </Stack>
+          {/* Days columns */}
+          {displayedWeekdays.map((day, i) => {
+            return (
+              <Box
+                key={"column" + day}
+                pos="relative"
+                bg={i === curDateIndex ? "var(--mantine-color-timetable-today)" : undefined}
+                style={{
+                  gridColumn: i + 2,
+                  borderRight: i < displayedWeekdays.length - 1 ? `1px solid var(--mantine-color-timetable-border)` : undefined,
+                }}
+              >
+                <TimetableHeader
+                  key={"column-header" + day}
+                  text={day}
+                  isToday={i === curDateIndex}
+                  index={weekdays.indexOf(day)}
+                  selectedDay={selectedDay}
+                  setSelectedDay={setSelectedDay}
+                  isMobile={isMobile} />
+                <TimetableColumn
+                  key={"column-body" + day}
+                  day={day}
+                  timeLabels={timeLabels}
+                  screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
+                  hourHeight={HOUR_HEIGHT}
+                  startHour={START_HOUR}
+                  endHour={END_HOUR} />
+              </Box>
+            );
+          })}
+        </Box>
+      </Stack>
   );
 }

@@ -34,7 +34,7 @@ import NavigationMenu from "./NavigationMenu";
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
   const { width: viewportWidth } = useViewportSize();
   const viewportSize = getViewportSize(viewportWidth);
-  const isMobile = viewportSize <= ViewportSize.narrow;
+  const isMobile = viewportSize && viewportSize <= ViewportSize.narrow;
 
   // Format dates for display
   const dateFormatter = new Intl.DateTimeFormat("de-DE", {

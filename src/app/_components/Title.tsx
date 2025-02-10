@@ -29,8 +29,8 @@ const font = localFont({ src: "./AcademyFilled3D.woff2", weight: "400", style: "
 
 export default function Title() {
   const viewportSize = useContext(ViewportSizeContext);
-  const isNarrow = viewportSize < ViewportSize.normal;
-  const isMobile = viewportSize <= ViewportSize.narrow;
+  const isNarrow = viewportSize && viewportSize < ViewportSize.normal;
+  const isMobile = viewportSize && viewportSize <= ViewportSize.narrow;
 
   return (
     <Link href="/" scroll={false} prefetch={true}>

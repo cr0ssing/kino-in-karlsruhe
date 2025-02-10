@@ -101,7 +101,7 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
   const { ref: modalRef, height: modalHeight } = useElementSize();
 
   const getHeight = useCallback(() =>
-    viewportSize >= posterBreakpoint
+    !viewportSize || viewportSize >= posterBreakpoint
       ? Math.max(carouselHeight + 222, posterHeight + 66) - topOffeset
       : Math.max(carouselHeight + 222, viewportHeight) - topOffeset,
     [carouselHeight, posterHeight, viewportHeight, viewportSize]
@@ -187,14 +187,14 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
           mb="md"
           gap={0}
         >
-          {viewportSize >= posterBreakpoint &&
+          {viewportSize && viewportSize >= posterBreakpoint &&
             <Card ref={posterRef} ml="md" withBorder shadow="xl" w="20%" pos="sticky" top={16}>
               <CardSection>
                 <MoviePosterImage aria-label="Poster" posterUrl={movie.posterUrl} title={movie.title} />
               </CardSection>
             </Card>}
           <Stack
-            w={viewportSize >= posterBreakpoint ? "80%" : "100%"}
+            w={viewportSize && viewportSize >= posterBreakpoint ? "80%" : "100%"}
           >
             <Group mr="md" justify="end" pos="sticky" top={16} style={{ zIndex: 3 }}>
               <CloseButton aria-label="Schließen" c="bright" onClick={close} />
@@ -276,6 +276,7 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
                                     {dayjs(day).locale('de').format('dd, DD.MM.')}
                                   </Text>
                                   {screenings?.map(screening => {
+                                    // TODO add tooptip (maybe popover from timetable)
                                     return <Card
                                       key={"screening-" + screening.id}
                                       withBorder

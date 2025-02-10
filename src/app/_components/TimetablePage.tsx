@@ -113,7 +113,7 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
               <Image src="/clapperboard.png" alt="Kino in Karlsruhe" h={20} w={20} />
               <Title order={2}>Filme</Title>
             </Group>
-            {viewportSize < ViewportSize.narrow
+            {viewportSize && viewportSize < ViewportSize.narrow
               ? <FilterButton showFilters={showFilters} toggleFilters={toggleFilters} />
               : <>
                 {movieSearch}
@@ -129,7 +129,7 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
                 Alle anzeigen
               </Button>}
           </Group>
-          {viewportSize < ViewportSize.narrow &&
+          {viewportSize && viewportSize < ViewportSize.narrow &&
             <Transition mounted={showFilters} transition="fade-up" keepMounted timingFunction="ease" duration={200}>
               {styles => <Stack mb="md" style={styles}>
                 {movieSearch}
