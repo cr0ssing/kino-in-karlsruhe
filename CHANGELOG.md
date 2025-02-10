@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.1.0...v1.2.0) (2025-02-10)
+
+
+### Features
+
+* remove unwanted properties from Schauburg crawler ([3f6c6c8](https://github.com/cr0ssing/kino-in-karlsruhe/commit/3f6c6c8568b97e14ea7a9490ef9192750c6d4a0c))
+* use react-compiler ([a8bf1f7](https://github.com/cr0ssing/kino-in-karlsruhe/commit/a8bf1f72b79a2a2d999c685dba34cc46d7924d12))
+
+
+### Bug Fixes
+
+* flickering layout on loading and improve loading state ([7afdc80](https://github.com/cr0ssing/kino-in-karlsruhe/commit/7afdc806818c39d7a9959e9e9963d16a55fb5554))
+
 ## [1.1.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.0.0...v1.1.0) (2025-02-04)
 
 
