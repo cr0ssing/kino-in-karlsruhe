@@ -71,7 +71,7 @@
     "eslint": "^9.19.0",
     "eslint-config-next": "15.1.6",
     "license-check-and-add": "^4.0.5",
-    "postcss": "^8.5.1",
+    "postcss": "^8.5.2",
     "postcss-import": "^16.1.0",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
