@@ -56,6 +56,8 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
     refetchOnReconnect: false,
   });
 
+  document.body.style.zoom = "1";
+
   const screeningsByDay = useMemo(() => {
     const screenings = data?.pages.flatMap(page => page.screenings) ?? [];
     const endDate = dayjs.max(screenings.map(s => dayjs(s.startTime)));
@@ -150,6 +152,9 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
       onClose={close}
       centered
       fullScreen={viewportWidth < 600}
+      removeScrollProps={{
+        allowPinchZoom: true
+      }}
     >
       <ModalOverlay blur={3} backgroundOpacity={0.55} />
       <ModalContent
