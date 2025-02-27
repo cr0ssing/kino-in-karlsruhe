@@ -353,6 +353,7 @@ function transformProperties(properties: string[]) {
       case "Englisches Original mit deutschen Untertiteln":
       case "Originalfassung mit dt. Untertitel":
       case "im engl. Original mit dt. Untertiteln":
+      case "engl. OmU":
       case "omu":
         result = "OmU";
         break;
