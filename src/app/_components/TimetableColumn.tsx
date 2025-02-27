@@ -56,11 +56,18 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
         const minutes = screening.startTime.getMinutes();
         const top = (hours - startHour + minutes / 60) * hourHeight;
 
-        const leftRightPadding = 1;
+        // Get the column span (default to 1 if not specified)
+        const columnSpan = screening.columnSpan ?? 1;
+        
         // Calculate width and position based on column information
-        const widthTerm = `${100 / screening.totalColumns}% - ${2 * leftRightPadding}px`;
-        const width = `calc(${widthTerm})`;
-        const left = `calc(${(1 + screening.columnIndex * 2) * leftRightPadding}px + ${screening.columnIndex} * (${widthTerm}))`;
+        const columnWidth = 100 / screening.totalColumns;
+        const leftRightPadding = 1; // Padding on each side in pixels
+        
+        // Calculate the width as a percentage of the container, accounting for column span
+        const width = `calc(${columnWidth * columnSpan}% - ${2 * leftRightPadding}px)`;
+        
+        // Calculate the left position based on column index
+        const left = `calc(${screening.columnIndex * columnWidth}% + ${leftRightPadding}px)`;
 
         return (
           <Popover key={"popover" + screening.id}>

@@ -44,6 +44,187 @@ const START_HOUR = 9;
 const END_HOUR = 24;
 const HOUR_HEIGHT = 152;
 
+// group screenings by time slots and assign column positions
+function assignScreeningColumns(screenings: CombinedScreening[]) {
+  if (screenings.length === 0) return [];
+
+  // Sort screenings by start time
+  const sortedScreenings = [...screenings].sort((a, b) => 
+    a.startTime.getTime() - b.startTime.getTime()
+  );
+
+  // Calculate the time range each screening occupies (in minutes from midnight)
+  const screeningRanges = sortedScreenings.map(screening => {
+    const startMinutes = screening.startTime.getHours() * 60 + screening.startTime.getMinutes();
+    // Use a fixed duration of 15 minutes for layout purposes
+    const endMinutes = startMinutes + 15;
+    
+    return {
+      screening,
+      startMinutes,
+      endMinutes,
+      columnIndex: -1, // Will be assigned later
+      totalColumns: 1, // Will be updated later
+      columnSpan: 1    // Will be updated later
+    };
+  });
+
+  // Define the type for a screening range
+  type ScreeningRange = typeof screeningRanges[number];
+  
+  // Group screenings that overlap in time
+  const overlapGroups: ScreeningRange[][] = [];
+  
+  // For each screening, find or create an overlap group
+  screeningRanges.forEach(current => {
+    // Check if this screening overlaps with any existing group
+    let foundGroup = false;
+    
+    for (const group of overlapGroups) {
+      // Check if current screening overlaps with any screening in this group
+      const overlapsWithGroup = group.some(existing => 
+        // Check for overlap: not (current ends before existing starts OR current starts after existing ends)
+        !(current.endMinutes <= existing.startMinutes || current.startMinutes >= existing.endMinutes)
+      );
+      
+      if (overlapsWithGroup) {
+        // Add to this group
+        group.push(current);
+        foundGroup = true;
+        break;
+      }
+    }
+    
+    // If no overlapping group found, create a new one
+    if (!foundGroup) {
+      overlapGroups.push([current]);
+    }
+  });
+
+  // Merge groups that share screenings
+  let merged = true;
+  while (merged) {
+    merged = false;
+    
+    for (let i = 0; i < overlapGroups.length; i++) {
+      for (let j = i + 1; j < overlapGroups.length; j++) {
+        // Check if groups share any screenings
+        const groupI = overlapGroups[i] ?? [];
+        const groupJ = overlapGroups[j] ?? [];
+        
+        const sharesScreenings = groupI.some(screeningI => 
+          groupJ.some(screeningJ => 
+            screeningI.screening.id === screeningJ.screening.id
+          )
+        );
+        
+        if (sharesScreenings) {
+          // Merge groups
+          const mergedGroup = [...groupI];
+          
+          // Add screenings from groupJ that aren't already in mergedGroup
+          groupJ.forEach(screeningJ => {
+            if (!mergedGroup.some(s => s.screening.id === screeningJ.screening.id)) {
+              mergedGroup.push(screeningJ);
+            }
+          });
+          
+          // Replace groupI with mergedGroup and remove groupJ
+          overlapGroups[i] = mergedGroup;
+          overlapGroups.splice(j, 1);
+          
+          merged = true;
+          break;
+        }
+      }
+      
+      if (merged) break;
+    }
+  }
+
+  // For each group, assign column indices
+  overlapGroups.forEach(group => {
+    // Create columns for this group
+    const columns: ScreeningRange[][] = [];
+    
+    // Sort by start time within the group
+    group.sort((a, b) => a.startMinutes - b.startMinutes);
+    
+    // Assign columns within this group
+    group.forEach(current => {
+      let placed = false;
+      
+      // Try to place in an existing column
+      for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+        const column = columns[colIndex] ?? [];
+        
+        // Check if the current screening overlaps with any screening in this column
+        const hasOverlap = column.some(existing => 
+          !(current.endMinutes <= existing.startMinutes || current.startMinutes >= existing.endMinutes)
+        );
+        
+        if (!hasOverlap) {
+          // No overlap, we can place it in this column
+          current.columnIndex = colIndex;
+          column.push(current);
+          placed = true;
+          break;
+        }
+      }
+      
+      // If not placed in any existing column, create a new column
+      if (!placed) {
+        current.columnIndex = columns.length;
+        columns.push([current]);
+      }
+    });
+    
+    // Set totalColumns for all screenings in this group
+    const totalColumns = columns.length;
+    
+    // Optimize column spans - allow screenings to span multiple columns when possible
+    group.forEach(item => {
+      // Start with the basic column assignment
+      item.totalColumns = totalColumns;
+      const startCol = item.columnIndex;
+      
+      // Calculate how many columns this screening could potentially span
+      let maxSpan = 1;
+      
+      // Check each column to the right to see if we can span it
+      for (let colIndex = startCol + 1; colIndex < totalColumns; colIndex++) {
+        const column = columns[colIndex] ?? [];
+        
+        // Check if spanning to this column would create an overlap
+        const wouldOverlap = column.some(existing => 
+          !(item.endMinutes <= existing.startMinutes || item.startMinutes >= existing.endMinutes)
+        );
+        
+        if (wouldOverlap) {
+          break; // Stop at first overlap
+        }
+        
+        maxSpan++;
+      }
+      
+      // Store the column span information
+      item.columnSpan = maxSpan;
+    });
+  });
+
+  // Map back to the original screenings with column information
+  return sortedScreenings.map(screening => {
+    const screeningWithRange = screeningRanges.find(s => s.screening.id === screening.id)!;
+    
+    return {
+      ...screening,
+      columnIndex: screeningWithRange.columnIndex,
+      totalColumns: screeningWithRange.totalColumns,
+      columnSpan: screeningWithRange.columnSpan ?? 1
+    };
+  });
+}
+
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
 
@@ -73,66 +254,6 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
 
   const combinedScreenings = Array.from(combined.values());
 
-  // Add function to group screenings by time slots and assign column positions
-  function assignScreeningColumns(screenings: CombinedScreening[]) {
-    // Group screenings that start within 15 minutes of each other
-    const timeSlots = new Map<number, { screenings: typeof screenings, linkedSlots: number[] }>();
-
-    screenings.forEach(screening => {
-      const timeKey = Math.floor(
-        (screening.startTime.getHours() * 60 + screening.startTime.getMinutes()) / 15
-      );
-
-      if (!timeSlots.has(timeKey)) {
-        timeSlots.set(timeKey, { screenings: [], linkedSlots: [] });
-      }
-      const slot = timeSlots.get(timeKey)!;
-      slot.screenings.push(screening);
-
-      if (screening.startTime.getMinutes() % 15 !== 0) {
-        // this screening must not use column of the following time slot
-        // the two slots need to have the same amount of colunms
-        const secSlotKey = timeKey + 1;
-        const index = slot.screenings.length - 1;
-        if (!timeSlots.has(secSlotKey)) {
-          timeSlots.set(secSlotKey, { screenings: [], linkedSlots: [] });
-        }
-        const secSlot = timeSlots.get(secSlotKey)!;
-        secSlot.screenings.push({ ...screening, blockColumn: index });
-        slot.linkedSlots.push(secSlotKey);
-        secSlot.linkedSlots.push(timeKey);
-      }
-    });
-
-    timeSlots.forEach(({ screenings }) => {
-      screenings.map((s, i) => [s, i] as const).filter(([s]) => !!s.blockColumn).forEach(([s, i]) => {
-        if (s.blockColumn! !== i) {
-          screenings.splice(screenings.indexOf(s), 1);
-          screenings.splice(s.blockColumn!, 0, s);
-        }
-      });
-    });
-
-    // Assign column index to each screening
-    return screenings.map(screening => {
-      const timeKey = Math.floor(
-        (screening.startTime.getHours() * 60 + screening.startTime.getMinutes()) / 15
-      );
-      const sameTimeScreenings = timeSlots.get(timeKey)!;
-      const columnIndex = sameTimeScreenings.screenings.findIndex(s => s.id === screening.id);
-      const totalColumns = Math.max(
-        ...sameTimeScreenings.linkedSlots.map(k => timeSlots.get(k)!.screenings.length),
-        sameTimeScreenings.screenings.length
-      );
-
-      return {
-        ...screening,
-        columnIndex,
-        totalColumns,
-      };
-    });
-  }
-
   // Modify the grouping logic to use combined screenings with column information
   const groupedByWeekday = combinedScreenings.reduce((acc, screening) => {
     const weekday = screening.startTime.getDay();
@@ -146,7 +267,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
 
   // Assign columns for each day's screenings
   Object.keys(groupedByWeekday).forEach(day => {
-    groupedByWeekday[Number(day)] = assignScreeningColumns(groupedByWeekday[Number(day)]!).filter(s => !s.blockColumn);
+    groupedByWeekday[Number(day)] = assignScreeningColumns(groupedByWeekday[Number(day)]!);
   });
 
   const viewportSize = useContext(ViewportSizeContext);

@@ -24,5 +24,5 @@ export type CombinedScreening = Screening & {
   cinemas: { name: string, color: string, properties: string[] }[],
   columnIndex: number,
   totalColumns: number,
-  blockColumn?: number
+  columnSpan?: number
 };

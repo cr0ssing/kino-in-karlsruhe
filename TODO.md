@@ -49,3 +49,5 @@
 - [x] fix flickering on timetable on loading
 - [ ] add properties filter
 - [ ] add ical export
+- [ ] preserve filtered movies on week change
+- [x] fix bug with overlapping movies when multiple entries with odd times follow each other
