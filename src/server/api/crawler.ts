@@ -402,8 +402,9 @@ async function crawlKinemathek() {
   // Find all date headers (h3 with class wpt_listing_group day)
   $(".entry-content h3.wpt_listing_group.day").each((_, dateHeader) => {
     const dateText = $(dateHeader).text().trim();
-    // Extract date from format like "Donnerstag 2. Januar"
-    const dateMatch = /(\d{1,2})\. (\w+)/.exec(dateText);
+    // Extract date from format like "Donnerstag 2. Januar" or "Montag 5. März"
+    // Use a regex that handles German month names with umlauts (ä, ö, ü)
+    const dateMatch = /(\d{1,2})\. ([A-Za-zäöüÄÖÜ]+)/.exec(dateText);
     if (!dateMatch) return;
 
     const [, day, month] = dateMatch;
