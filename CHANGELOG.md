@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.0...v1.3.1) (2025-03-05)
+
+
+### Bug Fixes
+
+* change zIndexes so that week navigation does not overlay modal and checkboxes do not overlay week navigation ([430881a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/430881ac375573ae8aeaa6155f19f4d70ca50357))
+
 ## [1.3.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.2.0...v1.3.0) (2025-03-05)
 
 
