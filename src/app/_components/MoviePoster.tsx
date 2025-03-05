@@ -75,7 +75,7 @@ export default function MoviePoster({ movie, filteredMoviesCount, moviesCount, t
               e.stopPropagation();
               toggleMovie(movie.id);
             }}
-            style={{ zIndex: 200 }}
+            style={{ zIndex: 100 }}
           >
             {movie.enabled && <IconCheck size={13} />}
           </ActionIcon>
