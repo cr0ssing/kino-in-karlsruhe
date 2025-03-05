@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.2.0...v1.3.0) (2025-03-05)
+
+
+### Features
+
+* add extended movie grid ([a8eb031](https://github.com/cr0ssing/kino-in-karlsruhe/commit/a8eb031b83b4694ad61fa9a930039c2f2404235a))
+
+
+### Bug Fixes
+
+* allow pinch zoom on modal ([cd4b92f](https://github.com/cr0ssing/kino-in-karlsruhe/commit/cd4b92ff3d7445772ad18f8f66f39836f324be18))
+* avoid overlapping screenings ([b940c41](https://github.com/cr0ssing/kino-in-karlsruhe/commit/b940c41680f4c8ac1b205700148bee65bb6f84cb))
+* catch screenings from Kinemathek with month "März" ([100d2e5](https://github.com/cr0ssing/kino-in-karlsruhe/commit/100d2e5f1c3d09f74a33535168398b43f809b129))
+
 ## [1.2.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.1.0...v1.2.0) (2025-02-10)
 
 
