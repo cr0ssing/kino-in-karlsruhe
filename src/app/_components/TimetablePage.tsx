@@ -20,21 +20,24 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import { Box, Button, Group, Image, Stack, Switch, Title, Transition } from "@mantine/core";
+import { Box, Button, Group, Image, Stack, Switch, Title, Transition, ActionIcon, Tooltip } from "@mantine/core";
 import { useDisclosure, useViewportSize } from "@mantine/hooks";
 import type { Cinema, Movie, Screening } from "@prisma/client";
 import PullToRefresh from 'pulltorefreshjs';
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { useRouter } from "next/navigation";
+import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 
 import { useToggle } from "../useToggle";
 import ScreeningTimetable from "./ScreeningTimetable";
 import MovieCarousel from "./MovieCarousel";
+import MovieGrid from "./MovieGrid";
 import MovieSearchInput from "./MovieSearchInput";
 import FilterButton from "./FilterButton";
 import { getViewportSize, ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
 import pullToRefreshStyles from "./pulltorefreshStyles";
+import MovieModal from "./MovieModal";
 
 dayjs.extend(isBetween);
 
@@ -65,6 +68,8 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
   }, [router]);
 
   const [showNewMovies, setShowNewMovies] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
+  const [openedMovie, setOpenedMovie] = useState<number | null>(null);
 
   const isCurrentWeek = dayjs().isBetween(startOfWeek, endOfWeek);
 
@@ -104,6 +109,8 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
   const { width: viewportWidth } = useViewportSize();
   const viewportSize = getViewportSize(viewportWidth);
 
+  const moviesById = useMemo(() => new Map(uniqueMovies.map(movie => [movie.id, movie])), [uniqueMovies]);
+
   return (
     <ViewportSizeContext.Provider value={viewportSize}>
       <Stack gap="xl">
@@ -136,7 +143,37 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
                 {newSwitch}
               </Stack>}
             </Transition>}
-          <MovieCarousel searchIndex={searchIndex} movies={uniqueMovies} filteredMovies={filteredMovies} toggleMovie={toggleMovie} />
+          {showGrid ? (
+            <MovieGrid
+              movies={uniqueMovies}
+              filteredMovies={filteredMovies}
+              toggleMovie={toggleMovie}
+              openMovieModal={setOpenedMovie}
+            />
+          ) : (
+            <MovieCarousel
+              searchIndex={searchIndex}
+              movies={uniqueMovies}
+              filteredMovies={filteredMovies}
+              toggleMovie={toggleMovie}
+              setOpenedMovie={setOpenedMovie}
+            />
+          )}
+          <Group justify="center" mt="sm">
+            <Tooltip label={showGrid ?"Filme einklappen"  :"Zeige alle Filme" }>
+              <ActionIcon
+                variant="subtle"
+                size="lg"
+                onClick={() => setShowGrid(!showGrid)}
+            >
+                {showGrid ? <IconChevronUp size={20} /> : <IconChevronDown size={20} />}
+              </ActionIcon>
+            </Tooltip>
+          </Group>
+          <MovieModal
+            movie={openedMovie !== null ? moviesById.get(openedMovie)! : null}
+        close={() => setOpenedMovie(null)}
+      />
         </Box>
 
         <Box>

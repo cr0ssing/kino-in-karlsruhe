@@ -56,8 +56,6 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
     refetchOnReconnect: false,
   });
 
-  document.body.style.zoom = "1";
-
   const screeningsByDay = useMemo(() => {
     const screenings = data?.pages.flatMap(page => page.screenings) ?? [];
     const endDate = dayjs.max(screenings.map(s => dayjs(s.startTime)));

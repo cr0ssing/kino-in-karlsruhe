@@ -40,7 +40,7 @@
 - [x] fix font color on pulltorefresh in dark mode
 - [x] update dependencies
 - [x] movie detail modal
-- [ ] extended movie grid
+- [x] extended movie grid
 - [ ] more granular suspense with skeletons
 - [ ] investigate optimizing image loading
 - [ ] swipe gestures for touch
@@ -51,3 +51,4 @@
 - [ ] add ical export
 - [ ] preserve filtered movies on week change
 - [x] fix bug with overlapping movies when multiple entries with odd times follow each other
+- [ ] fix bug where scrolling in movie modal persists when new movie is opened

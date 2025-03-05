@@ -71,7 +71,7 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
         top={0}
         mb="lg"
         bg="var(--mantine-color-body)"
-        style={{ zIndex: 2, borderBottom: "1px solid var(--mantine-color-default-border)" }}
+        style={{ zIndex: 400, borderBottom: "1px solid var(--mantine-color-default-border)" }}
       >
         <Title />
         <Group justify="center" wrap="nowrap" mr="xl" ml="xl" mb="sm">

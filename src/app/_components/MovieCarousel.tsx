@@ -20,18 +20,18 @@
 import { Carousel, CarouselSlide, type Embla } from '@mantine/carousel';
 import { alpha } from '@mantine/core';
 import type { Movie } from '@prisma/client';
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import MoviePoster from "./MoviePoster";
-import MovieModal from "./MovieModal";
 
 interface MovieCarouselProps {
   movies: Movie[];
   filteredMovies: number[];
   toggleMovie: (movieId: number) => void;
   searchIndex: number;
+  setOpenedMovie: (movieId: number) => void;
 }
 
-export default function MovieCarousel({ searchIndex, movies, filteredMovies, toggleMovie }: MovieCarouselProps) {
+export default function MovieCarousel({ searchIndex, movies, filteredMovies, toggleMovie, setOpenedMovie }: MovieCarouselProps) {
   // TODO adjust this to breakpoints
   const toShow = 6;
 
@@ -47,10 +47,6 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
       emblaApi.scrollTo(0);
     }
   }, [movies, emblaApi]);
-
-  const moviesById = useMemo(() => new Map(movies.map(movie => [movie.id, movie])), [movies]);
-
-  const [openedMovie, setOpenedMovie] = useState<number | null>(null);
 
   return (
     <>
@@ -79,10 +75,6 @@ export default function MovieCarousel({ searchIndex, movies, filteredMovies, tog
           </CarouselSlide>
         ))}
       </Carousel>
-      <MovieModal
-        movie={openedMovie !== null ? moviesById.get(openedMovie)! : null}
-        close={() => setOpenedMovie(null)}
-      />
     </>
   );
 }
