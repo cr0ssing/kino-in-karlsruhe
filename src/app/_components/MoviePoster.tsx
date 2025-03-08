@@ -53,7 +53,7 @@ export default function MoviePoster({ movie, filteredMoviesCount, moviesCount, t
     >
       <CardSection>
         <MoviePosterImage posterUrl={movie.posterUrl} title={movie.title} />
-        {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} />}
+        {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} zIndex={90} />}
         <Tooltip
           label={
             filteredMoviesCount === moviesCount
