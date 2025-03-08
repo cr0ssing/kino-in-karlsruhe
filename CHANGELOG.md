@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.1...v1.3.2) (2025-03-08)
+
+
+### Bug Fixes
+
+* lower zIndex of poster overlay so that it does not overlay the checkboxes ([098438a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/098438aca1f66371a31b0fb43e1e596cf51ecd52))
+
 ## [1.3.1](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.0...v1.3.1) (2025-03-05)
 
 
