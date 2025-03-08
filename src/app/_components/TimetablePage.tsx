@@ -113,7 +113,7 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
 
   return (
     <ViewportSizeContext.Provider value={viewportSize}>
-      <Stack gap="xl">
+      <Stack gap="xs">
         <Box>
           <Group align="center" mb="sm">
             <Group align="center" gap="xs">
