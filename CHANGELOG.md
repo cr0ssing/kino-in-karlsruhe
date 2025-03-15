@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.2...v1.3.3) (2025-03-15)
+
+
+### Bug Fixes
+
+* use correct encoding of crawled Schauburg HTML ([1370d7f](https://github.com/cr0ssing/kino-in-karlsruhe/commit/1370d7f0685105d141888ae6e1da40206a6d6c7a))
+
 ## [1.3.2](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.1...v1.3.2) (2025-03-08)
 
 
