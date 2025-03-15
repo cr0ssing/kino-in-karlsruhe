@@ -260,10 +260,7 @@ async function crawlSchauburg() {
     if (!response.ok) {
       throw new Error(`Fetching Schauburg failed with status: ${response.status}`);
     }
-    const buffer = await response.arrayBuffer();
-    const decoder = new TextDecoder("iso-8859-1");
-    const html = decoder.decode(buffer);
-    const $ = load(html);
+    const $ = load(await response.text());
     const trimProperty = "Das Angebot gilt ausschließlich vor Ort an unserer Kinokasse!";
 
     const screenings: Screening[] = [];
