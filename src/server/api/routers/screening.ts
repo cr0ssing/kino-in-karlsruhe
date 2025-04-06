@@ -76,9 +76,8 @@ export const screeningRouter = createTRPCRouter({
           movieId: movieId ?? Prisma.skip
         }
       });
-      if (!startDate) {
-        startDate = aggregations._min.startTime;
-      }
+      
+      startDate ??= aggregations._min.startTime;
 
       if (!startDate) {
         return {

@@ -212,9 +212,9 @@ async function getDetails(id: number) {
       releaseDate = dayjs.min(releaseDateForDe.map(e => dayjs(e.release_date)));
     }
   }
-  if (!releaseDate) {
-    releaseDate = data.release_date ? dayjs(data.release_date + " 00:00") : null;
-  }
+
+  releaseDate ??= data.release_date ? dayjs(data.release_date + " 00:00") : null;
+
   return {
     tmdbId: data.id,
     title: data.title ?? data.original_title,

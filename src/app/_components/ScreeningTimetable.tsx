@@ -258,9 +258,9 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   const groupedByWeekday = combinedScreenings.reduce((acc, screening) => {
     const weekday = screening.startTime.getDay();
     const mondayBasedDay = weekday === 0 ? 6 : weekday - 1;
-    if (!acc[mondayBasedDay]) {
-      acc[mondayBasedDay] = [];
-    }
+
+    acc[mondayBasedDay] ??= [];
+
     acc[mondayBasedDay].push(screening);
     return acc;
   }, {} as Record<number, typeof combinedScreenings>);
