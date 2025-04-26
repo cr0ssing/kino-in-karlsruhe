@@ -233,7 +233,7 @@ async function searchMovie(title: string) {
     },
   });
   const data = await response.json() as { results: { poster_path: string, id: number, popularity: number }[] };
-  return data.results[0];
+  return data?.results?.[0];
 }
 
 async function deleteOldScreenings(screenings: Screening[], cinemaId: number) {
