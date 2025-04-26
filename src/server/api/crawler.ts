@@ -199,8 +199,11 @@ async function getDetails(id: number) {
       Authorization: `Bearer ${env.TMDB_API_KEY}`,
     },
   });
+  if (!response.ok) {
+    throw new Error(`Fetching TMDB details for ${id} failed with status: ${response.status}`);
+  }
   const data = await response.json() as MovieDetails;
-  const releaseDateForDe = data.release_dates.results.find(e => e.iso_3166_1.toLowerCase() === "de")?.release_dates;
+  const releaseDateForDe = data?.release_dates?.results?.find(e => e.iso_3166_1.toLowerCase() === "de")?.release_dates;
 
   let releaseDate: dayjs.Dayjs | null = null;
   if (releaseDateForDe && releaseDateForDe.length > 0) {
@@ -232,6 +235,9 @@ async function searchMovie(title: string) {
       Authorization: `Bearer ${env.TMDB_API_KEY}`,
     },
   });
+  if (!response.ok) {
+    throw new Error(`Fetching TMDB search for ${title} failed with status: ${response.status}`);
+  }
   const data = await response.json() as { results: { poster_path: string, id: number, popularity: number }[] };
   return data?.results?.[0];
 }
