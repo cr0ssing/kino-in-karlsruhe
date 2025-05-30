@@ -68,7 +68,7 @@
     "@typescript-eslint/parser": "^8.31.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.25.1",
-    "eslint-config-next": "15.3.1",
+    "eslint-config-next": "15.3.3",
     "license-check-and-add": "^4.0.5",
     "postcss": "^8.5.3",
     "postcss-import": "^16.1.0",
