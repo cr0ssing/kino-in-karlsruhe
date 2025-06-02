@@ -48,7 +48,7 @@
     "embla-carousel-react": "^7.1.0",
     "geist": "^1.3.0",
     "next": "15.3.1",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.1.0",
     "pulltorefreshjs": "^0.1.22",
     "react": "19.1.0",
     "react-dom": "19.1.0",
