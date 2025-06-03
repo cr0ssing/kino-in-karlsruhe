@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.3...v1.4.0) (2025-06-03)
+
+
+### Features
+
+* in crawler strip segments after "-" for movie search ([f9c391a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/f9c391abbe50ad22b8992438bc255fc3d03baa73))
+
+
+### Bug Fixes
+
+* bump dependencies ([56702aa](https://github.com/cr0ssing/kino-in-karlsruhe/commit/56702aa31b6c04aa5973673a15beec91a1860c8f))
+* enhance error handling in TMDB API calls in crawler ([cb2fc8c](https://github.com/cr0ssing/kino-in-karlsruhe/commit/cb2fc8c51be0b61ed15f8b582fc098f7d8148681))
+* make search for movie more robust in crawler ([0c802ad](https://github.com/cr0ssing/kino-in-karlsruhe/commit/0c802ada017371f1a9b6f4c17441e1ae8de09a1e))
+
 ## [1.3.3](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.2...v1.3.3) (2025-03-24)
 
 
