@@ -78,24 +78,77 @@ export async function run() {
 
   // assign tmdbId to searchTitles either from existing movies or TMDB API
   const found = await Promise.all(Array.from(uniqueMovies).map(async m => {
-    const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true, backdropUrl: true };
-    let movie = await db.movie.findFirst({
-      where: { searchTitles: { has: m } },
-      select
-    });
+    const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true, backdropUrl: true, searchTitles: true };
+
+    const segments = m.split("-");
+    const prop = /\(([^)]*)\)/.exec(m)?.[1]?.trim();
+    let movie;
+    let searchTitle: string;
+    let extraProperties: string[] = [];
+    do {
+      const rawTitle = segments.join("-").trim()
+      const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
+
+      movie = await db.movie.findFirst({
+        where: { searchTitles: { has: queryTitle } },
+        select
+      });
+      if (!movie) {
+        const extraProp = segments.pop()?.trim();
+        if (extraProp) {
+          // console.log(`Title ${queryTitle} not found in DB. Add extra prop: ${extraProp}`);
+          extraProperties.push(extraProp);
+        }
+      } else {
+        // console.log(`Found movie for ${queryTitle}. Id: ${movie.id} Title: ${movie.title} searchTitles: ${movie.searchTitles.join(", ")}`);
+        searchTitle = queryTitle;
+      }
+    } while (!movie && segments.length > 0);
+
+    if (!movie) {
+      extraProperties.pop();
+      const segs = m.split("-").map(s => s.replace(/\s*\([^)]*\)\s*$/, "").trim());
+      if (segs.length > 1) {
+        segs.pop();
+        searchTitle = segs.join(" - ");
+      } else {
+        searchTitle = m;
+      }
+    }
+
     let tmdbId = movie?.tmdbId;
-    if (movie === null && !tmdbBacklistTitles.includes(m.toLowerCase())) {
-      // trim everything between () at the end of the title
-      const result = await searchMovie(m.replace(/\s*\([^)]*\)\s*$/, "").trim());
-      if (result) {
-        tmdbId = result.id;
-        movie = await db.movie.findUnique({ where: { tmdbId }, select });
-        if (movie) {
-          // if movie exists in db add searchTitle to it
-          toUpdate.push(db.movie.update({ where: { id: movie?.id }, data: { searchTitles: { push: m } } }));
+    if (movie === null && !tmdbBacklistTitles.some(t => m.toLowerCase().startsWith(t))) {
+      const segments = m.split("-");
+      while (segments.length > 0) {
+        const rawTitle = segments.join("-").trim();
+        const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
+        const result = await searchMovie(queryTitle);
+        if (result) {
+          // console.log(`Found TMDB for queryTitle: ${queryTitle}`);
+          searchTitle = queryTitle;
+          tmdbId = result.id;
+          movie = await db.movie.findUnique({ where: { tmdbId }, select });
+          if (movie && !movie.searchTitles.includes(queryTitle)) {
+            // if movie exists in db add searchTitle to it
+            toUpdate.push(db.movie.update({ where: { id: movie?.id }, data: { searchTitles: { push: queryTitle } } }));
+          }
+          break;
+        } else {
+          segments.pop();
         }
       }
     }
+    // if no movie was found on tmdb extraProps contains all segments of title. remove them.
+    if (!tmdbId) {
+      // console.log(`No TMDB found for ${m}. Remove extra props.`);
+      extraProperties = [];
+    }
+    if (prop) {
+      // console.log(`Add property in brackets: ${prop}`);
+      extraProperties.push(prop);
+    }
+    extraProperties.reverse();
+
     if (movie) {
       // if movie metadata is not present or old, update it
       if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, "days").toDate() || !movie.popularity || !movie.releaseDate || !movie.backdropUrl)) {
@@ -108,17 +161,21 @@ export async function run() {
         })(movie.tmdbId));
       }
     }
-    return { searchTitle: m, tmdbId, movieId: movie?.id };
+    return { orgTitle: m, searchTitle: searchTitle!, tmdbId, movieId: movie?.id, extraProperties };
   }));
 
   // init movieIds with existing movies
   const movieIds = new Map<string, number>(found
     .filter(({ movieId }) => !!movieId)
-    .map(({ searchTitle, movieId }) => [searchTitle, movieId!]));
+    .map(({ orgTitle, movieId }) => [orgTitle, movieId!]));
+
+  const extraProperties = new Map<string, string[]>(found
+    .filter(({ extraProperties }) => extraProperties.length > 0)
+    .map(({ orgTitle, extraProperties }) => [orgTitle, extraProperties]));
 
   // create all movies not found on tmdb
   found.filter(({ tmdbId, movieId }) => !tmdbId && !movieId).map(async e => {
-    const details = movieDetails.get(e.searchTitle)!;
+    const details = movieDetails.get(e.orgTitle)!;
     let releaseDate: Date | undefined = undefined;
     if (details.releaseDate) {
       releaseDate = dayjs(details.releaseDate).toDate();
@@ -135,29 +192,30 @@ export async function run() {
       }
     });
     movies.push(movie);
-    movieIds.set(e.searchTitle, movie.id);
+    movieIds.set(e.orgTitle, movie.id);
   }).forEach(p => toUpdate.push(p));
 
   // group new movies with tmdbId by tmdbId
-  const searchTitles = found.filter(({ movieId, tmdbId }) => !movieId && !!tmdbId).reduce((acc, { searchTitle, tmdbId }) => {
+  const searchTitles = found.filter(({ movieId, tmdbId }) => !movieId && !!tmdbId).reduce((acc, { orgTitle, searchTitle, tmdbId }) => {
     if (!tmdbId) {
       return acc;
     };
     if (!acc.has(tmdbId)) {
-      acc.set(tmdbId, []);
+      acc.set(tmdbId, { searchTitles: [], orgTitles: [] });
     };
-    acc.get(tmdbId)!.push(searchTitle);
+    acc.get(tmdbId)!.searchTitles.push(searchTitle);
+    acc.get(tmdbId)!.orgTitles.push(orgTitle);
     return acc;
-  }, new Map<number, string[]>());
+  }, new Map<number, { searchTitles: string[], orgTitles: string[] }>());
 
   // put new movies into db
-  await Promise.all(Array.from(searchTitles.entries()).map(async ([tmdbId, searchTitles]) => {
+  await Promise.all(Array.from(searchTitles.entries()).map(async ([tmdbId, { searchTitles, orgTitles }]) => {
     const details = await getDetails(tmdbId);
     const movie = await db.movie.create({
       data: { ...details, searchTitles }
     });
     movies.push(movie);
-    searchTitles.forEach(st => movieIds.set(st, movie.id));
+    orgTitles.forEach(st => movieIds.set(st, movie.id));
   }));
 
   await Promise.all(toUpdate);
@@ -166,7 +224,7 @@ export async function run() {
     data: screenings.map(s => ({
       movieId: movieIds.get(s.movieTitle)!,
       startTime: s.startTime,
-      properties: s.properties,
+      properties: [...s.properties, ...(extraProperties.get(s.movieTitle) ?? [])],
       cinemaId: s.cinemaId
     }))
   });
@@ -235,11 +293,13 @@ async function searchMovie(title: string) {
       Authorization: `Bearer ${env.TMDB_API_KEY}`,
     },
   });
-  if (!response.ok) {
+
+  if (response.ok) {
+    const data = await response.json() as { results: { poster_path: string, id: number, popularity: number }[] };
+    return data?.results?.[0];
+  } else if (response.status !== 404) {
     throw new Error(`Fetching TMDB search for ${title} failed with status: ${response.status}`);
   }
-  const data = await response.json() as { results: { poster_path: string, id: number, popularity: number }[] };
-  return data?.results?.[0];
 }
 
 async function deleteOldScreenings(screenings: Screening[], cinemaId: number) {

@@ -41,14 +41,19 @@
 - [x] update dependencies
 - [x] movie detail modal
 - [x] extended movie grid
+- [x] fix flickering on timetable on loading
+- [x] fix bug with overlapping movies when multiple entries with odd times follow each other
+- [x] improve crawler searching for movie title (eg by stripping text after "-")
+- [ ] add ical export
+- [ ] preserve state with query params (using nuqs)
+- [ ] preserve filtered movies on week change
+- [ ] enable moving to next search result by hitting enter
+- [ ] add links for letterboxd (https://letterboxd.com/tmdb/{tmdb_id}) and imdb
+- [ ] add film description and maybe cast and crew to movie modal
+- [ ] tooltip for properties on movie modal screening
+- [ ] add properties filter
 - [ ] more granular suspense with skeletons
 - [ ] investigate optimizing image loading
 - [ ] swipe gestures for touch
 - [ ] auto reloading for PWA
-- [ ] enable moving to next search result by hitting enter
-- [x] fix flickering on timetable on loading
-- [ ] add properties filter
-- [ ] add ical export
-- [ ] preserve filtered movies on week change
-- [x] fix bug with overlapping movies when multiple entries with odd times follow each other
 - [ ] fix bug where scrolling in movie modal persists when new movie is opened
