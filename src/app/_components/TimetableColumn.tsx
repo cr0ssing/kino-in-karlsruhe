@@ -21,6 +21,7 @@ import { Box, Button, Card, Group, lighten, Popover, PopoverDropdown, PopoverTar
 import dayjs from "dayjs";
 import type { CombinedScreening } from "./types";
 import isoWeekday from "dayjs/plugin/isoWeek";
+import AddToCalendarButton from "./AddToCalendarButton";
 
 dayjs.extend(isoWeekday);
 
@@ -58,14 +59,14 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
 
         // Get the column span (default to 1 if not specified)
         const columnSpan = screening.columnSpan ?? 1;
-        
+
         // Calculate width and position based on column information
         const columnWidth = 100 / screening.totalColumns;
         const leftRightPadding = 1; // Padding on each side in pixels
-        
+
         // Calculate the width as a percentage of the container, accounting for column span
         const width = `calc(${columnWidth * columnSpan}% - ${2 * leftRightPadding}px)`;
-        
+
         // Calculate the left position based on column index
         const left = `calc(${screening.columnIndex * columnWidth}% + ${leftRightPadding}px)`;
 
@@ -98,13 +99,16 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
                 <Text size="xs" c="dimmed">{screening.startTime.toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',
-                })} • {screening.movie.length} mins</Text>
-                {/* TODO add link to movie modal */}
+                })}{screening.movie.length && ` • ${screening.movie.length} mins`}</Text>
+                {/* TODO add link to movie modal use nuqs for showing modal */}
                 <Text fw={700}>{screening.movie.title}</Text>
                 {screening.cinemas.map(c =>
-                  <Group key={screening.id + c.name}>
-                    <Text size="sm">{c.name}</Text>
-                    <Text size="xs" c="dimmed">{c.properties.join(', ')}</Text>
+                  <Group key={screening.id + c.name} gap={6}>
+                    <AddToCalendarButton screening={screening} cinema={c} properties={c.properties} />
+                    <Group key={screening.id + c.name + "desc"}>
+                      <Text size="sm">{c.name}</Text>
+                      <Text size="xs" c="dimmed">{c.properties.join(', ')}</Text>
+                    </Group>
                   </Group>
                 )}
               </Stack>

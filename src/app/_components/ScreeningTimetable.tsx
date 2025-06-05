@@ -240,13 +240,13 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
     if (!combined.has(key)) {
       combined.set(key, {
         ...screening,
-        cinemas: [{ name: screening.cinema.name, color: screening.cinema.color, properties: screening.properties }],
+        cinemas: [{ name: screening.cinema.name, color: screening.cinema.color, address: screening.cinema.address, properties: screening.properties }],
         columnIndex: 0,
         totalColumns: 1
       });
     } else {
       const existing = combined.get(key)!;
-      existing.cinemas.push({ name: screening.cinema.name, color: screening.cinema.color, properties: screening.properties });
+      existing.cinemas.push({ name: screening.cinema.name, color: screening.cinema.color, address: screening.cinema.address, properties: screening.properties });
     }
 
     return Array.from(combined.values());

@@ -18,10 +18,10 @@
  */
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ActionIcon, Badge, Box, Card, CardSection, Center, CloseButton, Divider, Flex, Group, lighten, Loader, LoadingOverlay, ModalContent, ModalOverlay, ModalRoot, Overlay, Stack, Text, Title } from "@mantine/core";
-import { useElementSize, useViewportSize } from "@mantine/hooks";
+import { ActionIcon, Badge, Box, Card, CardSection, Center, CloseButton, Divider, Flex, Group, lighten, Loader, LoadingOverlay, ModalContent, ModalOverlay, ModalRoot, Overlay, Stack, Text, Title, Tooltip } from "@mantine/core";
+import { useDisclosure, useElementSize, useViewportSize } from "@mantine/hooks";
 import { Carousel, CarouselSlide, type Embla } from "@mantine/carousel";
-import type { Movie } from "@prisma/client";
+import type { Cinema, Movie, Screening } from "@prisma/client";
 import { IconPlayerPlay, IconCalendar, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
@@ -31,6 +31,7 @@ import { api } from "~/trpc/react";
 
 import { MoviePosterImage } from "./MoviePoster";
 import { ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
+import AddToCalendarModal from "./AddToCalendarModal";
 
 const dayAmount = 8;
 const minDays = 7;
@@ -39,6 +40,7 @@ const headerHeight = 130;
 const topOffeset = 150;
 const posterBreakpoint = ViewportSize.tight;
 
+// TODO pass movieId instead of movie
 export default function MovieModal({ movie, close }: { movie: Movie | null, close: () => void }) {
   // TODO on open, push router segment
 
@@ -143,6 +145,9 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
     return (modalHeight - Math.min(scrollY, 130) + headerHeight + 34) / 2;
   }, [modalHeight, scrollY]);
 
+  const [isClandarOpen, { open: openCalendar, close: closeCalendar }] = useDisclosure(false);
+  const [screening, setScreening] = useState<Screening & { movie: Movie, cinema: Cinema } | null>(null);
+
   return movie &&
     <ModalRoot
       size={Math.min(viewportWidth * 0.8, 1280)}
@@ -155,6 +160,13 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
       }}
     >
       <ModalOverlay blur={3} backgroundOpacity={0.55} />
+      {screening && <AddToCalendarModal
+        isOpen={isClandarOpen}
+        close={closeCalendar}
+        screening={screening}
+        cinema={screening.cinema}
+        properties={screening.properties}
+      />}
       <ModalContent
         ref={modalRef}
         bg={scrollY < headerHeight && movie.backdropUrl
@@ -279,21 +291,31 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
                                     {dayjs(day).locale('de').format('dd, DD.MM.')}
                                   </Text>
                                   {screenings?.map(screening => {
-                                    // TODO add tooptip (maybe popover from timetable)
                                     return <Card
                                       key={"screening-" + screening.id}
                                       withBorder
                                       w={columnWidth}
                                       c="black"
                                       bg={lighten(screening.cinema.color, .6)}
+                                      style={{
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={() => {
+                                        setScreening(screening);
+                                        openCalendar();
+                                      }}
                                     >
                                       <CardSection p="xs">
                                         <Stack align="center" gap={0}>
                                           <Text ta="center" fw={500}>{dayjs(screening.startTime).format('HH:mm')}</Text>
                                           <Text ta="center" fz="xs">{screening.cinema.name}</Text>
-                                          <Text ta="center" fz="xs" lineClamp={1}>
-                                            {screening.properties.length > 0 ? screening.properties.join(', ') : '-'}
-                                          </Text>
+                                          <Tooltip
+                                            label={screening.properties.length > 0 ? screening.properties.join(', ') : 'Vorführung hat keine besonderen Eigenschaften'}
+                                          >
+                                            <Text ta="center" fz="xs" lineClamp={1}>
+                                              {screening.properties.length > 0 ? screening.properties.join(', ') : '-'}
+                                            </Text>
+                                          </Tooltip>
                                         </Stack>
                                       </CardSection>
                                     </Card>

@@ -160,20 +160,20 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
             />
           )}
           <Group justify="center" mt="sm">
-            <Tooltip label={showGrid ?"Filme einklappen"  :"Zeige alle Filme" }>
+            <Tooltip label={showGrid ? "Filme einklappen" : "Zeige alle Filme"}>
               <ActionIcon
                 variant="subtle"
                 size="lg"
                 onClick={() => setShowGrid(!showGrid)}
-            >
+              >
                 {showGrid ? <IconChevronUp size={20} /> : <IconChevronDown size={20} />}
               </ActionIcon>
             </Tooltip>
           </Group>
           <MovieModal
             movie={openedMovie !== null ? moviesById.get(openedMovie)! : null}
-        close={() => setOpenedMovie(null)}
-      />
+            close={() => setOpenedMovie(null)}
+          />
         </Box>
 
         <Box>
