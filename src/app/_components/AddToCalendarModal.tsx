@@ -64,9 +64,9 @@ export default function AddToCalendarModal({ isOpen, close, screening, cinema, p
     zIndex={1000}
   >
     <Stack gap="xs">
-      <Group wrap="nowrap" justify="space-between">
+      <Group wrap="nowrap" align="start" justify="space-between">
         <Text size="lg" fw={700}>{screening.movie.title}</Text>
-        <CloseButton aria-label="Schließen" c="bright" onClick={close} />
+        <CloseButton mt="1.5px" aria-label="Schließen" c="bright" onClick={close} />
       </Group>
       <Group wrap="nowrap">
         <AspectRatio ratio={1}>
