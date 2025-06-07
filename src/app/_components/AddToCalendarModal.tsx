@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { AspectRatio, Button, Card, CloseButton, Divider, Group, Modal, Stack, Text } from "@mantine/core";
+import { AspectRatio, Button, Card, CloseButton, Divider, Group, Modal, Stack, Table, TableTbody, TableTd, TableTr, Text } from "@mantine/core";
 import {
   IconBrandGoogle,
   IconCalendarDown,
@@ -45,7 +45,8 @@ export default function AddToCalendarModal({ isOpen, close, screening, cinema, p
 
   const event: CalendarEvent = {
     title: screening.movie.title,
-    description: properties.length > 0 ? properties.join(', ') : undefined,
+    description: (screening.movie.length ? "Laufzeit: " + screening.movie.length + " mins\n" : "")
+      + (properties.length > 0 ? "Eigenschaften: " + properties.join(', ') : ""),
     start: screening.startTime.toISOString(),
     location: cinema.name + ", " + cinema.address,
     duration: [length, "minute"],
@@ -83,23 +84,37 @@ export default function AddToCalendarModal({ isOpen, close, screening, cinema, p
             </Group>
           </Card>
         </AspectRatio>
-        <Stack gap={properties.length > 0 ? 5 : 10}>
-          <Group gap="xs" wrap="nowrap">
-            <IconCalendarEvent size={iconSize} />
-            <Text size="xs" >
-              {dayjs(screening.startTime).format('HH:mm')} - {dayjs(screening.startTime).add(length, 'minute').format('HH:mm')}
-              {screening.movie.length && ` (Laufzeit: ${screening.movie.length} Minuten)`}
-            </Text>
-          </Group>
-          <Group gap="xs" wrap="nowrap">
-            <IconMapPin size={iconSize} />
-            <Text lineClamp={1} size="xs" >{cinema.name}, {cinema.address}</Text>
-          </Group>
-          {properties.length > 0 && <Group gap="xs" wrap="nowrap">
-            <IconAdjustments size={iconSize} />
-            <Text lineClamp={1} size="xs" >{properties.join(', ')}</Text>
-          </Group>}
-        </Stack>
+        <Table withRowBorders={false} horizontalSpacing="4px" verticalSpacing={properties.length > 0 ? "3px" : "5px"}>
+          <TableTbody>
+            <TableTr>
+              <TableTd>
+                <IconCalendarEvent size={iconSize} />
+              </TableTd>
+              <TableTd>
+                <Text size="xs" >
+                  {dayjs(screening.startTime).format('HH:mm')} - {dayjs(screening.startTime).add(length, 'minute').format('HH:mm')}
+                  {screening.movie.length && ` (Laufzeit: ${screening.movie.length} mins)`}
+                </Text>
+              </TableTd>
+            </TableTr>
+            <TableTr>
+              <TableTd>
+                <IconMapPin size={iconSize} />
+              </TableTd>
+              <TableTd>
+                <Text lineClamp={1} size="xs" >{cinema.name}, {cinema.address}</Text>
+              </TableTd>
+            </TableTr>
+            {properties.length > 0 && <TableTr>
+              <TableTd>
+                <IconAdjustments size={iconSize} />
+              </TableTd>
+              <TableTd>
+                <Text lineClamp={1} size="xs" >{properties.join(', ')}</Text>
+              </TableTd>
+            </TableTr>}
+          </TableTbody>
+        </Table>
       </Group>
       <Divider />
       <Button component="a" href={googleCalendarLink} target="_blank" leftSection={<IconBrandGoogle stroke={1} />}>
