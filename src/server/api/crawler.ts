@@ -322,12 +322,16 @@ async function deleteOldScreenings(screenings: Screening[], cinemaId: number) {
 
 async function crawlSchauburg() {
   try {
-    const response = await fetch("https://schauburg.de/programm.php");
+    const body = new FormData();
+    body.set("tx_moviemanagement_movieplan[date]", dayjs().format("YYYY-MM-DD") + " - " + dayjs().add(1, "year").format("YYYY-MM-DD"));
+    const response = await fetch("https://www.schauburg.de/spielplan/filter", {
+      method: "POST",
+      body
+    });
     if (!response.ok) {
       throw new Error(`Fetching Schauburg failed with status: ${response.status}`);
     }
     const $ = load(await response.text());
-    const trimProperty = "Das Angebot gilt ausschließlich vor Ort an unserer Kinokasse!";
 
     const screenings: Screening[] = [];
 
@@ -341,66 +345,105 @@ async function crawlSchauburg() {
       }
     });
 
-    // Process each date section (h5) and its following table
-    $("h5").each((_, dateElement) => {
-      const dateText = $(dateElement).text().trim();
-      // Extract date from formats like "Heute, 20.12." or "Sa, 21.12."
-      const dateMatch = /(\d{1,2})\.(\d{1,2})\./.exec(dateText);
-      if (!dateMatch) return;
+    let lastMonth = -1;
+    let nextYear = false;
 
-      const [, day, month] = dateMatch;
-      // Assuming current year for simplicity, adjust if needed
-      const year = new Date().getFullYear();
+    // Process each date section
+    $(".schauburg-previewelement-date").each((_, dateElement) => {
+      const $dateElement = $(dateElement);
 
-      // Get the table that follows this h5
-      const table = $(dateElement).next("table");
+      // Skip mobile version (d-lg-none) and only process desktop version (d-lg-flex d-none)
+      if (!$dateElement.hasClass("d-lg-flex") || !$dateElement.hasClass("d-none")) {
+        return;
+      }
 
-      // Process each row in the table
-      table.find("tr").each((_, row) => {
-        const timeText = $(row).find("td").first().text().trim();
-        const [hours, minutes] = timeText.split(".").map(n => parseInt(n));
+      // Extract date parts from the date element
+      const dayNumber = $dateElement.find("span.number").text().trim();
+      const month = $dateElement.contents().last().text().trim();
 
+      if (!dayNumber || !month) return;
+
+      // Convert German month name to number
+      const monthNum = getGermanMonthNumber(month);
+      if (monthNum === -1) return;
+
+      if (monthNum < lastMonth) {
+        nextYear = true;
+      }
+      lastMonth = monthNum;
+
+      // Determine year (assume current year, or next year if month is before current month)
+      const now = new Date();
+      let year = now.getFullYear();
+      if (nextYear) {
+        year++;
+      }
+
+      // Find the collapse section that follows this date
+      const collapseId = $dateElement.parent().next().attr("id");
+      if (!collapseId) return;
+
+      const collapseSection = $(`#${collapseId}`);
+
+      // Process each screening in this date section
+      collapseSection.find(".schauburg-previewelement.row").each((_, screeningElement) => {
+        const $screening = $(screeningElement);
+
+        // Extract time from desktop version (d-none d-lg-flex) time element
+        const timeElement = $screening.find(".schauburg-previewelement-time").first();
+        const timeText = timeElement.text().trim();
+        if (!timeText) return;
+
+        // Parse time (format: "19.00" or "19.30")
+        const timeParts = timeText.split(".").map(n => parseInt(n));
+        const hours = timeParts[0];
+        const minutes = timeParts[1];
+        if (timeParts.length !== 2 || isNaN(hours!) || isNaN(minutes!)) return;
+
+        // Extract movie title
+        const movieTitle = $screening.find(".schauburg-previewelement-title").text().trim();
+        if (!movieTitle) return;
+
+        // Extract properties
         const properties: string[] = [];
 
-        function cleanProperty(props: string[]) {
-          return props.map(p => p.replaceAll("(", ""))
-            .map(p => p.replaceAll(")", ""))
-            .map(p => p.replaceAll(trimProperty, ""))
-            .map(p => p.trim())
-            .filter(p => p.length > 0);
+        // Extract overTitelText (special events, festivals, etc.)
+        const overTitleText = $screening.find(".schauburg-previewelement-overTitelText").text().trim();
+        if (overTitleText) {
+          properties.push(overTitleText);
         }
 
-        const movieCell = $(row).find("td").last();
-        // Extract text in brackets at the end of the movie title
-        const bracketMatch = /\(([^)]*)\)$/.exec(movieCell.text().trim());
-        const bracketContent = bracketMatch ? bracketMatch[1]!.trim() : "";
-        if (bracketContent) {
-          properties.push(...cleanProperty(bracketContent.split(" - ")))
-        }
-        const movieTitle = movieCell.find("a").text().trim().replace(/\s*\([^)]*\)\s*$/, "");
+        // Extract category information (contains language, length, FSK)
+        const categoryText = $screening.find(".schauburg-previewelement-category").text().trim();
+        let length: number | undefined;
 
-        // Extract properties from italic text
-        movieCell.find("i").each((_, italic) => {
-          const propText = $(italic).text().trim();
-          if (propText) {
-            // Split by comma and clean up each property
-            propText.split(",").forEach(prop => {
-              const cleanProp = prop.trim();
-              if (cleanProp) {
-                properties.push(...cleanProperty(cleanProp.split(" - ")));
-              }
-            });
-          }
-        });
+        if (categoryText) {
+          // Split by | and extract relevant parts
+          const categoryParts = categoryText.split("|").map(p => p.trim());
+
+          categoryParts.forEach(part => {
+            // Extract length (e.g., "136 MIN")
+            const lengthMatch = /(\d+)\s*MIN/i.exec(part);
+            if (lengthMatch) {
+              length = parseInt(lengthMatch[1]!);
+              return
+            }
+
+            if (part !== "DE" && !part.startsWith("FSK")) {
+              properties.push(part);
+            }
+          });
+        }
 
         // Create date object
-        const startTime = new Date(year, parseInt(month!) - 1, parseInt(day!), hours, minutes);
+        const startTime = new Date(year, monthNum - 1, parseInt(dayNumber), hours, minutes);
 
         screenings.push({
           movieTitle,
           startTime,
           properties: transformProperties(properties),
-          cinemaId
+          cinemaId,
+          length: length && length > 0 ? length : undefined
         });
       });
     });
@@ -414,6 +457,25 @@ async function crawlSchauburg() {
     console.error(`Error crawling Schauburg: ${error instanceof Error ? error.message : String(error)}`);
     return [];
   }
+}
+
+// Helper function to convert German month names to numbers
+function getGermanMonthNumber(monthName: string): number {
+  const months: Record<string, number> = {
+    "Jan": 1,
+    "Feb": 2,
+    "Mär": 3,
+    "Apr": 4,
+    "Mai": 5,
+    "Jun": 6,
+    "Jul": 7,
+    "Aug": 8,
+    "Sep": 9,
+    "Okt": 10,
+    "Nov": 11,
+    "Dez": 12
+  };
+  return months[monthName] ?? -1;
 }
 
 function transformProperties(properties: string[]) {
