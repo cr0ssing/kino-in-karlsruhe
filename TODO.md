@@ -44,7 +44,7 @@
 - [x] fix flickering on timetable on loading
 - [x] fix bug with overlapping movies when multiple entries with odd times follow each other
 - [x] improve crawler searching for movie title (eg by stripping text after "-")
-- [ ] add ical export
+- [x] add ical export
 - [ ] preserve state with query params (using nuqs)
 - [ ] preserve filtered movies on week change
 - [ ] enable moving to next search result by hitting enter

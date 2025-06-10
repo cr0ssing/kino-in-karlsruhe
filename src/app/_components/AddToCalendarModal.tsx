@@ -102,6 +102,7 @@ export default function AddToCalendarModal({ isOpen, close, screening, cinema, p
                 <IconMapPin size={iconSize} />
               </TableTd>
               <TableTd>
+                {/* TODO add link to google maps */}
                 <Text lineClamp={1} size="xs" >{cinema.name}, {cinema.address}</Text>
               </TableTd>
             </TableTr>

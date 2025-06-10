@@ -46,6 +46,7 @@ const tmdbBacklistTitles = [
   "Sneak Preview",
   "Sneak",
   "Sneak OV",
+  "OV-Sneak",
   "Open Archive"
 ].map(t => t.toLowerCase());
 
