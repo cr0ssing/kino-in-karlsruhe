@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.4.0...v1.5.0) (2025-06-10)
+
+
+### Features
+
+* add "Add to Calendar" feature ([9c11365](https://github.com/cr0ssing/kino-in-karlsruhe/commit/9c11365def05c3e137a98b1666f6bc84d9b9b86a))
+* rewrite schauburg crawler for new website ([abc3e75](https://github.com/cr0ssing/kino-in-karlsruhe/commit/abc3e75bd9ef1dfce50aafab5f2b0fbab4255f0b))
+
+
+### Bug Fixes
+
+* add "OV-Sneak" to blacklisted movie titles ([8951321](https://github.com/cr0ssing/kino-in-karlsruhe/commit/89513218ad089713d855e3e8676c8cf9f29e945b))
+* align close button in AddToCalendarModal at the top ([c3d2f5b](https://github.com/cr0ssing/kino-in-karlsruhe/commit/c3d2f5ba8619da14adcb3ca3cec24b9440316153))
+* properly align elements in AddToCalendar Modal ([d7a340a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/d7a340a8c13dd82f46d7f45b4bf66cd7742570a7))
+
 ## [1.4.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.3.3...v1.4.0) (2025-06-03)
 
 
