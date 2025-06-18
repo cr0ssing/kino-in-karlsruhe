@@ -48,7 +48,7 @@
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",
     "geist": "^1.4.2",
-    "next": "15.3.3",
+    "next": "15.3.4",
     "node-cron": "^4.1.0",
     "pulltorefreshjs": "^0.1.22",
     "react": "19.1.0",
