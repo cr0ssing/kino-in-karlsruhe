@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.5.0...v1.6.0) (2025-06-22)
+
+
+### Features
+
+* preserve state with query params ([4d64c3f](https://github.com/cr0ssing/kino-in-karlsruhe/commit/4d64c3ff89485eddf190501475b8e2fbf74dbbc1))
+
 ## [1.5.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.4.0...v1.5.0) (2025-06-10)
 
 
