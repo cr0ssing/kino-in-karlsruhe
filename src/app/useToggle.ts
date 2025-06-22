@@ -19,8 +19,10 @@
 
 import { useState } from "react";
 
-export function useToggle<T>(all: T[]) {
-  const [filtered, setFiltered] = useState<T[]>(all);
+type CreateStateHook<T> = (init: T[]) => [T[], (args: T[] | ((old: T[]) => T[])) => object | void];
+
+export function useToggle<T>(all: T[], useStateHook: CreateStateHook<T> = (init) => useState(init)) {
+  const [filtered, setFiltered] = useStateHook(all);
 
   return [function (item: T) {
     const allEnabled = filtered.length === all.length;
@@ -37,5 +39,7 @@ export function useToggle<T>(all: T[]) {
         ? filtered.filter(m => m !== item)
         : [...filtered, item]);
     }
-  }, filtered, setFiltered] as const;
+  }, filtered, setFiltered, function (newAll: T[]) {
+    all = newAll;
+  }] as const;
 }

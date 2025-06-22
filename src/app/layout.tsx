@@ -26,6 +26,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import "dayjs/locale/de";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import ClientLayout from "./clientLayout";
@@ -47,9 +48,11 @@ export default function RootLayout({
       </head>
       <body>
         <TRPCReactProvider>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
+          <NuqsAdapter>
+            <ClientLayout>
+              {children}
+            </ClientLayout>
+          </NuqsAdapter>
         </TRPCReactProvider>
       </body>
     </html>

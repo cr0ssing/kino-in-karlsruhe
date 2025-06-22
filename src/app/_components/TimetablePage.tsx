@@ -28,6 +28,7 @@ import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { useRouter } from "next/navigation";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import { useQueryState, parseAsBoolean, createParser, parseAsArrayOf, parseAsInteger } from "nuqs";
 
 import { useToggle } from "../useToggle";
 import ScreeningTimetable from "./ScreeningTimetable";
@@ -67,9 +68,17 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
     }
   }, [router]);
 
-  const [showNewMovies, setShowNewMovies] = useState(false);
-  const [showGrid, setShowGrid] = useState(false);
-  const [openedMovie, setOpenedMovie] = useState<number | null>(null);
+  const [showNewMovies, setShowNewMovies] = useQueryState("showOnlyNew", parseAsBoolean.withDefault(false));
+  const [showGrid, setShowGrid] = useQueryState("showGrid", parseAsBoolean.withDefault(false));
+  const [openedMovie, setOpenedMovie] = useQueryState<number | null>("movieDetail", createParser<number | null>({
+    parse: (value) => {
+      if (value === "") return null;
+      const parsed = parseInt(value);
+      if (isNaN(parsed)) return null;
+      return parsed;
+    },
+    serialize: (value) => value?.toString() ?? "",
+  }));
 
   const isCurrentWeek = dayjs().isBetween(startOfWeek, endOfWeek);
 
@@ -85,12 +94,10 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
     ).values()).sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)),
     [filteredByNewScreenings]);
 
-  const [toggleMovie, filteredMovies, setFilteredMovies] = useToggle(uniqueMovies.map(m => m.id));
-
-  // Reset filtered movies whenever screenings/uniqueMovies changes
-  useEffect(() => {
-    setFilteredMovies(uniqueMovies.map(m => m.id));
-  }, [uniqueMovies, setFilteredMovies]);
+  const [filteredMoviesQuery, setFilteredMoviesQuery] = useQueryState<number[]>("filteredMovies",
+    parseAsArrayOf(parseAsInteger).withDefault(uniqueMovies.map(m => m.id)));
+  const [toggleMovie, filteredMovies, setFilteredMovies] = useToggle(uniqueMovies.map(m => m.id),
+    () => [filteredMoviesQuery, setFilteredMoviesQuery]);
 
   const [searchIndex, setSearchIndex] = useState(-1);
 
@@ -171,7 +178,7 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
             </Tooltip>
           </Group>
           <MovieModal
-            movie={openedMovie !== null ? moviesById.get(openedMovie)! : null}
+            movieId={openedMovie !== null ? moviesById.get(openedMovie)!.id : null}
             close={() => setOpenedMovie(null)}
           />
         </Box>

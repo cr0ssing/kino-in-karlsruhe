@@ -45,13 +45,14 @@
 - [x] fix bug with overlapping movies when multiple entries with odd times follow each other
 - [x] improve crawler searching for movie title (eg by stripping text after "-")
 - [x] add ical export
-- [ ] preserve state with query params (using nuqs)
-- [ ] preserve filtered movies on week change
-- [ ] enable moving to next search result by hitting enter
+- [x] preserve state with query params (using nuqs)
+- [x] preserve filtered movies on week change
+- [ ] generic photos for Sneaks
 - [ ] add links for letterboxd (https://letterboxd.com/tmdb/{tmdb_id}) and imdb
 - [ ] add film description and maybe cast and crew to movie modal
-- [ ] tooltip for properties on movie modal screening
+- [x] tooltip for properties on movie modal screening
 - [ ] add properties filter
+- [ ] enable moving to next search result by hitting enter
 - [ ] more granular suspense with skeletons
 - [ ] investigate optimizing image loading
 - [ ] swipe gestures for touch

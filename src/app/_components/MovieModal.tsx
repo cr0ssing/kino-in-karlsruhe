@@ -40,19 +40,20 @@ const headerHeight = 130;
 const topOffeset = 150;
 const posterBreakpoint = ViewportSize.tight;
 
-// TODO pass movieId instead of movie
-export default function MovieModal({ movie, close }: { movie: Movie | null, close: () => void }) {
-  // TODO on open, push router segment
-
+export default function MovieModal({ movieId, close }: { movieId: number | null, close: () => void }) {
   const startDate = useMemo(() => dayjs().startOf('day').toDate(), []);
+
+  const { data: movie, isLoading: movieLoading } = api.movie.getById.useQuery({ id: movieId! }, {
+    enabled: movieId !== null,
+  });
 
   const { data, isLoading: screeningsLoading, isFetching, fetchNextPage, hasNextPage } = api.screening.getInfiniteScreenings.useInfiniteQuery({
     dayAmount,
-    movieId: movie?.id
+    movieId: movieId!
   }, {
     initialCursor: startDate,
     getNextPageParam: (lastPage) => lastPage.cursor,
-    enabled: movie !== null && startDate !== null,
+    enabled: movieId !== null && startDate !== null,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -148,7 +149,7 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
   const [isClandarOpen, { open: openCalendar, close: closeCalendar }] = useDisclosure(false);
   const [screening, setScreening] = useState<Screening & { movie: Movie, cinema: Cinema } | null>(null);
 
-  return movie &&
+  return movieId !== null &&
     <ModalRoot
       size={Math.min(viewportWidth * 0.8, 1280)}
       opened={movie !== null}
@@ -167,7 +168,7 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
         cinema={screening.cinema}
         properties={screening.properties}
       />}
-      <ModalContent
+      {movieLoading ? <Center><Loader /></Center> : movie && <ModalContent
         ref={modalRef}
         bg={scrollY < headerHeight && movie.backdropUrl
           ? `url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${movie.backdropUrl})`
@@ -336,6 +337,6 @@ export default function MovieModal({ movie, close }: { movie: Movie | null, clos
             }
           </Stack>
         </Group>
-      </ModalContent>
+      </ModalContent>}
     </ModalRoot >;
 }

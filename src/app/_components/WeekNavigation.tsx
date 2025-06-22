@@ -25,6 +25,7 @@ import { ActionIcon, Button, Group, Stack, Text, Tooltip } from "@mantine/core";
 import { useViewportSize } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useSearchParams } from "next/navigation";
 
 import { api } from "~/trpc/react";
 import Title from "./Title";
@@ -35,6 +36,7 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
   const { width: viewportWidth } = useViewportSize();
   const viewportSize = getViewportSize(viewportWidth);
   const isMobile = viewportSize && viewportSize <= ViewportSize.narrow;
+  const searchParams = new URLSearchParams(useSearchParams());
 
   // Format dates for display
   const dateFormatter = new Intl.DateTimeFormat("de-DE", {
@@ -55,11 +57,15 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
   const enabledNextWeek = maxDate && dayjs(maxDate).isAfter(endDate);
 
   function navigate(direction: "previous" | "next"): LinkProps & { component: typeof Link } {
+    searchParams.set("weekOffset", weekOffset + (direction === "previous" ? -1 : 1) + "");
+    if (searchParams.get("selectedDay") !== "-1") {
+      searchParams.delete("selectedDay");
+    }
     return {
       component: Link,
       scroll: false,
       prefetch: true,
-      href: `/?weekOffset=${weekOffset + (direction === "previous" ? -1 : 1)}`,
+      href: `?${searchParams.toString()}`,
     };
   }
 

@@ -19,11 +19,12 @@
 
 "use client";
 
-import { useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { Box, Button, Center, Chip, Group, Loader, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '@prisma/client';
 import dayjs from "dayjs";
 import minmax from "dayjs/plugin/minMax";
+import { useQueryState, createParser, parseAsArrayOf, parseAsInteger } from "nuqs";
 
 import { useToggle } from "../useToggle";
 import type { CombinedScreening } from "./types";
@@ -49,7 +50,7 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
   if (screenings.length === 0) return [];
 
   // Sort screenings by start time
-  const sortedScreenings = [...screenings].sort((a, b) => 
+  const sortedScreenings = [...screenings].sort((a, b) =>
     a.startTime.getTime() - b.startTime.getTime()
   );
 
@@ -58,7 +59,7 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
     const startMinutes = screening.startTime.getHours() * 60 + screening.startTime.getMinutes();
     // Use a fixed duration of 15 minutes for layout purposes
     const endMinutes = startMinutes + 15;
-    
+
     return {
       screening,
       startMinutes,
@@ -71,22 +72,22 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
 
   // Define the type for a screening range
   type ScreeningRange = typeof screeningRanges[number];
-  
+
   // Group screenings that overlap in time
   const overlapGroups: ScreeningRange[][] = [];
-  
+
   // For each screening, find or create an overlap group
   screeningRanges.forEach(current => {
     // Check if this screening overlaps with any existing group
     let foundGroup = false;
-    
+
     for (const group of overlapGroups) {
       // Check if current screening overlaps with any screening in this group
-      const overlapsWithGroup = group.some(existing => 
+      const overlapsWithGroup = group.some(existing =>
         // Check for overlap: not (current ends before existing starts OR current starts after existing ends)
         !(current.endMinutes <= existing.startMinutes || current.startMinutes >= existing.endMinutes)
       );
-      
+
       if (overlapsWithGroup) {
         // Add to this group
         group.push(current);
@@ -94,7 +95,7 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
         break;
       }
     }
-    
+
     // If no overlapping group found, create a new one
     if (!foundGroup) {
       overlapGroups.push([current]);
@@ -105,39 +106,39 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
   let merged = true;
   while (merged) {
     merged = false;
-    
+
     for (let i = 0; i < overlapGroups.length; i++) {
       for (let j = i + 1; j < overlapGroups.length; j++) {
         // Check if groups share any screenings
         const groupI = overlapGroups[i] ?? [];
         const groupJ = overlapGroups[j] ?? [];
-        
-        const sharesScreenings = groupI.some(screeningI => 
-          groupJ.some(screeningJ => 
+
+        const sharesScreenings = groupI.some(screeningI =>
+          groupJ.some(screeningJ =>
             screeningI.screening.id === screeningJ.screening.id
           )
         );
-        
+
         if (sharesScreenings) {
           // Merge groups
           const mergedGroup = [...groupI];
-          
+
           // Add screenings from groupJ that aren't already in mergedGroup
           groupJ.forEach(screeningJ => {
             if (!mergedGroup.some(s => s.screening.id === screeningJ.screening.id)) {
               mergedGroup.push(screeningJ);
             }
           });
-          
+
           // Replace groupI with mergedGroup and remove groupJ
           overlapGroups[i] = mergedGroup;
           overlapGroups.splice(j, 1);
-          
+
           merged = true;
           break;
         }
       }
-      
+
       if (merged) break;
     }
   }
@@ -146,23 +147,23 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
   overlapGroups.forEach(group => {
     // Create columns for this group
     const columns: ScreeningRange[][] = [];
-    
+
     // Sort by start time within the group
     group.sort((a, b) => a.startMinutes - b.startMinutes);
-    
+
     // Assign columns within this group
     group.forEach(current => {
       let placed = false;
-      
+
       // Try to place in an existing column
       for (let colIndex = 0; colIndex < columns.length; colIndex++) {
         const column = columns[colIndex] ?? [];
-        
+
         // Check if the current screening overlaps with any screening in this column
-        const hasOverlap = column.some(existing => 
+        const hasOverlap = column.some(existing =>
           !(current.endMinutes <= existing.startMinutes || current.startMinutes >= existing.endMinutes)
         );
-        
+
         if (!hasOverlap) {
           // No overlap, we can place it in this column
           current.columnIndex = colIndex;
@@ -171,42 +172,42 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
           break;
         }
       }
-      
+
       // If not placed in any existing column, create a new column
       if (!placed) {
         current.columnIndex = columns.length;
         columns.push([current]);
       }
     });
-    
+
     // Set totalColumns for all screenings in this group
     const totalColumns = columns.length;
-    
+
     // Optimize column spans - allow screenings to span multiple columns when possible
     group.forEach(item => {
       // Start with the basic column assignment
       item.totalColumns = totalColumns;
       const startCol = item.columnIndex;
-      
+
       // Calculate how many columns this screening could potentially span
       let maxSpan = 1;
-      
+
       // Check each column to the right to see if we can span it
       for (let colIndex = startCol + 1; colIndex < totalColumns; colIndex++) {
         const column = columns[colIndex] ?? [];
-        
+
         // Check if spanning to this column would create an overlap
-        const wouldOverlap = column.some(existing => 
+        const wouldOverlap = column.some(existing =>
           !(item.endMinutes <= existing.startMinutes || item.startMinutes >= existing.endMinutes)
         );
-        
+
         if (wouldOverlap) {
           break; // Stop at first overlap
         }
-        
+
         maxSpan++;
       }
-      
+
       // Store the column span information
       item.columnSpan = maxSpan;
     });
@@ -215,7 +216,7 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
   // Map back to the original screenings with column information
   return sortedScreenings.map(screening => {
     const screeningWithRange = screeningRanges.find(s => s.screening.id === screening.id)!;
-    
+
     return {
       ...screening,
       columnIndex: screeningWithRange.columnIndex,
@@ -228,11 +229,13 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
 
-  const [toggleCinema, cinemaFilter, setCinemaFilter] = useToggle(Array.from(cinemas.keys()));
+  const [filteredCinemasQuery, setFilteredCinemasQuery] = useQueryState<number[]>("filteredCinemas",
+    parseAsArrayOf(parseAsInteger).withDefault(Array.from(cinemas.keys())));
+  const [toggleCinema, cinemaFilter, setCinemaFilter, setAllCinemas] = useToggle(Array.from(cinemas.keys()), () => [filteredCinemasQuery, setFilteredCinemasQuery]);
 
   useEffect(() => {
-    setCinemaFilter(Array.from(cinemas.keys()));
-  }, [cinemas, setCinemaFilter]);
+    setAllCinemas(Array.from(cinemas.keys()));
+  }, [cinemas, setAllCinemas]);
 
   const combined = new Map<string, CombinedScreening>();
   screenings.filter(s => cinemaFilter.includes(s.cinemaId)).forEach((screening) => {
@@ -286,15 +289,34 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   );
 
   const mondayBasedDayIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : 0;
-  const [selectedDay, setSelectedDay] = useState(-1);
+  const [selectedDayQuery, setSelectedDayQuery] = useQueryState<"auto" | number>("selectedDay", createParser<"auto" | number>({
+    parse: (value) => {
+      if (value === "auto") return "auto";
+      const parsed = parseInt(value);
+      if (isNaN(parsed)) return null;
+      return parsed;
+    },
+    serialize: (value) => value.toString(),
+  }).withDefault("auto"));
+
+  const [selectedDay, setSelectedDayInternal] = useState(-1);
+
+  const setSelectedDay: Dispatch<SetStateAction<number>> = useCallback((args: number | ((old: number) => number)) => {
+    setSelectedDayInternal(args);
+    void setSelectedDayQuery(args as number | "auto" | ((old: number | "auto") => number | "auto" | null) | null);
+  }, [setSelectedDayQuery]);
 
   useLayoutEffect(() => {
-    if (isMobile) {
-      setSelectedDay(mondayBasedDayIndex);
+    if (selectedDayQuery === "auto") {
+      if (isMobile) {
+        void setSelectedDay(mondayBasedDayIndex);
+      } else {
+        void setSelectedDayInternal(-1);
+      }
     } else {
-      setSelectedDay(-1);
+      void setSelectedDayInternal(selectedDayQuery);
     }
-  }, [isMobile, mondayBasedDayIndex, setSelectedDay]);
+  }, [isMobile, mondayBasedDayIndex, setSelectedDay, selectedDay, selectedDayQuery, setSelectedDayQuery]);
 
   // Filter weekdays based on selection
   const displayedWeekdays = selectedDay === -1
