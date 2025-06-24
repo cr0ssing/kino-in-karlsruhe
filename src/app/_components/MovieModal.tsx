@@ -171,7 +171,9 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
       {movieLoading ? <Center><Loader /></Center> : movie && <ModalContent
         ref={modalRef}
         bg={scrollY < headerHeight && movie.backdropUrl
-          ? `url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${movie.backdropUrl})`
+          ? (movie.tmdbId === null
+            ? `url(${movie.backdropUrl})`
+            : `url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${movie.backdropUrl})`)
           : "var(--mantine-color-body)"}
         bgsz={scrollY < headerHeight && movie.backdropUrl ? "cover" : undefined}
         bgr={scrollY < headerHeight && movie.backdropUrl ? "no-repeat" : undefined}
@@ -206,7 +208,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
           {viewportSize && viewportSize >= posterBreakpoint &&
             <Card ref={posterRef} ml="md" withBorder shadow="xl" w="20%" pos="sticky" top={16}>
               <CardSection>
-                <MoviePosterImage aria-label="Poster" posterUrl={movie.posterUrl} title={movie.title} />
+                <MoviePosterImage aria-label="Poster" posterUrl={movie.posterUrl} title={movie.title} isLocal={movie.tmdbId === null} />
               </CardSection>
             </Card>}
           <Stack

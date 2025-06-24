@@ -35,9 +35,11 @@ type MoviePosterProps = {
 
 type MovieElement = Movie & { enabled: boolean };
 
-export function MoviePosterImage({ posterUrl, title }: { posterUrl: string | null, title: string }) {
+export function MoviePosterImage({ posterUrl, title, isLocal }: { posterUrl: string | null, title: string, isLocal: boolean }) {
   return <Image
-    src={posterUrl ? `https://image.tmdb.org/t/p/w440_and_h660_face${posterUrl}` : fallbackURL(title)}
+    src={posterUrl
+      ? (!isLocal ? `https://image.tmdb.org/t/p/w440_and_h660_face${posterUrl}` : posterUrl)
+      : fallbackURL(title)}
     fit="contain"
     alt={title}
     fallbackSrc={fallbackURL("Kein Poster")}
@@ -52,7 +54,7 @@ export default function MoviePoster({ movie, filteredMoviesCount, moviesCount, t
       style={{ cursor: "pointer" }}
     >
       <CardSection>
-        <MoviePosterImage posterUrl={movie.posterUrl} title={movie.title} />
+        <MoviePosterImage posterUrl={movie.posterUrl} title={movie.title} isLocal={movie.tmdbId === null} />
         {!movie.enabled && <Overlay color="rgb(255,255,255)" backgroundOpacity={0.7} zIndex={90} />}
         <Tooltip
           label={
