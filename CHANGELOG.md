@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.6.0...v1.7.0) (2025-06-24)
+
+
+### Features
+
+* add link from entry popover to movie detail modal ([b18b9d2](https://github.com/cr0ssing/kino-in-karlsruhe/commit/b18b9d2089aa83c601ad1f6257006caefda521b3))
+* custom movie images for sneak previews ([5654a17](https://github.com/cr0ssing/kino-in-karlsruhe/commit/5654a170d1cfaa8486388d0b8ca849212c3cb8b8))
+
 ## [1.6.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.5.0...v1.6.0) (2025-06-22)
 
 
