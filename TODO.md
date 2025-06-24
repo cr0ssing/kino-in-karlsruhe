@@ -47,7 +47,7 @@
 - [x] add ical export
 - [x] preserve state with query params (using nuqs)
 - [x] preserve filtered movies on week change
-- [ ] generic photos for Sneaks
+- [x] generic photos for Sneaks
 - [ ] add links for letterboxd (https://letterboxd.com/tmdb/{tmdb_id}) and imdb
 - [ ] add film description and maybe cast and crew to movie modal
 - [x] tooltip for properties on movie modal screening
