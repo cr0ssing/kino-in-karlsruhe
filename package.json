@@ -52,7 +52,7 @@
     "node-cron": "^4.1.0",
     "nuqs": "^2.4.3",
     "pulltorefreshjs": "^0.1.22",
-    "react": "19.1.0",
+    "react": "19.1.1",
     "react-dom": "19.1.0",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
