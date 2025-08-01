@@ -855,7 +855,9 @@ async function crawlFilmpalast() {
 
 async function getTMDB(url: string) {
   await tmdbRateLimiter.waitForToken(); // Apply rate limiting
-  console.log("\x1b[32mtmdb:get\x1b[0m", url);
+  if (env.NODE_ENV === "development") {
+    console.log("\x1b[32mtmdb:get\x1b[0m", url);
+  }
   return await fetch(url, {
     headers: {
       Authorization: `Bearer ${env.TMDB_API_KEY}`,
