@@ -24,9 +24,13 @@ import minMax from "dayjs/plugin/minMax";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { env } from "~/env";
 import { db } from "~/server/db";
+import { RateLimiter } from "./rate-limiter";
 
 dayjs.extend(minMax);
 dayjs.extend(customParseFormat);
+
+// Create a rate limiter instance: 45 requests per second = 45 tokens per 1000ms = 0.045 tokens per ms
+const tmdbRateLimiter = new RateLimiter(45, 0.045);
 
 type Screening = {
   movieTitle: string;
@@ -49,6 +53,8 @@ const tmdbBacklistTitles = [
   "OV-Sneak",
   "Open Archive"
 ].map(t => t.toLowerCase());
+
+const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true, backdropUrl: true, searchTitles: true };
 
 export async function run() {
   console.log("Running crawlers...");
@@ -79,19 +85,17 @@ export async function run() {
 
   // assign tmdbId to searchTitles either from existing movies or TMDB API
   const found = await Promise.all(Array.from(uniqueMovies).map(async m => {
-    const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true, backdropUrl: true, searchTitles: true };
-
     const segments = m.split("-");
     const prop = /\(([^)]*)\)/.exec(m)?.[1]?.trim();
     let movie;
-    let searchTitle: string;
+    let searchTitle: string | null = null;
     let extraProperties: string[] = [];
     do {
-      const rawTitle = segments.join("-").trim()
+      const rawTitle = segments.join("-").trim();
       const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
 
       movie = await db.movie.findFirst({
-        where: { searchTitles: { has: queryTitle } },
+        where: { searchTitles: { hasSome: [queryTitle, rawTitle] } },
         select
       });
       if (!movie) {
@@ -119,24 +123,10 @@ export async function run() {
 
     let tmdbId = movie?.tmdbId;
     if (movie === null && !tmdbBacklistTitles.some(t => m.toLowerCase().startsWith(t))) {
-      const segments = m.split("-");
-      while (segments.length > 0) {
-        const rawTitle = segments.join("-").trim();
-        const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
-        const result = await searchMovie(queryTitle);
-        if (result) {
-          // console.log(`Found TMDB for queryTitle: ${queryTitle}`);
-          searchTitle = queryTitle;
-          tmdbId = result.id;
-          movie = await db.movie.findUnique({ where: { tmdbId }, select });
-          if (movie && !movie.searchTitles.includes(queryTitle)) {
-            // if movie exists in db add searchTitle to it
-            toUpdate.push(db.movie.update({ where: { id: movie?.id }, data: { searchTitles: { push: queryTitle } } }));
-          }
-          break;
-        } else {
-          segments.pop();
-        }
+      let toPush: Promise<Movie> | null = null;
+      ({ searchTitle, tmdbId, movie, toPush } = await getMovieDetails(m.replace(/\s*(OV|OmU|OmeU)$/i, ""), searchTitle, tmdbId));
+      if (toPush) {
+        toUpdate.push(toPush);
       }
     }
     // if no movie was found on tmdb extraProps contains all segments of title. remove them.
@@ -155,10 +145,31 @@ export async function run() {
       if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, "days").toDate() || !movie.popularity || !movie.releaseDate || !movie.backdropUrl)) {
         toUpdate.push((async (tmdbId: number) => {
           const details = await getDetails(tmdbId);
-          await db.movie.update({
-            where: { id: movie.id },
-            data: { popularity: details.popularity, releaseDate: details.releaseDate, backdropUrl: details.backdropUrl }
-          });
+          if (details) {
+            await db.movie.update({
+              where: { id: movie.id },
+              data: { popularity: details.popularity, releaseDate: details.releaseDate, backdropUrl: details.backdropUrl }
+            });
+          } else {
+            const { movie: foundMovie, toPush } = await getMovieDetails(m, searchTitle, tmdbId);
+            if (toPush) {
+              toUpdate.push(toPush);
+            }
+            if (foundMovie) {
+              // if no movie with this tmdbId was found, update existing, if some exist take that
+              await db.movie.update({
+                where: { id: movie.id },
+                data: { tmdbId: foundMovie.tmdbId }
+              });
+              movie.tmdbId = foundMovie.tmdbId;
+            } else {
+              await db.movie.update({
+                where: { id: movie.id },
+                data: { tmdbId: null }
+              });
+              movie.tmdbId = null;
+            }
+          }
         })(movie.tmdbId));
       }
     }
@@ -173,6 +184,37 @@ export async function run() {
   const extraProperties = new Map<string, string[]>(found
     .filter(({ extraProperties }) => extraProperties.length > 0)
     .map(({ orgTitle, extraProperties }) => [orgTitle, extraProperties]));
+
+
+  // group new movies with tmdbId by tmdbId
+  const searchTitles = found.filter(({ movieId, tmdbId }) => !movieId && !!tmdbId).reduce((acc, { orgTitle, searchTitle, tmdbId }) => {
+    if (!tmdbId) {
+      return acc;
+    };
+    if (!acc.has(tmdbId)) {
+      acc.set(tmdbId, { searchTitles: [], orgTitles: [] });
+    };
+    acc.get(tmdbId)!.searchTitles.push(searchTitle);
+    acc.get(tmdbId)!.orgTitles.push(orgTitle);
+    return acc;
+  }, new Map<number, { searchTitles: string[], orgTitles: string[] }>());
+
+  // put new movies into db
+  await Promise.all(Array.from(searchTitles.entries()).map(async ([tmdbId, { searchTitles, orgTitles }]) => {
+    const details = await getDetails(tmdbId);
+    if (!details) {
+      const movie = found.find(e => e.tmdbId === tmdbId);
+      if (movie) {
+        movie.tmdbId = undefined;
+      }
+      return;
+    }
+    const movie = await db.movie.create({
+      data: { ...details, searchTitles }
+    });
+    movies.push(movie);
+    orgTitles.forEach(st => movieIds.set(st, movie.id));
+  }));
 
   // create all movies not found on tmdb
   found.filter(({ tmdbId, movieId }) => !tmdbId && !movieId).map(async e => {
@@ -196,36 +238,13 @@ export async function run() {
     movieIds.set(e.orgTitle, movie.id);
   }).forEach(p => toUpdate.push(p));
 
-  // group new movies with tmdbId by tmdbId
-  const searchTitles = found.filter(({ movieId, tmdbId }) => !movieId && !!tmdbId).reduce((acc, { orgTitle, searchTitle, tmdbId }) => {
-    if (!tmdbId) {
-      return acc;
-    };
-    if (!acc.has(tmdbId)) {
-      acc.set(tmdbId, { searchTitles: [], orgTitles: [] });
-    };
-    acc.get(tmdbId)!.searchTitles.push(searchTitle);
-    acc.get(tmdbId)!.orgTitles.push(orgTitle);
-    return acc;
-  }, new Map<number, { searchTitles: string[], orgTitles: string[] }>());
-
-  // put new movies into db
-  await Promise.all(Array.from(searchTitles.entries()).map(async ([tmdbId, { searchTitles, orgTitles }]) => {
-    const details = await getDetails(tmdbId);
-    const movie = await db.movie.create({
-      data: { ...details, searchTitles }
-    });
-    movies.push(movie);
-    orgTitles.forEach(st => movieIds.set(st, movie.id));
-  }));
-
   await Promise.all(toUpdate);
 
   const insertedScreenings = await db.screening.createManyAndReturn({
     data: screenings.map(s => ({
       movieId: movieIds.get(s.movieTitle)!,
       startTime: s.startTime,
-      properties: [...s.properties, ...(extraProperties.get(s.movieTitle) ?? [])],
+      properties: Array.from(new Set([...s.properties, ...(extraProperties.get(s.movieTitle) ?? [])])),
       cinemaId: s.cinemaId
     }))
   });
@@ -252,12 +271,39 @@ type MovieDetails = {
   }
 }
 
+async function getMovieDetails(
+  m: string,
+  searchTitle: string | null,
+  tmdbId: number | null | undefined) {
+  const segments = m.split("-");
+  let movie: Pick<Movie, "id" | "tmdbId" | "updatedAt" | "popularity" | "releaseDate" | "backdropUrl" | "searchTitles"> | null = null;
+  let toPush: Promise<Movie> | null = null;
+  while (segments.length > 0) {
+    const rawTitle = segments.join("-").trim();
+    const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
+    const result = await searchMovie(queryTitle);
+    if (result) {
+      // console.log(`Found TMDB for queryTitle: ${queryTitle}`);
+      searchTitle = queryTitle;
+      tmdbId = result.id;
+      movie = await db.movie.findUnique({ where: { tmdbId }, select });
+      if (movie && !movie.searchTitles.includes(queryTitle)) {
+        // if movie exists in db add searchTitle to it
+        toPush = db.movie.update({ where: { id: movie?.id }, data: { searchTitles: { push: queryTitle } } });
+      }
+      break;
+    } else {
+      segments.pop();
+    }
+  }
+  return { searchTitle, tmdbId, movie, toPush };
+}
+
 async function getDetails(id: number) {
-  const response = await fetch(`https://api.themoviedb.org/3/movie/${id}?language=de-DE&append_to_response=release_dates`, {
-    headers: {
-      Authorization: `Bearer ${env.TMDB_API_KEY}`,
-    },
-  });
+  const response = await getTMDB(`https://api.themoviedb.org/3/movie/${id}?language=de-DE&append_to_response=release_dates`);
+  if (response.status === 404) {
+    return null;
+  }
   if (!response.ok) {
     throw new Error(`Fetching TMDB details for ${id} failed with status: ${response.status}`);
   }
@@ -289,11 +335,7 @@ async function getDetails(id: number) {
 }
 
 async function searchMovie(title: string) {
-  const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${title}&include_adult=true&language=de-DE`, {
-    headers: {
-      Authorization: `Bearer ${env.TMDB_API_KEY}`,
-    },
-  });
+  const response = await getTMDB(`https://api.themoviedb.org/3/search/movie?query=${title}&include_adult=true&language=de-DE`);
 
   if (response.ok) {
     const data = await response.json() as { results: { poster_path: string, id: number, popularity: number }[] };
@@ -809,4 +851,14 @@ async function crawlFilmpalast() {
     console.error(`Error crawling Filmpalast: ${error instanceof Error ? error.message : String(error)}`);
     return [];
   }
+}
+
+async function getTMDB(url: string) {
+  await tmdbRateLimiter.waitForToken(); // Apply rate limiting
+  console.log("\x1b[32mtmdb:get\x1b[0m", url);
+  return await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${env.TMDB_API_KEY}`,
+    },
+  });
 }
