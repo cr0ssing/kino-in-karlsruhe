@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.7.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.6.0...v1.7.0) (2025-09-27)
+
+
+### Features
+
+* add link from entry popover to movie detail modal ([b18b9d2](https://github.com/cr0ssing/kino-in-karlsruhe/commit/b18b9d2089aa83c601ad1f6257006caefda521b3))
+* custom movie images for sneak previews ([5654a17](https://github.com/cr0ssing/kino-in-karlsruhe/commit/5654a170d1cfaa8486388d0b8ca849212c3cb8b8))
+* show letterboxd link in movie modal ([1b6bd94](https://github.com/cr0ssing/kino-in-karlsruhe/commit/1b6bd94223f735bde33f7a6e18d919b9cc791d70))
+
+
+### Bug Fixes
+
+* make crawler more robust ([2e91efb](https://github.com/cr0ssing/kino-in-karlsruhe/commit/2e91efb8986eba3d4cbf726bc464994a29f65e5e))
+* update dom element id for filmpalast crawler ([f5fa5d4](https://github.com/cr0ssing/kino-in-karlsruhe/commit/f5fa5d42ad3dda82a891f5a69409c22f71883f6f))
+* update pnpm lockfile ([0dd5fc0](https://github.com/cr0ssing/kino-in-karlsruhe/commit/0dd5fc09ffab78c2844ed24485da7722d7705e2d))
+
 ## [1.6.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.5.0...v1.6.0) (2025-06-22)
 
 
