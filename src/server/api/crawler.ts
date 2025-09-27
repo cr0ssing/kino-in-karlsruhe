@@ -805,7 +805,7 @@ async function crawlFilmpalast() {
       }
     });
 
-    const scriptContent = $("script#pmkino-shortcode-program-script-js-extra").text();
+    const scriptContent = $("script#pmkino-overview-script-js-extra").text();
     // Extract JSON content between curly braces
     const jsonMatch = /\{.*\}/s.exec(scriptContent);
     if (!jsonMatch) {
