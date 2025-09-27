@@ -165,7 +165,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
                           cursor: "pointer",
                         }}
                       >
-                        LBOXD
+                        LBXD
                       </Badge>
                     </>}
                   </Group>
