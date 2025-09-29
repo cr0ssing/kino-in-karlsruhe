@@ -114,8 +114,8 @@ importers:
         specifier: 19.1.8
         version: 19.1.8
       '@types/react-dom':
-        specifier: 19.1.6
-        version: 19.1.6(@types/react@19.1.8)
+        specifier: 19.1.9
+        version: 19.1.9(@types/react@19.1.8)
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.34.1
         version: 8.34.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.36.0(jiti@2.4.2))(typescript@5.8.3)
@@ -953,8 +953,8 @@ packages:
   '@types/pulltorefreshjs@0.1.7':
     resolution: {integrity: sha512-Y0g/yfuycIvpvUmP97n5NE2+HDAOwfREGVERjhMWw2Y0ODh5wvbflcQ5gXPZ+ihgoq+BQZjA1DL8apw2wAsJXA==}
 
-  '@types/react-dom@19.1.6':
-    resolution: {integrity: sha512-4hOiT/dwO8Ko0gV1m/TJZYk3y0KBnY9vzDh7W+DH17b2HFSOGgdj33dhihPeuy3l0q23+4e+hoXHV6hCC4dCXw==}
+  '@types/react-dom@19.1.9':
+    resolution: {integrity: sha512-qXRuZaOsAdXKFyOhRBg6Lqqc0yay13vN7KrIg4L7N4aaHN68ma9OK3NE1BoDFgFOTfM7zg+3/8+2n8rLUH3OKQ==}
     peerDependencies:
       '@types/react': ^19.0.0
 
@@ -3862,7 +3862,7 @@ snapshots:
 
   '@types/pulltorefreshjs@0.1.7': {}
 
-  '@types/react-dom@19.1.6(@types/react@19.1.8)':
+  '@types/react-dom@19.1.9(@types/react@19.1.8)':
     dependencies:
       '@types/react': 19.1.8
 
