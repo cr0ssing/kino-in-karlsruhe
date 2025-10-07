@@ -35,7 +35,7 @@
     "@mantine/dates": "^7.15.1",
     "@mantine/hooks": "^7.15.1",
     "@mantine/ssr": "^6.0.22",
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^6.17.0",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tabler/icons-react": "^3.35.0",
     "@tanstack/react-query": "^5.90.2",
