@@ -228,6 +228,7 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
 
 export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
+  const startHour = useMemo(() => Math.min(START_HOUR, screenings.reduce((min, s) => Math.min(min, s.startTime.getHours()), 24)), [screenings]);
 
   const [filteredCinemasQuery, setFilteredCinemasQuery] = useQueryState<number[]>("filteredCinemas",
     parseAsArrayOf(parseAsInteger).withDefault(Array.from(cinemas.keys())));
@@ -284,8 +285,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
   const curDate = isCurrentWeek ? weekdays[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]! : "-1";
 
   const timeLabels = Array.from(
-    { length: END_HOUR - START_HOUR },
-    (_, i) => `${(START_HOUR + i).toString().padStart(2, '0')}:00`
+    { length: END_HOUR - startHour },
+    (_, i) => `${(startHour + i).toString().padStart(2, '0')}:00`
   );
 
   const mondayBasedDayIndex = isCurrentWeek ? new Date().getDay() === 0 ? 6 : new Date().getDay() - 1 : 0;
@@ -418,7 +419,7 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
                   timeLabels={timeLabels}
                   screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
                   hourHeight={HOUR_HEIGHT}
-                  startHour={START_HOUR}
+                  startHour={startHour}
                   endHour={END_HOUR} />
               </Box>
             );
