@@ -540,6 +540,7 @@ function transformProperties(properties: string[]) {
         result = "OV";
         break;
       case "Englisches Original mit engl. Untertiteln":
+      case "Mit englischen Untertiteln":
       case "omeu":
         result = "OmeU";
         break;
@@ -583,7 +584,7 @@ async function crawlKinemathek() {
       const dateText = $(dateHeader).text().trim();
       // Extract date from format like "Donnerstag 2. Januar" or "Montag 5. März"
       // Use a regex that handles German month names with umlauts (ä, ö, ü)
-      const dateMatch = /(\d{1,2})\. ([A-Za-zäöüÄÖÜ]+)/.exec(dateText);
+      const dateMatch = /(\d{1,2}) ([A-Za-zäöüÄÖÜ]+)/.exec(dateText);
       if (!dateMatch) return;
 
       const [, day, month] = dateMatch;
@@ -594,7 +595,7 @@ async function crawlKinemathek() {
       // Get all screenings that follow this date header until the next one
       let currentElement = $(dateHeader).next();
 
-      const allowedProperties = ["OmU", "OmeU"];
+      const allowedProperties = ["OmU", "OmeU", "Mit englischen Untertiteln"];
 
       while (currentElement.length && !currentElement.hasClass("wpt_listing_group")) {
         if (currentElement.hasClass("wp_theatre_event")) {
@@ -609,18 +610,30 @@ async function crawlKinemathek() {
           // Add technical specs as properties
           const techSpecs = currentElement.find(".wp_theatre_event_cine_technical_specs").text().trim();
           // Kinemathek specs are not separated consistently, so not all specs can be extracted
-          const specs = techSpecs.split(/[|,]/).map(spec => spec.trim());
+          const specs = techSpecs.split(/[;,|]/).map(spec => spec.trim());
           specs.filter(spec => allowedProperties.includes(spec)).forEach(spec => properties.push(spec));
+
           // Find release year from specs (format: "Country YYYY")
           const yearSpec = specs.find(spec => {
             const parts = spec.trim().split(/\s+/);
-            return parts.length === 2 && !isNaN(parseInt(parts[1]!));
+            return parts.some(part => part.length === 4 && !isNaN(parseInt(part)));
           });
-          const releaseYear = yearSpec ? parseInt(yearSpec.split(/\s+/)[1]!) : undefined;
+          const releaseYear = yearSpec
+            ? parseInt(yearSpec.split(/\s+/).find(part => part.length === 4 && !isNaN(parseInt(part)))!)
+            : undefined;
+
           // Find length from specs (format: "XXX Min.")
           const lengthSpec = specs.find(spec => ["Min.", "Mins.", "Min", "Mins", "′"].map(s => spec.trim().endsWith(s)).some(Boolean))
             ?.trim().split(/\s+/)[0];
           const length = lengthSpec ? parseInt(lengthSpec) : undefined;
+
+          const subtitleSpec = specs.find(spec => allowedProperties.map(s => spec.trim().endsWith(s)).some(Boolean));
+          if (subtitleSpec) {
+            const subtitle = allowedProperties.find(p => subtitleSpec.trim().endsWith(p));
+            if (subtitle) {
+              properties.push(subtitle);
+            }
+          }
 
           // Create date object (use next year if month is less than current month)
           const now = new Date();
