@@ -366,15 +366,26 @@ async function deleteOldScreenings(screenings: Screening[], cinemaId: number) {
 async function crawlSchauburg() {
   try {
     const body = new FormData();
-    body.set("tx_moviemanagement_movieplan[date]", dayjs().format("YYYY-MM-DD") + " - " + dayjs().add(1, "year").format("YYYY-MM-DD"));
+    body.set("tx_moviemanagement_movieplan[date]", dayjs().format("YYYY-MM-DD") + " - " + dayjs().add(1, "month").format("YYYY-MM-DD"));
     const response = await fetch("https://www.schauburg.de/spielplan/filter", {
       method: "POST",
       body
     });
+    const textResponse = await response.text();
+    const $ = load(textResponse);
+
+    let last = $;
+    let link;
+    while (link = last('#load-more-events').first().attr('data-ajax-url')) {
+      const res = await fetch('https://www.schauburg.de' + link);
+      const textResponse = await res.text();
+      last = load(textResponse);
+      $('body').append(textResponse);
+    }
+
     if (!response.ok) {
       throw new Error(`Fetching Schauburg failed with status: ${response.status}`);
     }
-    const $ = load(await response.text());
 
     const screenings: Screening[] = [];
 
