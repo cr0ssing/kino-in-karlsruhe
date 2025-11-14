@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.7.0...v1.8.0) (2025-11-14)
+
+
+### Features
+
+* make start hour of timetable dynamic when screenings before 9 AM ([9492b7e](https://github.com/cr0ssing/kino-in-karlsruhe/commit/9492b7e589db43549245f5d5611f0e40ee395e95))
+
+
+### Bug Fixes
+
+* change crawler to work with new schauburg structure ([43c0dd7](https://github.com/cr0ssing/kino-in-karlsruhe/commit/43c0dd7101adfe06387491c7f066a698fd9a8099))
+* crawler for kinemathek ([e49ec49](https://github.com/cr0ssing/kino-in-karlsruhe/commit/e49ec490497561bfa29e8822cf8e8e831de0cfc5))
+
 ## [1.7.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.6.0...v1.7.0) (2025-09-27)
 
 
