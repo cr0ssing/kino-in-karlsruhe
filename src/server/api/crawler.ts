@@ -144,7 +144,10 @@ export async function run() {
       // if movie metadata is not present or old, update it
       if (!!movie.tmdbId && (movie.updatedAt < dayjs().subtract(5, "days").toDate() || !movie.popularity || !movie.releaseDate || !movie.backdropUrl)) {
         toUpdate.push((async (tmdbId: number) => {
-          const details = await getDetails(tmdbId);
+          const details = await getDetails(tmdbId).catch(e => {
+            console.error(`Error getting details for ${tmdbId}: ${e instanceof Error ? e.message : String(e)}`);
+            return undefined;
+          });
           if (details) {
             await db.movie.update({
               where: { id: movie.id },
@@ -201,7 +204,10 @@ export async function run() {
 
   // put new movies into db
   await Promise.all(Array.from(searchTitles.entries()).map(async ([tmdbId, { searchTitles, orgTitles }]) => {
-    const details = await getDetails(tmdbId);
+    const details = await getDetails(tmdbId).catch(e => {
+      console.error(`Error getting details for ${tmdbId}: ${e instanceof Error ? e.message : String(e)}`);
+      return undefined;
+    });
     if (!details) {
       const movie = found.find(e => e.tmdbId === tmdbId);
       if (movie) {
@@ -281,7 +287,10 @@ async function getMovieDetails(
   while (segments.length > 0) {
     const rawTitle = segments.join("-").trim();
     const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
-    const result = await searchMovie(queryTitle);
+    const result = await searchMovie(queryTitle).catch(e => {
+      console.error(`Error searching for ${queryTitle}: ${e instanceof Error ? e.message : String(e)}`);
+      return undefined;
+    });
     if (result) {
       // console.log(`Found TMDB for queryTitle: ${queryTitle}`);
       searchTitle = queryTitle;
