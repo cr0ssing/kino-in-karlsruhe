@@ -1,3 +1,5 @@
+import nextTypescript from "eslint-config-next/typescript";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 /**
  * Copyright (C) 2024 Robin Lamberti.
  * 
@@ -32,45 +34,49 @@ const compat = new FlatCompat({
   allConfig: js.configs.all
 });
 
-export default [...compat.extends(
-  "next/core-web-vitals",
-  "plugin:@typescript-eslint/recommended-type-checked",
-  "plugin:@typescript-eslint/stylistic-type-checked",
-),
-{
-  plugins: {
-    "@typescript-eslint": typescriptEslint,
-  },
+export default [
+  ...nextTypescript,
+  ...nextCoreWebVitals,
+  ...compat.extends("plugin:@typescript-eslint/recommended-type-checked"),
+  ...compat.extends("plugin:@typescript-eslint/stylistic-type-checked"),
+  {
+    plugins: {
+      "@typescript-eslint": typescriptEslint,
+    },
 
-  languageOptions: {
-    parser: tsParser,
-    ecmaVersion: 5,
-    sourceType: "script",
+    languageOptions: {
+      parser: tsParser,
+      ecmaVersion: 5,
+      sourceType: "script",
 
-    parserOptions: {
-      project: true,
+      parserOptions: {
+        project: true,
+      },
+    },
+
+    rules: {
+      "@typescript-eslint/array-type": "off",
+      "@typescript-eslint/consistent-type-definitions": "off",
+
+      "@typescript-eslint/consistent-type-imports": ["warn", {
+        prefer: "type-imports",
+        fixStyle: "inline-type-imports",
+      }],
+
+      "@typescript-eslint/no-unused-vars": ["warn", {
+        argsIgnorePattern: "^_",
+      }],
+
+      "@typescript-eslint/require-await": "off",
+
+      "@typescript-eslint/no-misused-promises": ["error", {
+        checksVoidReturn: {
+          attributes: false,
+        },
+      }],
     },
   },
-
-  rules: {
-    "@typescript-eslint/array-type": "off",
-    "@typescript-eslint/consistent-type-definitions": "off",
-
-    "@typescript-eslint/consistent-type-imports": ["warn", {
-      prefer: "type-imports",
-      fixStyle: "inline-type-imports",
-    }],
-
-    "@typescript-eslint/no-unused-vars": ["warn", {
-      argsIgnorePattern: "^_",
-    }],
-
-    "@typescript-eslint/require-await": "off",
-
-    "@typescript-eslint/no-misused-promises": ["error", {
-      checksVoidReturn: {
-        attributes: false,
-      },
-    }],
-  },
-}];
+  {
+    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"]
+  }
+];

@@ -26,9 +26,9 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   output: "standalone",
+  reactCompiler: true,
   experimental: {
     optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
-    reactCompiler: true,
   },
 };
 export default config;
