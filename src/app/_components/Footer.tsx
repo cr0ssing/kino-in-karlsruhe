@@ -17,6 +17,8 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
+"use client";
+
 import { Anchor, Stack, Text } from "@mantine/core";
 import Link from "next/link";
 
