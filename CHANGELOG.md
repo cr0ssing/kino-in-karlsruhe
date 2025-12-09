@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.7.0...v1.8.0) (2025-12-09)
+
+
+### Features
+
+* better error handling for tmdb calls ([ab5ccbe](https://github.com/cr0ssing/kino-in-karlsruhe/commit/ab5ccbea54332b94cb8aeefd83b7f053ffd20f1a))
+* make start hour of timetable dynamic when screenings before 9 AM ([9492b7e](https://github.com/cr0ssing/kino-in-karlsruhe/commit/9492b7e589db43549245f5d5611f0e40ee395e95))
+* update to next 16 ([4309005](https://github.com/cr0ssing/kino-in-karlsruhe/commit/430900587cc644c88a2fd9968ab3d50de9e7208b))
+
+
+### Bug Fixes
+
+* change crawler to work with new schauburg structure ([43c0dd7](https://github.com/cr0ssing/kino-in-karlsruhe/commit/43c0dd7101adfe06387491c7f066a698fd9a8099))
+* crawler for kinemathek ([e49ec49](https://github.com/cr0ssing/kino-in-karlsruhe/commit/e49ec490497561bfa29e8822cf8e8e831de0cfc5))
+* use client on Footer component ([8b900f1](https://github.com/cr0ssing/kino-in-karlsruhe/commit/8b900f1aa7739561b8a0837c95d9a8e59e075450))
+
 ## [1.7.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.6.0...v1.7.0) (2025-09-27)
 
 
