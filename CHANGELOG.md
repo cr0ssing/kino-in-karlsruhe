@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.8.0...v1.8.1) (2025-12-12)
+
+
+### Bug Fixes
+
+* make impressum server compatible ([4725789](https://github.com/cr0ssing/kino-in-karlsruhe/commit/4725789b525706d144490e3efc577ff04f0b5ca7))
+
 ## [1.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.7.0...v1.8.0) (2025-12-09)
 
 
