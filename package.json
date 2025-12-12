@@ -56,7 +56,7 @@
     "server-only": "^0.0.1",
     "superjson": "^2.2.2",
     "tailwind-preset-mantine": "^1.3.2",
-    "zod": "^4.1.11"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@types/eslint": "^9.6.1",
