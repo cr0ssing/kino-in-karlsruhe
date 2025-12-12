@@ -19,7 +19,6 @@
 
 import { Anchor, Box, Stack, Text, Title } from "@mantine/core";
 import Footer from "../_components/Footer";
-import Link from "next/link";
 import { api } from "~/trpc/server";
 
 export default async function Impressum() {
@@ -51,12 +50,12 @@ export default async function Impressum() {
             Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit,
             Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.
             Die Vorführungszeiten stammen von den Webseiten der Kinos (
-            <Anchor component={Link} href="https://filmpalast.net">Filmpalast am ZKM</Anchor>,&nbsp;
-            <Anchor component={Link} href="https://www.kinopolis.de/ka">Universum-City Karlsruhe</Anchor>,&nbsp;
-            <Anchor component={Link} href="https://schauburg.de/">Filmtheater Schauburg</Anchor>,&nbsp;
-            <Anchor component={Link} href="https://kinemathek-karlsruhe.de">Kinemathek Karlsruhe</Anchor>
+            <Anchor href="https://filmpalast.net">Filmpalast am ZKM</Anchor>,&nbsp;
+            <Anchor href="https://www.kinopolis.de/ka">Universum-City Karlsruhe</Anchor>,&nbsp;
+            <Anchor href="https://schauburg.de/">Filmtheater Schauburg</Anchor>,&nbsp;
+            <Anchor href="https://kinemathek-karlsruhe.de">Kinemathek Karlsruhe</Anchor>
             ). Weiterführende Informationen sowie Filmposter
-            zu den Filmen stammen von <Anchor component={Link} href="https://www.themoviedb.org/">
+            zu den Filmen stammen von <Anchor href="https://www.themoviedb.org/">
               The Movie Database</Anchor> (TMDB). Alle diese Informationen werden automatisiert verarbeitet.
             Als Diensteanbieter sind wir gemäß § 7 Abs.1 DDG für eigene Inhalte auf diesen Seiten
             nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als
@@ -98,7 +97,7 @@ export default async function Impressum() {
           <Title order={4}>Datenquellen</Title>
           <Text>Für die Anzeige von Film-Postern und allgemeinen Informationen zu Filmen werden die Daten von TMDB
             (The Movie Database) verwendet. Die Nutzung dieser Daten unterliegt den&nbsp;
-            <Anchor component={Link} href="https://www.themoviedb.org/documentation/api/terms-of-use">
+            <Anchor href="https://www.themoviedb.org/documentation/api/terms-of-use">
               Nutzungsbedingungen und Datenschutzrichtlinien von TMDB
             </Anchor>.
             <br />
