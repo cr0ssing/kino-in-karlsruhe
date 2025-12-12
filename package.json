@@ -49,7 +49,7 @@
     "geist": "^1.4.2",
     "next": "16.0.10",
     "node-cron": "^4.2.1",
-    "nuqs": "^2.6.0",
+    "nuqs": "^2.8.5",
     "pulltorefreshjs": "^0.1.22",
     "react": "19.2.3",
     "react-dom": "19.2.3",
