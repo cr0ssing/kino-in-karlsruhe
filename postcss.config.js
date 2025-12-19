@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-export default {
+const config = {
   plugins: {
     "postcss-import": {},
     "postcss-preset-mantine": {},
@@ -35,3 +35,5 @@ export default {
     tailwindcss: {},
   },
 };
+
+export default config;
