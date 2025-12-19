@@ -45,7 +45,7 @@
     "@trpc/server": "^11.2.0",
     "calendar-link": "^2.11.0",
     "cheerio": "^1.1.2",
-    "dayjs": "^1.11.18",
+    "dayjs": "^1.11.19",
     "embla-carousel-react": "^7.1.0",
     "geist": "^1.5.1",
     "next": "16.0.10",
