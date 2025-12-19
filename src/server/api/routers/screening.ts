@@ -20,7 +20,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import dayjs from "dayjs";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "~/../prisma/generated/prisma/client";
 
 export const screeningRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -76,7 +76,7 @@ export const screeningRouter = createTRPCRouter({
           movieId: movieId ?? Prisma.skip
         }
       });
-      
+
       startDate ??= aggregations._min.startTime;
 
       if (!startDate) {

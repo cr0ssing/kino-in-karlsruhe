@@ -21,7 +21,7 @@ import { ActionIcon, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconCalendarPlus } from "@tabler/icons-react";
 import AddToCalendarModal from "./AddToCalendarModal";
-import type { Screening } from "@prisma/client";
+import type { Screening } from "~/../prisma/generated/prisma/client";
 
 export default function AddToCalendarButton({
   screening,

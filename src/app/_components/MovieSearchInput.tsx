@@ -19,7 +19,7 @@
 
 import { CloseButton, TextInput, Tooltip } from "@mantine/core";
 import { useDebouncedCallback } from "@mantine/hooks";
-import type { Movie } from "@prisma/client";
+import type { Movie } from "~/../prisma/generated/prisma/client";
 import { IconExclamationMark, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 

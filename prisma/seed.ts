@@ -17,10 +17,13 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "~/../prisma/generated/prisma/client";
+import { PrismaPg } from '@prisma/adapter-pg';
 import { run } from "~/server/api/crawler";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! })
+});
 
 async function main() {
   const cinemasData = [

@@ -22,7 +22,7 @@ import { Carousel, CarouselSlide, type Embla } from "@mantine/carousel";
 import { ActionIcon, Card, CardSection, Center, Flex, lighten, Loader, LoadingOverlay, Stack, Text, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import type { Cinema, Movie, Screening } from "@prisma/client";
+import type { Cinema, Movie, Screening } from "~/../prisma/generated/prisma/client";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 import "dayjs/plugin/minMax";

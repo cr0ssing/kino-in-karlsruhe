@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Prisma, type Movie } from "@prisma/client";
+import { Prisma, type Movie } from "~/../prisma/generated/prisma/client";
 import { load } from "cheerio";
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
@@ -339,7 +339,7 @@ async function getDetails(id: number) {
     backdropUrl: data.backdrop_path,
     length: data.runtime,
     popularity: data.popularity,
-    releaseDate: !!releaseDate ? releaseDate.toDate() : null
+    releaseDate: releaseDate ? releaseDate.toDate() : null
   };
 }
 
@@ -383,12 +383,12 @@ async function crawlSchauburg() {
     const textResponse = await response.text();
     const $ = load(textResponse);
 
-    let last = $;
-    let link;
-    while (link = last('#load-more-events').first().attr('data-ajax-url')) {
+    let link = $('#load-more-events').first().attr('data-ajax-url');
+
+    while (link) {
       const res = await fetch('https://www.schauburg.de' + link);
       const textResponse = await res.text();
-      last = load(textResponse);
+      link = load(textResponse)('#load-more-events').first().attr('data-ajax-url');
       $('body').append(textResponse);
     }
 

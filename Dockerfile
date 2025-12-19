@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
 
-FROM --platform=$BUILDPLATFORM node:22-alpine AS base
+FROM --platform=$BUILDPLATFORM node:24-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -24,8 +24,9 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* prisma.config.ts ./
 COPY prisma/schema.prisma ./prisma/schema.prisma
+COPY prisma/generated ./prisma/generated
 # fixes this: https://stackoverflow.com/questions/79411275/after-heroku-restart-pnpm-error-cannot-find-matching-keyid, check again with next Node LTS
 RUN npm i -g corepack@latest
 RUN \

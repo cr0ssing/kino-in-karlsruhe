@@ -21,7 +21,7 @@
 
 import { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { Box, Button, Center, Chip, Group, Loader, Stack, Text } from '@mantine/core';
-import type { Screening, Movie, Cinema } from '@prisma/client';
+import type { Screening, Movie, Cinema } from '~/../prisma/generated/prisma/client';
 import dayjs from "dayjs";
 import minmax from "dayjs/plugin/minMax";
 import { useQueryState, createParser, parseAsArrayOf, parseAsInteger } from "nuqs";

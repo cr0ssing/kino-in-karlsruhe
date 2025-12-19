@@ -19,7 +19,7 @@
 
 import { Carousel, CarouselSlide, type Embla } from '@mantine/carousel';
 import { alpha } from '@mantine/core';
-import type { Movie } from '@prisma/client';
+import type { Movie } from '~/../prisma/generated/prisma/client';
 import { useEffect, useState } from "react";
 import MoviePoster from "./MoviePoster";
 

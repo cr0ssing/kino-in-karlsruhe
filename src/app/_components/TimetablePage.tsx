@@ -22,7 +22,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import { Box, Button, Group, Image, Stack, Switch, Title, Transition, ActionIcon, Tooltip } from "@mantine/core";
 import { useDisclosure, useViewportSize } from "@mantine/hooks";
-import type { Cinema, Movie, Screening } from "@prisma/client";
+import type { Cinema, Movie, Screening } from "~/../prisma/generated/prisma/client";
 import PullToRefresh from 'pulltorefreshjs';
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";

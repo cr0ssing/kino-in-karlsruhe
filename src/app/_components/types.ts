@@ -17,7 +17,7 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Screening } from "@prisma/client";
+import type { Screening } from "~/../prisma/generated/prisma/client";
 
 export type CombinedScreening = Screening & {
   movie: { id: number, title: string, length: number | null, releaseDate: Date | null },

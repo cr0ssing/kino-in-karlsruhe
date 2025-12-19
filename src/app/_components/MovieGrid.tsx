@@ -18,7 +18,7 @@
  */
 
 import { SimpleGrid } from "@mantine/core";
-import type { Movie } from "@prisma/client";
+import type { Movie } from "~/../prisma/generated/prisma/client";
 import MoviePoster from "./MoviePoster";
 import { useViewportSize } from "@mantine/hooks";
 
@@ -31,15 +31,15 @@ interface MovieGridProps {
 
 export default function MovieGrid({ movies, filteredMovies, toggleMovie, openMovieModal }: MovieGridProps) {
   const { width } = useViewportSize();
-  
+
   // Use the same widths as in MovieCarousel
   const posterWidth = width >= 1400 ? 150
     : width >= 1200 ? 140
-    : width >= 992 ? 130
-    : width >= 768 ? 120
-    : width >= 576 ? 110
-    : width >= 400 ? (width - 7 * 8) / 5
-    : (width - 7 * 8) / 4;
+      : width >= 992 ? 130
+        : width >= 768 ? 120
+          : width >= 576 ? 110
+            : width >= 400 ? (width - 7 * 8) / 5
+              : (width - 7 * 8) / 4;
 
   // Calculate how many posters can fit in a row
   const cols = Math.floor(width / (posterWidth + 8)); // 8 is the gap between posters

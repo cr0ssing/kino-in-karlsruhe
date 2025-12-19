@@ -31,7 +31,7 @@ import {
   Text,
   useCombobox
 } from "@mantine/core";
-import type { Cinema } from "@prisma/client";
+import type { Cinema } from "~/../prisma/generated/prisma/client";
 import { IconChevronDown } from "@tabler/icons-react";
 
 type Options = Cinema & {

@@ -28,7 +28,7 @@ import {
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 import { type CalendarEvent, google, ics } from "calendar-link";
-import type { Screening } from "@prisma/client";
+import type { Screening } from "~/../prisma/generated/prisma/client";
 
 type AddToCalendarModalProps = {
   isOpen: boolean,

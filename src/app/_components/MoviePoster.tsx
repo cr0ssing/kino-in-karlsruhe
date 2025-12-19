@@ -18,7 +18,7 @@
  */
 
 import { ActionIcon, alpha, Card, CardSection, Overlay, Tooltip, Image } from "@mantine/core";
-import type { Movie } from "@prisma/client";
+import type { Movie } from "~/../prisma/generated/prisma/client";
 import { IconCheck } from "@tabler/icons-react";
 
 function fallbackURL(title: string) {
