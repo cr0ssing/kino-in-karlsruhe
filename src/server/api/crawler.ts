@@ -464,7 +464,7 @@ async function crawlSchauburg() {
         if (timeParts.length !== 2 || isNaN(hours!) || isNaN(minutes!)) return;
 
         // Extract movie title
-        const movieTitle = $screening.find(".schauburg-previewelement-title").text().trim();
+        let movieTitle = $screening.find(".schauburg-previewelement-title").text().trim();
         if (!movieTitle) return;
 
         // Extract properties
@@ -496,6 +496,12 @@ async function crawlSchauburg() {
               properties.push(part);
             }
           });
+        }
+
+        if (properties.find(p => p.startsWith("Frühstückskino")) !== undefined) {
+          if (movieTitle.startsWith("Frühstück -")) {
+            movieTitle = movieTitle.substring("Frühstück -".length).trim();
+          }
         }
 
         // Create date object
