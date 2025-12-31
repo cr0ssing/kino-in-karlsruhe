@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.9.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.8.0...v1.9.0) (2025-12-31)
+
+
+### Features
+
+* updating prisma version ([648e489](https://github.com/cr0ssing/kino-in-karlsruhe/commit/648e48947d79074ff26a56c51460d56d4e20d729))
+* updating several dependencies ([648e489](https://github.com/cr0ssing/kino-in-karlsruhe/commit/648e48947d79074ff26a56c51460d56d4e20d729))
+
+
+### Bug Fixes
+
+* make impressum server compatible ([4725789](https://github.com/cr0ssing/kino-in-karlsruhe/commit/4725789b525706d144490e3efc577ff04f0b5ca7))
+* strip "Frühstückskino" prefix from Schauburg movie titles ([95d0fe4](https://github.com/cr0ssing/kino-in-karlsruhe/commit/95d0fe4f096cdbc83150c4bd85d27e61e44b097c))
+
 ## [1.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.7.0...v1.8.0) (2025-12-09)
 
 
