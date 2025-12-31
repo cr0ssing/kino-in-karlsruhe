@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@types/eslint": "^9.6.1",
-    "@types/node": "^24.10.4",
+    "@types/node": "^25.0.3",
     "@types/node-cron": "^3.0.11",
     "@types/pg": "^8.16.0",
     "@types/pulltorefreshjs": "^0.1.7",
