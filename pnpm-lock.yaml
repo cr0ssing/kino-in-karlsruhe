@@ -38,8 +38,8 @@ importers:
         specifier: ^0.13.10
         version: 0.13.10(typescript@5.9.3)(valibot@1.2.0(typescript@5.9.3))(zod@4.2.1)
       '@tabler/icons-react':
-        specifier: ^3.35.0
-        version: 3.35.0(react@19.2.3)
+        specifier: ^3.36.1
+        version: 3.36.1(react@19.2.3)
       '@tanstack/react-query':
         specifier: ^5.90.12
         version: 5.90.12(react@19.2.3)
@@ -959,13 +959,13 @@ packages:
       zod:
         optional: true
 
-  '@tabler/icons-react@3.35.0':
-    resolution: {integrity: sha512-XG7t2DYf3DyHT5jxFNp5xyLVbL4hMJYJhiSdHADzAjLRYfL7AnjlRfiHDHeXxkb2N103rEIvTsBRazxXtAUz2g==}
+  '@tabler/icons-react@3.36.1':
+    resolution: {integrity: sha512-/8nOXeNeMoze9xY/QyEKG65wuvRhkT3q9aytaur6Gj8bYU2A98YVJyLc9MRmc5nVvpy+bRlrrwK/Ykr8WGyUWg==}
     peerDependencies:
       react: '>= 16'
 
-  '@tabler/icons@3.35.0':
-    resolution: {integrity: sha512-yYXe+gJ56xlZFiXwV9zVoe3FWCGuZ/D7/G4ZIlDtGxSx5CGQK110wrnT29gUj52kEZoxqF7oURTk97GQxELOFQ==}
+  '@tabler/icons@3.36.1':
+    resolution: {integrity: sha512-f4Jg3Fof/Vru5ioix/UO4GX+sdDsF9wQo47FbtvG+utIYYVQ/QVAC0QYgcBbAjQGfbdOh2CCf0BgiFOF9Ixtjw==}
 
   '@tanstack/query-core@5.90.12':
     resolution: {integrity: sha512-T1/8t5DhV/SisWjDnaiU2drl6ySvsHj1bHBCWNXd+/T+Hh1cf6JodyEYMd5sgwm+b/mETT4EV3H+zCVczCU5hg==}
@@ -3462,6 +3462,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -4293,12 +4294,12 @@ snapshots:
       valibot: 1.2.0(typescript@5.9.3)
       zod: 4.2.1
 
-  '@tabler/icons-react@3.35.0(react@19.2.3)':
+  '@tabler/icons-react@3.36.1(react@19.2.3)':
     dependencies:
-      '@tabler/icons': 3.35.0
+      '@tabler/icons': 3.36.1
       react: 19.2.3
 
-  '@tabler/icons@3.35.0': {}
+  '@tabler/icons@3.36.1': {}
 
   '@tanstack/query-core@5.90.12': {}
 
