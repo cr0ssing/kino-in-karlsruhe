@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.9.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.8.0...v1.9.0) (2026-03-19)
+
+
+### Features
+
+* migrated to tailwind v4 ([f5cb42a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/f5cb42ac6a9bfaed2e2c60734b6a6e1a03384703))
+* update mantine to v8 ([5de6058](https://github.com/cr0ssing/kino-in-karlsruhe/commit/5de6058caf821434f6cfae5ec382122d4df3cb5d))
+* updated github actions versions ([b011ff3](https://github.com/cr0ssing/kino-in-karlsruhe/commit/b011ff3aee069442cc1e2af2bd7badf45e04533b))
+* updating prisma version ([648e489](https://github.com/cr0ssing/kino-in-karlsruhe/commit/648e48947d79074ff26a56c51460d56d4e20d729))
+* updating several dependencies ([648e489](https://github.com/cr0ssing/kino-in-karlsruhe/commit/648e48947d79074ff26a56c51460d56d4e20d729))
+
+
+### Bug Fixes
+
+* make impressum server compatible ([4725789](https://github.com/cr0ssing/kino-in-karlsruhe/commit/4725789b525706d144490e3efc577ff04f0b5ca7))
+* strip "Frühstückskino" prefix from Schauburg movie titles ([95d0fe4](https://github.com/cr0ssing/kino-in-karlsruhe/commit/95d0fe4f096cdbc83150c4bd85d27e61e44b097c))
+
 ## [1.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.7.0...v1.8.0) (2025-12-09)
 
 
