@@ -18,10 +18,11 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Carousel, CarouselSlide, type Embla } from "@mantine/carousel";
+import { Carousel, CarouselSlide } from "@mantine/carousel";
 import { ActionIcon, Card, CardSection, Center, Flex, lighten, Loader, LoadingOverlay, Stack, Text, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import type { EmblaCarouselType } from "embla-carousel";
 import type { Cinema, Movie, Screening } from "~/../prisma/generated/prisma/client";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
@@ -90,36 +91,68 @@ export default function ScreeningCarousel({ movieId, startDate, modalHeight, onH
 
   const [scrollY] = useState(0);
 
-  const [embla, setEmbla] = useState<Embla | null>(null);
+  const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
 
   const [firstSlide, setFirstSlide] = useState<boolean>(true);
   const [lastSlide, setLastSlide] = useState<boolean>(false);
 
+  const syncControls = useCallback((index: number, api: EmblaCarouselType) => {
+    const visibleSlides = api.slidesInView();
+    const visibleLastSlide = visibleSlides.includes(screeningsByDay.length - 1);
+
+    setFirstSlide(index === 0);
+    setLastSlide(visibleLastSlide && !hasNextPage);
+  }, [hasNextPage, screeningsByDay.length]);
+
   const onScroll = useCallback((index: number) => {
     if (embla) {
-      const slidesInView = embla.slidesInView();
       let wait: Promise<unknown> = Promise.resolve();
-      if (hasNextPage && slidesInView.includes(screeningsByDay.length - 1)) {
+      if (hasNextPage && embla.slidesInView().includes(screeningsByDay.length - 1)) {
         wait = fetchNextPage();
       }
       void wait.then(() => {
-        setFirstSlide(index === 0);
-        setLastSlide(slidesInView.includes(screeningsByDay.length - 1) && !hasNextPage);
+        syncControls(index, embla);
       });
     }
-  }, [hasNextPage, embla, fetchNextPage, screeningsByDay.length]);
+  }, [hasNextPage, embla, fetchNextPage, screeningsByDay.length, syncControls]);
 
   useEffect(() => {
     if (embla) {
       embla.scrollTo(0);
+      requestAnimationFrame(() => {
+        syncControls(0, embla);
+      });
     }
-    setFirstSlide(true);
-    setLastSlide((embla?.slidesInView().includes(screeningsByDay.length - 1) ?? false) && !hasNextPage);
-    // effect should not run on hasNextPage or screeningsByDay.length change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [embla, movieId]);
+  }, [embla, movieId, syncControls]);
 
-  const handleNext = useCallback(() => embla?.scrollNext(), [embla]);
+  useEffect(() => {
+    if (embla) {
+      requestAnimationFrame(() => {
+        syncControls(embla.selectedScrollSnap(), embla);
+      });
+    }
+  }, [embla, hasNextPage, screeningsByDay.length, syncControls]);
+
+  const handleNext = useCallback(() => {
+    if (!embla) {
+      return;
+    }
+
+    const isAtLoadedEnd =
+      embla.slidesInView().includes(screeningsByDay.length - 1) || !embla.canScrollNext();
+
+    if (hasNextPage && isAtLoadedEnd) {
+      void fetchNextPage().then(() => {
+        requestAnimationFrame(() => {
+          embla.scrollNext();
+          syncControls(embla.selectedScrollSnap(), embla);
+        });
+      });
+      return;
+    }
+
+    embla.scrollNext();
+  }, [embla, fetchNextPage, hasNextPage, screeningsByDay.length, syncControls]);
   const handlePrev = useCallback(() => embla?.scrollPrev(), [embla]);
 
   const carouselControlTop = useMemo(() => {
@@ -144,16 +177,17 @@ export default function ScreeningCarousel({ movieId, startDate, modalHeight, onH
           <>
             <ActionIcon pos="sticky" top={carouselControlTop} disabled={firstSlide} onClick={handlePrev}><IconChevronLeft /></ActionIcon>
             <Carousel
-              align="start"
-              slidesToScroll={1}
               slideSize={columnWidth}
-              draggable
-              dragFree={false}
               slideGap="10px"
               maw="calc(100% - 80px)"
               withIndicators={false}
               withControls={false}
               getEmblaApi={setEmbla}
+              emblaOptions={{
+                align: "start",
+                slidesToScroll: 1,
+                dragFree: false,
+              }}
               // style={{ flex: 1 }} // makes the carousel not fit to its size
               onSlideChange={onScroll}
             >
