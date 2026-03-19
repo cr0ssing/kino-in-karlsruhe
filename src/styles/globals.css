@@ -17,9 +17,19 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@layer tailwind {
-  @tailwind base;
-}
+@import "tailwind-preset-mantine";
 
-@tailwind components;
-@tailwind utilities;
+/*
+ * Tailwind CSS v4 changed the default border color to `currentcolor`.
+ * Keep the previous appearance by mapping border defaults to Mantine's
+ * default border token until explicit border utilities are added.
+ */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: rgb(from var(--mantine-color-default-border) r g b / <alpha-value>);
+  }
+}

@@ -19,7 +19,6 @@
 
 const config = {
   plugins: {
-    "postcss-import": {},
     "postcss-preset-mantine": {},
     "postcss-simple-vars": {
       variables: {
@@ -30,9 +29,7 @@ const config = {
         "mantine-breakpoint-xl": "88em",
       },
     },
-    autoprefixer: {},
-    "tailwindcss/nesting": {},
-    tailwindcss: {},
+    '@tailwindcss/postcss': {},
   },
 };
 
