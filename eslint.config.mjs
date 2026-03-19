@@ -27,8 +27,12 @@ import tseslint from 'typescript-eslint';
 export default defineConfig(
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
   nextCoreWebVitals,
   {
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
+    },
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 5,

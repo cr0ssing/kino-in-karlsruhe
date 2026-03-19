@@ -1384,6 +1384,11 @@ export type ScreeningFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Skip the first `n` Screenings.
    */
   skip?: number | runtime.Types.Skip
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Screenings.
+   */
   distinct?: Prisma.ScreeningScalarFieldEnum | Prisma.ScreeningScalarFieldEnum[] | runtime.Types.Skip
 }
 

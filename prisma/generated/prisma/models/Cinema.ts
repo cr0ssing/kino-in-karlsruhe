@@ -1207,6 +1207,11 @@ export type CinemaFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` Cinemas.
    */
   skip?: number | runtime.Types.Skip
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Cinemas.
+   */
   distinct?: Prisma.CinemaScalarFieldEnum | Prisma.CinemaScalarFieldEnum[] | runtime.Types.Skip
 }
 
