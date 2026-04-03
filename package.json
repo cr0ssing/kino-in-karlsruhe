@@ -63,7 +63,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
     "@types/eslint": "^9.6.1",
-    "@types/node": "^24.10.4",
+    "@types/node": "^25.5.2",
     "@types/node-cron": "^3.0.11",
     "@types/pg": "^8.20.0",
     "@types/pulltorefreshjs": "^0.1.7",
