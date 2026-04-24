@@ -852,34 +852,58 @@ async function crawlFilmpalast() {
     }
     const jsonContent = jsonMatch[0];
 
+    type Performance = {
+      timeUtc: string | number;
+      attributes?: {
+        name: string;
+      }[];
+    };
+
     type Movie = {
       titleDisplay: string;
       title: string;
       length: number;
       productionYear: number;
-      performances: {
-        timeUtc: string;
-        attributes: {
-          name: string;
-        }[];
-      }[];
+      performances: (string | Performance)[];
     };
 
-    const parsed = JSON.parse(jsonContent) as { apiData: { movies: { items: Record<string, Movie> } } }
+    const parsed = JSON.parse(jsonContent) as {
+      apiData: {
+        movies: { items: Record<string, Movie> },
+        performances?: { items?: Record<string, Performance> }
+      }
+    };
+    const performances = parsed.apiData.performances?.items ?? {};
     const data = Object.values(parsed.apiData.movies.items).filter((item: Movie) => !!item.performances);
-    const result = data.map((item: Movie) => {
+    const result = data.flatMap((item: Movie) => {
       const movieTitle = item.titleDisplay || item.title;
       const length = item.length;
       const productionYear = item.productionYear;
-      return item.performances.map((p: Movie["performances"][number]) => ({
-        movieTitle,
-        startTime: new Date(p.timeUtc),
-        cinemaId,
-        properties: transformProperties(p.attributes.map((a: Movie["performances"][number]["attributes"][number]) => a.name)),
-        releaseYear: productionYear,
-        length
-      }))
-    }).flat();
+      return item.performances.flatMap((p: Movie["performances"][number]) => {
+        const performance = typeof p === "string" ? performances[p] : p;
+        if (!performance?.timeUtc) {
+          return [];
+        }
+        const timestamp = typeof performance.timeUtc === "number"
+          ? performance.timeUtc
+          : /^\d+$/.test(performance.timeUtc)
+            ? parseInt(performance.timeUtc, 10)
+            : Date.parse(performance.timeUtc);
+        if (!Number.isFinite(timestamp)) {
+          return [];
+        }
+        const startTime = new Date(timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp);
+        const attributes = (performance.attributes ?? []).map(a => a.name);
+        return [{
+          movieTitle,
+          startTime,
+          cinemaId,
+          properties: transformProperties(attributes),
+          releaseYear: productionYear,
+          length
+        }];
+      });
+    });
 
     console.log(`Found ${result.length} screenings in Filmpalast.`);
 
