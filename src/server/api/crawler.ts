@@ -56,6 +56,37 @@ const tmdbBacklistTitles = [
 
 const select = { id: true, tmdbId: true, updatedAt: true, popularity: true, releaseDate: true, backdropUrl: true, searchTitles: true };
 
+async function setMovieTmdbId(movieId: number, tmdbId: number | null) {
+  if (tmdbId === null) {
+    await db.movie.update({
+      where: { id: movieId },
+      data: { tmdbId: null }
+    });
+    return true;
+  }
+
+  const existing = await db.movie.findUnique({
+    where: { tmdbId },
+    select: { id: true }
+  });
+  if (existing && existing.id !== movieId) {
+    return false;
+  }
+
+  try {
+    await db.movie.update({
+      where: { id: movieId },
+      data: { tmdbId }
+    });
+    return true;
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return false;
+    }
+    throw e;
+  }
+}
+
 export async function run() {
   console.log("Running crawlers...");
   const screenings = (await Promise.all([
@@ -160,16 +191,12 @@ export async function run() {
             }
             if (foundMovie) {
               // if no movie with this tmdbId was found, update existing, if some exist take that
-              await db.movie.update({
-                where: { id: movie.id },
-                data: { tmdbId: foundMovie.tmdbId }
-              });
-              movie.tmdbId = foundMovie.tmdbId;
+              const hasUpdatedTmdbId = await setMovieTmdbId(movie.id, foundMovie.tmdbId);
+              if (hasUpdatedTmdbId) {
+                movie.tmdbId = foundMovie.tmdbId;
+              }
             } else {
-              await db.movie.update({
-                where: { id: movie.id },
-                data: { tmdbId: null }
-              });
+              await setMovieTmdbId(movie.id, null);
               movie.tmdbId = null;
             }
           }
@@ -215,9 +242,21 @@ export async function run() {
       }
       return;
     }
-    const movie = await db.movie.create({
-      data: { ...details, searchTitles }
+    const existingMovie = await db.movie.findUnique({
+      where: { tmdbId },
+      select
     });
+    const movie = existingMovie
+      ? await db.movie.update({
+        where: { id: existingMovie.id },
+        data: {
+          ...details,
+          searchTitles: Array.from(new Set([...existingMovie.searchTitles, ...searchTitles]))
+        }
+      })
+      : await db.movie.create({
+        data: { ...details, searchTitles }
+      });
     movies.push(movie);
     orgTitles.forEach(st => movieIds.set(st, movie.id));
   }));
