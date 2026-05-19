@@ -19,7 +19,7 @@
 
 "use client";
 
-import { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { type Dispatch, type SetStateAction, useCallback, useContext, useEffect, useMemo } from 'react';
 import { Box, Button, Center, Chip, Group, Loader, Stack, Text } from '@mantine/core';
 import type { Screening, Movie, Cinema } from '~/../prisma/generated/prisma/client';
 import dayjs from "dayjs";
@@ -300,24 +300,14 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
     serialize: (value) => value.toString(),
   }).withDefault("auto"));
 
-  const [selectedDay, setSelectedDayInternal] = useState(-1);
+  const selectedDay = selectedDayQuery === "auto"
+    ? isMobile ? mondayBasedDayIndex : -1
+    : selectedDayQuery;
 
   const setSelectedDay: Dispatch<SetStateAction<number>> = useCallback((args: number | ((old: number) => number)) => {
-    setSelectedDayInternal(args);
-    void setSelectedDayQuery(args as number | "auto" | ((old: number | "auto") => number | "auto" | null) | null);
-  }, [setSelectedDayQuery]);
-
-  useLayoutEffect(() => {
-    if (selectedDayQuery === "auto") {
-      if (isMobile) {
-        void setSelectedDay(mondayBasedDayIndex);
-      } else {
-        void setSelectedDayInternal(-1);
-      }
-    } else {
-      void setSelectedDayInternal(selectedDayQuery);
-    }
-  }, [isMobile, mondayBasedDayIndex, setSelectedDay, selectedDay, selectedDayQuery, setSelectedDayQuery]);
+    const nextSelectedDay = typeof args === "function" ? args(selectedDay) : args;
+    void setSelectedDayQuery(nextSelectedDay);
+  }, [selectedDay, setSelectedDayQuery]);
 
   // Filter weekdays based on selection
   const displayedWeekdays = selectedDay === -1

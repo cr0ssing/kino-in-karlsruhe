@@ -17,29 +17,35 @@
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 type CreateStateHook<T> = (init: T[]) => [T[], (args: T[] | ((old: T[]) => T[])) => object | void];
 
 export function useToggle<T>(all: T[], useStateHook: CreateStateHook<T> = (init) => useState(init)) {
+  const allRef = useRef(all);
   const [filtered, setFiltered] = useStateHook(all);
 
-  return [function (item: T) {
-    const allEnabled = filtered.length === all.length;
+  const toggle = useCallback(function (item: T) {
+    const currentAll = allRef.current;
+    const allEnabled = filtered.length === currentAll.length;
 
     if (allEnabled) {
       // If all items are enabled, only keep the clicked item
       setFiltered([item]);
     } else if (filtered.length === 1 && filtered.includes(item)) {
       // If only one item is enabled and it's being toggled, enable all items
-      setFiltered(all);
+      setFiltered(currentAll);
     } else {
       // Otherwise, behave as before
       setFiltered(filtered.includes(item)
         ? filtered.filter(m => m !== item)
         : [...filtered, item]);
     }
-  }, filtered, setFiltered, function (newAll: T[]) {
-    all = newAll;
-  }] as const;
+  }, [filtered, setFiltered]);
+
+  const setAll = useCallback(function (newAll: T[]) {
+    allRef.current = newAll;
+  }, []);
+
+  return [toggle, filtered, setFiltered, setAll] as const;
 }
