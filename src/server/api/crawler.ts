@@ -92,7 +92,7 @@ export async function run() {
   const screenings = (await Promise.all([
     crawlSchauburg(),
     crawlKinemathek(),
-    crawlUniversum(),
+    // crawlUniversum(),
     crawlFilmpalast()
   ])).flat() as Screening[];
 
