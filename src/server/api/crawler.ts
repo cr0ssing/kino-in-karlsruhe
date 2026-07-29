@@ -40,6 +40,7 @@ type Screening = {
   releaseYear?: number;
   releaseDate?: Date;
   length?: number;
+  tmdbId?: number;
 }
 
 const tmdbBacklistTitles = [
@@ -51,6 +52,7 @@ const tmdbBacklistTitles = [
   "Sneak",
   "Sneak OV",
   "OV-Sneak",
+  "OV SNEAK Preview",
   "Open Archive"
 ].map(t => t.toLowerCase());
 
@@ -92,7 +94,7 @@ export async function run() {
   const screenings = (await Promise.all([
     crawlSchauburg(),
     crawlKinemathek(),
-    // crawlUniversum(),
+    crawlUniversum(),
     crawlFilmpalast()
   ])).flat() as Screening[];
 
@@ -100,8 +102,13 @@ export async function run() {
 
   const uniqueMovies = new Set<string>();
   const movieDetails = new Map<string, { length?: number, releaseDate?: Date, releaseYear?: number }>();
+  // titles for which a crawler already knows the TMDB id
+  const knownTmdbIds = new Map<string, number>();
   screenings.forEach(s => {
     uniqueMovies.add(s.movieTitle);
+    if (s.tmdbId) {
+      knownTmdbIds.set(s.movieTitle, s.tmdbId);
+    }
     const details = movieDetails.get(s.movieTitle);
     if (!details?.length || !details.releaseDate || !details.releaseYear) {
       movieDetails.set(s.movieTitle, {
@@ -116,60 +123,73 @@ export async function run() {
 
   // assign tmdbId to searchTitles either from existing movies or TMDB API
   const found = await Promise.all(Array.from(uniqueMovies).map(async m => {
+    const knownTmdbId = knownTmdbIds.get(m);
     const segments = m.split("-");
     const prop = /\(([^)]*)\)/.exec(m)?.[1]?.trim();
     let movie;
     let searchTitle: string | null = null;
     let extraProperties: string[] = [];
-    do {
-      const rawTitle = segments.join("-").trim();
-      const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
+    let tmdbId: number | null | undefined;
 
-      movie = await db.movie.findFirst({
-        where: { searchTitles: { hasSome: [queryTitle, rawTitle] } },
-        select
-      });
-      if (!movie) {
-        const extraProp = segments.pop()?.trim();
-        if (extraProp) {
-          // console.log(`Title ${queryTitle} not found in DB. Add extra prop: ${extraProp}`);
-          extraProperties.push(extraProp);
+    if (knownTmdbId) {
+      // the crawler knows the exact movie, so the title doesn't have to be resolved
+      tmdbId = knownTmdbId;
+      searchTitle = m;
+      movie = await db.movie.findUnique({ where: { tmdbId: knownTmdbId }, select });
+      if (movie && !movie.searchTitles.includes(m)) {
+        toUpdate.push(db.movie.update({ where: { id: movie.id }, data: { searchTitles: { push: m } } }));
+      }
+    } else {
+      do {
+        const rawTitle = segments.join("-").trim();
+        const queryTitle = rawTitle.replace(/\s*\([^)]*\)\s*$/, "");
+
+        movie = await db.movie.findFirst({
+          where: { searchTitles: { hasSome: [queryTitle, rawTitle] } },
+          select
+        });
+        if (!movie) {
+          const extraProp = segments.pop()?.trim();
+          if (extraProp) {
+            // console.log(`Title ${queryTitle} not found in DB. Add extra prop: ${extraProp}`);
+            extraProperties.push(extraProp);
+          }
+        } else {
+          // console.log(`Found movie for ${queryTitle}. Id: ${movie.id} Title: ${movie.title} searchTitles: ${movie.searchTitles.join(", ")}`);
+          searchTitle = queryTitle;
         }
-      } else {
-        // console.log(`Found movie for ${queryTitle}. Id: ${movie.id} Title: ${movie.title} searchTitles: ${movie.searchTitles.join(", ")}`);
-        searchTitle = queryTitle;
-      }
-    } while (!movie && segments.length > 0);
+      } while (!movie && segments.length > 0);
 
-    if (!movie) {
-      extraProperties.pop();
-      const segs = m.split("-").map(s => s.replace(/\s*\([^)]*\)\s*$/, "").trim());
-      if (segs.length > 1) {
-        segs.pop();
-        searchTitle = segs.join(" - ");
-      } else {
-        searchTitle = m;
+      if (!movie) {
+        extraProperties.pop();
+        const segs = m.split("-").map(s => s.replace(/\s*\([^)]*\)\s*$/, "").trim());
+        if (segs.length > 1) {
+          segs.pop();
+          searchTitle = segs.join(" - ");
+        } else {
+          searchTitle = m;
+        }
       }
-    }
 
-    let tmdbId = movie?.tmdbId;
-    if (movie === null && !tmdbBacklistTitles.some(t => m.toLowerCase().startsWith(t))) {
-      let toPush: Promise<Movie> | null = null;
-      ({ searchTitle, tmdbId, movie, toPush } = await getMovieDetails(m.replace(/\s*(OV|OmU|OmeU)$/i, ""), searchTitle, tmdbId));
-      if (toPush) {
-        toUpdate.push(toPush);
+      tmdbId = movie?.tmdbId;
+      if (movie === null && !tmdbBacklistTitles.some(t => m.toLowerCase().startsWith(t))) {
+        let toPush: Promise<Movie> | null = null;
+        ({ searchTitle, tmdbId, movie, toPush } = await getMovieDetails(m.replace(/\s*(OV|OmU|OmeU)$/i, ""), searchTitle, tmdbId));
+        if (toPush) {
+          toUpdate.push(toPush);
+        }
       }
+      // if no movie was found on tmdb extraProps contains all segments of title. remove them.
+      if (!tmdbId) {
+        // console.log(`No TMDB found for ${m}. Remove extra props.`);
+        extraProperties = [];
+      }
+      if (prop) {
+        // console.log(`Add property in brackets: ${prop}`);
+        extraProperties.push(prop);
+      }
+      extraProperties.reverse();
     }
-    // if no movie was found on tmdb extraProps contains all segments of title. remove them.
-    if (!tmdbId) {
-      // console.log(`No TMDB found for ${m}. Remove extra props.`);
-      extraProperties = [];
-    }
-    if (prop) {
-      // console.log(`Add property in brackets: ${prop}`);
-      extraProperties.push(prop);
-    }
-    extraProperties.reverse();
 
     if (movie) {
       // if movie metadata is not present or old, update it
@@ -752,16 +772,64 @@ function getMonthNumber(monthName: string): number {
   return months[monthName] ?? -1;
 }
 
-async function crawlUniversum() {
-  const url = "https://www.kinopolis.de/ka/programm";
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Fetching Universum failed with status: ${response.status}`);
-    }
-    const html = await response.text();
-    const $ = load(html);
+// universum-city.de renders its program client side from the Cineamo API, so there is nothing to scrape in the HTML.
+const CINEAMO_API = "https://api.cineamo.com";
+// Cineamo cinema id of "Universum City Kinos Karlsruhe"
+const CINEAMO_UNIVERSUM_ID = 104;
 
+type CineamoMovie = {
+  tmdbId: number | null;
+  title: string | null;
+  runtime: number | null;
+  releaseDate: string | null;
+  translations: {
+    translations: { iso31661: string, iso6391: string, data: { title: string | null } | null }[] | null
+  } | null;
+};
+
+type CineamoContent = {
+  name: string | null;
+  duration: number | null;
+  _embedded?: { cineamoMovie?: CineamoMovie | null };
+};
+
+type CineamoShowing = {
+  contentId: number;
+  name: string;
+  startDatetime: string;
+  state: string;
+  isOriginalLanguage: boolean | null;
+  isSubtitled: boolean | null;
+  subtitledLanguage: string | null;
+  isThreeDimensional: boolean | null;
+  isDbox: boolean | null;
+  isDolbyAtmos: boolean | null;
+  isImax: boolean | null;
+  isDolbyVision: boolean | null;
+  isDolbyCinema: boolean | null;
+  is4DX: boolean | null;
+  isScreenX: boolean | null;
+  isHFR: boolean | null;
+  isLive: boolean | null;
+  showingTagIds: number[] | null;
+  _embedded?: { content?: CineamoContent | null };
+};
+
+type CineamoShowingsPage = {
+  _embedded?: { showings?: CineamoShowing[] },
+  _links?: { next?: { href?: string } }
+};
+
+type MovieInfo = {
+  title: string;
+  titleProperties: string[];
+  tmdbId?: number;
+  length?: number;
+  releaseDate?: Date;
+};
+
+async function crawlUniversum() {
+  try {
     // Find cinema ID for Universum
     const { id: cinemaId } = await db.cinema.findFirstOrThrow({
       select: {
@@ -772,60 +840,57 @@ async function crawlUniversum() {
       }
     });
 
-    const screenings: Screening[] = [];
+    // Collect the whole program from today on by following the paginated HAL links
+    const showings: CineamoShowing[] = [];
+    let nextUrl: string | undefined = `${CINEAMO_API}/showings?cinemaId=${CINEAMO_UNIVERSUM_ID}`
+      + `&startDatetime=${encodeURIComponent(dayjs().startOf("day").toISOString())}&per_page=100`;
+    let pages = 0;
+    while (nextUrl && pages < 20) {
+      const page: CineamoShowingsPage = await fetchCineamo<CineamoShowingsPage>(nextUrl);
+      showings.push(...(page._embedded?.showings ?? []));
+      nextUrl = page._links?.next?.href;
+      pages++;
+    }
 
-    // Iterate through each movie section
-    $(".movie").each((_, movieSection) => {
-      const movieTitle = $(movieSection).find("h2.hl--1 .hl-link").first().text().trim();
-      const releaseDateString = $(movieSection)
-        .find(".movie__specs-el")
-        .filter((_, text) => $(text).text().trim().startsWith("Start: "))
-        .first().text().trim().split(" ")[1];
-      const releaseDate = releaseDateString ? dayjs(releaseDateString, "DD.MM.YYYY").toDate() : undefined;
-      const lengthString = $(movieSection).find(".movie__specs-el").filter((_, text) => $(text).text().trim().startsWith("Dauer: ")).first().text().trim().split(" ")[1];
-      const length = lengthString ? parseInt(lengthString) : undefined;
+    const scheduled = showings.filter(s => s.state === "scheduled");
 
-      // Get all date navigation items
-      $(movieSection).find(".prog-nav__item").each((_, dateNav) => {
-        const $dateNav = $(dateNav);
-        const dayText = $dateNav.find(".prog-nav__day").text().trim();
-
-        // Skip if no performance IDs or it"s a "weitere Spielzeiten" link
-        const performanceIds = $dateNav.attr("data-performance-ids")!;
-        if (!performanceIds || performanceIds.includes("»")) return;
-
-        // Parse the IDs and find corresponding screenings
-        const ids = performanceIds.replace(/\[|\]/g, "").split(",");
-
-        ids.forEach(id => {
-          const $screening = $(movieSection).find(`[data-performance-id="${id}"]`);
-          if (!$screening.length) return;
-
-          const timeText = $screening.find(".prog2__time").text().trim();
-          const [hours, minutes] = timeText.split(":").map(Number);
-
-          // Create date from day text and time
-          const date = parseGermanDate(dayText);
-          if (!date) return;
-
-          date.setHours(hours!, minutes, 0, 0);
-
-          const properties: string[] = [];
-          const versionData = $screening.find(".buy__btn").attr("data-version");
-          if (versionData) {
-            properties.push(...(JSON.parse(versionData) as string[]));
-          }
-
-          screenings.push({
-            movieTitle,
-            startTime: date,
-            properties: transformProperties(properties),
-            cinemaId,
-            releaseDate,
-            length
-          });
-        });
+    // The showings only embed a content stub, the movie metadata needs one request per content
+    const contentIds = Array.from(new Set(scheduled.map(s => s.contentId)));
+    const contents = new Map<number, MovieInfo>(await Promise.all(contentIds.map(async id => {
+      const content = await fetchCineamo<CineamoContent>(`${CINEAMO_API}/contents/${id}`).catch(e => {
+        console.error(`Error getting Cineamo content ${id}: ${e instanceof Error ? e.message : String(e)}`);
+        return undefined;
       });
+      const showing = scheduled.find(s => s.contentId === id)!;
+      return [id, getMovieInfo(content ?? showing._embedded?.content ?? undefined, showing.name)] as const;
+    })));
+
+    // Cinema specific tags like "Sommerferienkino" are only referenced by id
+    const tagIds = Array.from(new Set(scheduled.flatMap(s => s.showingTagIds ?? [])));
+    const tagNames = new Map<number, string>((await Promise.all(tagIds.map(async id => {
+      const tag = await fetchCineamo<{ name: string | null }>(`${CINEAMO_API}/showing-tags/${id}`).catch(e => {
+        console.error(`Error getting Cineamo showing tag ${id}: ${e instanceof Error ? e.message : String(e)}`);
+        return undefined;
+      });
+      return [id, tag?.name?.trim() ?? ""] as const;
+    }))).filter(([, name]) => !!name));
+
+    const screenings = scheduled.flatMap(showing => {
+      const info = contents.get(showing.contentId);
+      // startDatetime is UTC, so no timezone handling needed
+      const startTime = new Date(showing.startDatetime);
+      if (!info || isNaN(startTime.getTime())) {
+        return [];
+      }
+      return [{
+        movieTitle: info.title,
+        startTime,
+        properties: transformProperties([...getShowingProperties(showing, tagNames), ...info.titleProperties]),
+        cinemaId,
+        tmdbId: info.tmdbId,
+        releaseDate: info.releaseDate,
+        length: info.length
+      }];
     });
 
     console.log(`Found ${screenings.length} screenings in Universum.`);
@@ -839,29 +904,80 @@ async function crawlUniversum() {
   }
 }
 
-// Helper function to parse German date text
-function parseGermanDate(dayText: string): Date | null {
-  const today = new Date();
+async function fetchCineamo<T>(url: string) {
+  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!response.ok) {
+    throw new Error(`Fetching ${url} failed with status: ${response.status}`);
+  }
+  return await response.json() as T;
+}
 
-  if (dayText.includes("Heute")) {
-    return today;
+function firstNonEmpty(...values: (string | null | undefined)[]) {
+  return values.map(v => v?.trim()).find(v => !!v);
+}
+
+function getMovieInfo(content: CineamoContent | undefined, showingName: string): MovieInfo {
+  const movie = content?._embedded?.cineamoMovie;
+  const duration = content?.duration;
+
+  if (!movie) {
+    // Events without a movie carry their properties in the title, e.g. "(ukrain. OV)Toy Story 5"
+    const rawTitle = firstNonEmpty(content?.name, showingName)!;
+    const prefix = /^\(([^)]*)\)\s*/.exec(rawTitle);
+    const title = prefix ? rawTitle.substring(prefix[0].length).trim() : rawTitle;
+    return {
+      title: title || rawTitle,
+      titleProperties: prefix && title ? [prefix[1]!.trim()] : [],
+      length: duration && duration > 0 ? duration : undefined
+    };
   }
 
-  if (dayText.includes("Morgen")) {
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    return tomorrow;
+  const germanTitle = movie.translations?.translations
+    ?.find(t => t.iso31661 === "DE" && t.iso6391 === "de")?.data?.title;
+
+  return {
+    title: firstNonEmpty(germanTitle, movie.title, content?.name, showingName)!,
+    titleProperties: [],
+    tmdbId: movie.tmdbId ?? undefined,
+    length: movie.runtime && movie.runtime > 0 ? movie.runtime : (duration && duration > 0 ? duration : undefined),
+    releaseDate: movie.releaseDate ? dayjs(movie.releaseDate).toDate() : undefined
+  };
+}
+
+function getShowingProperties(showing: CineamoShowing, tagNames: Map<number, string>) {
+  const properties: string[] = [];
+
+  if (showing.isSubtitled) {
+    properties.push(showing.subtitledLanguage === "eng" ? "OmeU" : "OmU");
+  } else if (showing.isOriginalLanguage) {
+    properties.push("OV");
   }
 
-  // Handle format like "So. 22.12."
-  const match = /\d{2}\.\d{2}\./.exec(dayText);
-  if (match) {
-    const [day, month] = match[0].split(".").map(Number);
-    const date = new Date(today.getFullYear(), month! - 1, day);
-    return date;
-  }
+  ([
+    [showing.isThreeDimensional, "3D"],
+    [showing.isDbox, "D-BOX"],
+    [showing.isDolbyAtmos, "Dolby Atmos"],
+    [showing.isImax, "IMAX"],
+    [showing.isDolbyVision, "Dolby Vision"],
+    [showing.isDolbyCinema, "Dolby Cinema"],
+    [showing.is4DX, "4DX"],
+    [showing.isScreenX, "ScreenX"],
+    [showing.isHFR, "HFR"],
+    [showing.isLive, "Live"]
+  ] as const).forEach(([flag, name]) => {
+    if (flag) {
+      properties.push(name);
+    }
+  });
 
-  return null;
+  (showing.showingTagIds ?? []).forEach(id => {
+    const name = tagNames.get(id);
+    if (name) {
+      properties.push(name);
+    }
+  });
+
+  return properties;
 }
 
 async function crawlFilmpalast() {

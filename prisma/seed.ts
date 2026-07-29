@@ -43,7 +43,7 @@ async function main() {
     {
       name: "Universum",
       address: "Kaiserstraße 152-154, 76133 Karlsruhe",
-      website: "www.kinopolis.de/ka",
+      website: "www.universum-city.de",
       color: "#e6ca19"
     },
     {
@@ -55,7 +55,7 @@ async function main() {
 
   await Promise.all(cinemasData.map(c => prisma.cinema.upsert({
     where: { name: c.name },
-    update: {},
+    update: { address: c.address, website: c.website, color: c.color },
     create: c
   })));
 
