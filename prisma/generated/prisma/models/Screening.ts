@@ -210,7 +210,7 @@ export type ScreeningGroupByOutputType = {
   _max: ScreeningMaxAggregateOutputType | null
 }
 
-type GetScreeningGroupByPayload<T extends ScreeningGroupByArgs> = Prisma.PrismaPromise<
+export type GetScreeningGroupByPayload<T extends ScreeningGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ScreeningGroupByOutputType, T['by']> &
       {

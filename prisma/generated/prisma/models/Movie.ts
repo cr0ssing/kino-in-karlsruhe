@@ -242,7 +242,7 @@ export type MovieGroupByOutputType = {
   _max: MovieMaxAggregateOutputType | null
 }
 
-type GetMovieGroupByPayload<T extends MovieGroupByArgs> = Prisma.PrismaPromise<
+export type GetMovieGroupByPayload<T extends MovieGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MovieGroupByOutputType, T['by']> &
       {

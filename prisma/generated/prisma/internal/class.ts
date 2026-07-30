@@ -19,8 +19,8 @@ const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [
     "strictUndefinedChecks"
   ],
-  "clientVersion": "7.5.0",
-  "engineVersion": "280c870be64f457428992c43c1f6d557fab6e29e",
+  "clientVersion": "7.9.1",
+  "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "postgresql",
   "inlineSchema": "// Copyright (C) 2024 Robin Lamberti.\n// \n// This file is part of kino-in-karlsruhe.\n// \n// kino-in-karlsruhe is free software: you can redistribute it and/or modify\n// it under the terms of the GNU Affero General Public License as published by\n// the Free Software Foundation, either version 3 of the License, or\n// (at your option) any later version.\n// \n// kino-in-karlsruhe is distributed in the hope that it will be useful,\n// but WITHOUT ANY WARRANTY; without even the implied warranty of\n// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n// GNU Affero General Public License for more details.\n// \n// You should have received a copy of the GNU Affero General Public License\n// along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.\n\n// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider        = \"prisma-client\"\n  output          = \"./generated/prisma\"\n  previewFeatures = [\"strictUndefinedChecks\"]\n  engineType      = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Cinema {\n  id        Int         @id @default(autoincrement())\n  name      String      @unique\n  address   String\n  website   String\n  color     String\n  createdAt DateTime    @default(now())\n  updatedAt DateTime    @updatedAt\n  Screening Screening[]\n}\n\nmodel Screening {\n  id         Int      @id @default(autoincrement())\n  cinemaId   Int\n  cinema     Cinema   @relation(fields: [cinemaId], references: [id])\n  startTime  DateTime\n  movie      Movie    @relation(fields: [movieId], references: [id])\n  movieId    Int\n  properties String[]\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([movieId])\n  @@index([startTime])\n}\n\nmodel Movie {\n  id           Int         @id @default(autoincrement())\n  title        String\n  searchTitles String[]\n  posterUrl    String?\n  backdropUrl  String?\n  tmdbId       Int?        @unique\n  length       Int?\n  popularity   Float?\n  releaseDate  DateTime?   @db.Date\n  createdAt    DateTime    @default(now())\n  updatedAt    DateTime    @updatedAt\n  Screening    Screening[]\n\n  @@index([searchTitles])\n}\n",
   "runtimeDataModel": {
@@ -84,7 +84,7 @@ export interface PrismaClientConstructor {
     LogOpts extends LogOptions<Options> = LogOptions<Options>,
     OmitOpts extends Prisma.PrismaClientOptions['omit'] = Options extends { omit: infer U } ? U : Prisma.PrismaClientOptions['omit'],
     ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
-  >(options: Prisma.Subset<Options, Prisma.PrismaClientOptions> ): PrismaClient<LogOpts, OmitOpts, ExtArgs>
+  >(options: Prisma.PrismaClientConstructorArgs<Options>): PrismaClient<LogOpts, OmitOpts, ExtArgs>
 }
 
 /**
@@ -105,7 +105,7 @@ export interface PrismaClientConstructor {
 
 export interface PrismaClient<
   in LogOpts extends Prisma.LogLevel = never,
-  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = undefined,
+  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = Prisma.PrismaClientOptions['omit'],
   in out ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
@@ -182,7 +182,7 @@ export interface PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => runtime.Types.Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<R>
 
