@@ -65,7 +65,7 @@
     "@types/eslint": "^9.6.1",
     "@types/node": "^24.13.3",
     "@types/node-cron": "^3.0.11",
-    "@types/pg": "^8.20.0",
+    "@types/pg": "^8.20.3",
     "@types/pulltorefreshjs": "^0.1.7",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
