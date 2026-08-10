@@ -117,8 +117,8 @@ importers:
         specifier: ^9.6.1
         version: 9.6.1
       '@types/node':
-        specifier: ^24.13.3
-        version: 24.13.3
+        specifier: ^26.2.0
+        version: 26.2.0
       '@types/node-cron':
         specifier: ^3.0.11
         version: 3.0.11
@@ -1168,8 +1168,8 @@ packages:
   '@types/node-cron@3.0.11':
     resolution: {integrity: sha512-0ikrnug3/IyneSHqCBeslAhlK2aBfYek1fGo4bP4QnZPmiqSGRK+Oy7ZMisLWkesffJvQ1cqAcBnJC+8+nxIAg==}
 
-  '@types/node@24.13.3':
-    resolution: {integrity: sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==}
+  '@types/node@26.2.0':
+    resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
 
   '@types/pg@8.20.0':
     resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
@@ -3391,8 +3391,8 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
-  undici-types@7.18.2:
-    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+  undici-types@8.3.0:
+    resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
   undici@7.29.0:
     resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
@@ -4394,7 +4394,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 24.13.3
+      '@types/node': 26.2.0
 
   '@types/json-schema@7.0.15': {}
 
@@ -4406,13 +4406,13 @@ snapshots:
 
   '@types/node-cron@3.0.11': {}
 
-  '@types/node@24.13.3':
+  '@types/node@26.2.0':
     dependencies:
-      undici-types: 7.18.2
+      undici-types: 8.3.0
 
   '@types/pg@8.20.0':
     dependencies:
-      '@types/node': 24.13.3
+      '@types/node': 26.2.0
       pg-protocol: 1.13.0
       pg-types: 2.2.0
 
@@ -6872,7 +6872,7 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  undici-types@7.18.2: {}
+  undici-types@8.3.0: {}
 
   undici@7.29.0: {}
 
