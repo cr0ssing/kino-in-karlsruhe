@@ -72,7 +72,7 @@
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.65.0",
     "babel-plugin-react-compiler": "1.0.0",
-    "baseline-browser-mapping": "^2.11.7",
+    "baseline-browser-mapping": "^2.11.14",
     "dotenv": "^17.4.2",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.2.12",
