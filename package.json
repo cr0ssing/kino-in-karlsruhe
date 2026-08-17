@@ -48,7 +48,7 @@
     "embla-carousel": "8.6.0",
     "embla-carousel-react": "^8.6.0",
     "geist": "^1.7.2",
-    "next": "16.2.12",
+    "next": "16.3.1",
     "node-cron": "^4.6.0",
     "nuqs": "^2.9.3",
     "pg": "^8.22.0",
