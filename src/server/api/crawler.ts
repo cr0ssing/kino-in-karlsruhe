@@ -611,6 +611,7 @@ function transformProperties(properties: string[]) {
     let result = p;
     switch (p) {
       case "Englisches Original mit deutschen Untertiteln":
+      case "Originalfassung mit deutschen Untertiteln":
       case "Originalfassung mit dt. Untertitel":
       case "im engl. Original mit dt. Untertiteln":
       case "engl. OmU":
@@ -620,6 +621,7 @@ function transformProperties(properties: string[]) {
       case "englisches OV, ohne Untertitel":
       case "englische OV, ohne Untertitel":
       case "Englische Originalfassung":
+      case "Originalfassung":
       case "englisch":
       case "ov":
         result = "OV";
@@ -645,7 +647,8 @@ function transformProperties(properties: string[]) {
 
 async function crawlKinemathek() {
   try {
-    const response = await fetch("https://kinemathek-karlsruhe.de/spielplan/");
+    // Program lives on the homepage after the 2026 site relaunch (old /spielplan/ is gone)
+    const response = await fetch("https://kinemathek-karlsruhe.de/");
     if (!response.ok) {
       throw new Error(`Fetching Kinemathek failed with status: ${response.status}`);
     }
@@ -654,7 +657,6 @@ async function crawlKinemathek() {
 
     const screenings: Screening[] = [];
 
-    // Find cinema ID for Kinemathek
     const { id: cinemaId } = await db.cinema.findFirstOrThrow({
       select: {
         id: true
@@ -664,82 +666,50 @@ async function crawlKinemathek() {
       }
     });
 
-    // Find all date headers (h3 with class wpt_listing_group day)
-    $(".entry-content h3.wpt_listing_group.day").each((_, dateHeader) => {
-      const dateText = $(dateHeader).text().trim();
-      // Extract date from format like "Donnerstag 2. Januar" or "Montag 5. März"
-      // Use a regex that handles German month names with umlauts (ä, ö, ü)
-      const dateMatch = /(\d{1,2}) ([A-Za-zäöüÄÖÜ]+)/.exec(dateText);
-      if (!dateMatch) return;
+    $("#program article.event").each((_, eventEl) => {
+      const event = $(eventEl);
+      const dateStr = event.closest("section.day").attr("data-date");
+      if (!dateStr) return;
 
-      const [, day, month] = dateMatch;
-      // Convert German month name to number
-      const monthNum = getMonthNumber(month!);
-      if (monthNum === -1) return;
+      const timeText = event.find(".time").first().text().replace(/\s+/g, "");
+      const timeMatch = /^(\d{1,2})(\d{2})$/.exec(timeText);
+      if (!timeMatch) return;
+      const hours = parseInt(timeMatch[1]!, 10);
+      const minutes = parseInt(timeMatch[2]!, 10);
 
-      // Get all screenings that follow this date header until the next one
-      let currentElement = $(dateHeader).next();
+      const movieTitle = event.find(".t-text").first().text().trim();
+      if (!movieTitle) return;
 
-      const allowedProperties = ["OmU", "OmeU", "Mit englischen Untertiteln"];
+      // Credits look like "Susanne Kim, DE/KR 2026; 89′" (year/length optional)
+      const credits = event.find(".credits").first().clone().children().remove().end().text().replace(/\s+/g, " ").trim();
+      const yearMatch = /\b((?:19|20)\d{2})\b/.exec(credits);
+      const lengthMatch = /(\d+)\s*[′']/.exec(credits);
+      const releaseYear = yearMatch ? parseInt(yearMatch[1]!, 10) : undefined;
+      const length = lengthMatch ? parseInt(lengthMatch[1]!, 10) : undefined;
 
-      while (currentElement.length && !currentElement.hasClass("wpt_listing_group")) {
-        if (currentElement.hasClass("wp_theatre_event")) {
-          const timeText = currentElement.find(".wp_theatre_event_datetime").text().trim();
-          const [hours, minutes] = timeText.split(":").map(n => parseInt(n));
-
-          const movieTitle = currentElement.find(".wp_theatre_event_title a").text().trim();
-
-          // Extract properties from tags
-          const properties: string[] = [];
-
-          // Add technical specs as properties
-          const techSpecs = currentElement.find(".wp_theatre_event_cine_technical_specs").text().trim();
-          // Kinemathek specs are not separated consistently, so not all specs can be extracted
-          const specs = techSpecs.split(/[;,|]/).map(spec => spec.trim());
-          specs.filter(spec => allowedProperties.includes(spec)).forEach(spec => properties.push(spec));
-
-          // Find release year from specs (format: "Country YYYY")
-          const yearSpec = specs.find(spec => {
-            const parts = spec.trim().split(/\s+/);
-            return parts.some(part => part.length === 4 && !isNaN(parseInt(part)));
-          });
-          const releaseYear = yearSpec
-            ? parseInt(yearSpec.split(/\s+/).find(part => part.length === 4 && !isNaN(parseInt(part)))!)
-            : undefined;
-
-          // Find length from specs (format: "XXX Min.")
-          const lengthSpec = specs.find(spec => ["Min.", "Mins.", "Min", "Mins", "′"].map(s => spec.trim().endsWith(s)).some(Boolean))
-            ?.trim().split(/\s+/)[0];
-          const length = lengthSpec ? parseInt(lengthSpec) : undefined;
-
-          const subtitleSpec = specs.find(spec => allowedProperties.map(s => spec.trim().endsWith(s)).some(Boolean));
-          if (subtitleSpec) {
-            const subtitle = allowedProperties.find(p => subtitleSpec.trim().endsWith(p));
-            if (subtitle) {
-              properties.push(subtitle);
-            }
-          }
-
-          // Create date object (use next year if month is less than current month)
-          const now = new Date();
-          let year = now.getFullYear();
-          if (monthNum < now.getMonth() + 1) {
-            year++;
-          }
-
-          const startTime = new Date(year, monthNum - 1, parseInt(day!), hours, minutes);
-
-          screenings.push({
-            movieTitle,
-            startTime,
-            properties: transformProperties(properties),
-            cinemaId,
-            releaseYear,
-            length
-          });
-        }
-        currentElement = currentElement.next();
+      const properties: string[] = [];
+      if (
+        event.is("[data-omu]")
+        || event.find("svg[aria-label='Originalfassung mit deutschen Untertiteln']").length > 0
+      ) {
+        properties.push("OmU");
       }
+      const versionNote = event.find(".ut-note").attr("title");
+      if (versionNote === "Originalfassung") {
+        properties.push("OV");
+      }
+
+      const [year, month, day] = dateStr.split("-").map(n => parseInt(n, 10));
+      const startTime = new Date(year!, month! - 1, day!, hours, minutes);
+
+      screenings.push({
+        movieTitle,
+        startTime,
+        properties: transformProperties(properties),
+        cinemaId,
+        releaseYear,
+        length
+      });
     });
 
     console.log(`Found ${screenings.length} screenings in Kinemathek.`);
@@ -751,25 +721,6 @@ async function crawlKinemathek() {
     console.error(`Error crawling Kinemathek: ${error instanceof Error ? error.message : String(error)}`);
     return [];
   }
-}
-
-// Helper function to convert German month names to numbers
-function getMonthNumber(monthName: string): number {
-  const months: Record<string, number> = {
-    "Januar": 1,
-    "Februar": 2,
-    "März": 3,
-    "April": 4,
-    "Mai": 5,
-    "Juni": 6,
-    "Juli": 7,
-    "August": 8,
-    "September": 9,
-    "Oktober": 10,
-    "November": 11,
-    "Dezember": 12
-  };
-  return months[monthName] ?? -1;
 }
 
 // universum-city.de renders its program client side from the Cineamo API, so there is nothing to scrape in the HTML.
