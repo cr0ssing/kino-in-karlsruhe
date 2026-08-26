@@ -57,7 +57,7 @@
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
     "superjson": "^2.2.6",
-    "tailwind-preset-mantine": "3.0.3",
+    "tailwind-preset-mantine": "4.1.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
