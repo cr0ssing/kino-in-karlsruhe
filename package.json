@@ -34,7 +34,7 @@
     "@mantine/core": "^8.3.18",
     "@mantine/dates": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
-    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.9.1",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tabler/icons-react": "^3.46.0",
