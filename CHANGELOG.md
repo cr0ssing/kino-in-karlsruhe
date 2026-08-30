@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.9.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.8.0...v1.9.0) (2026-08-30)
+
+
+### Features
+
+* migrated to tailwind v4 ([f5cb42a](https://github.com/cr0ssing/kino-in-karlsruhe/commit/f5cb42ac6a9bfaed2e2c60734b6a6e1a03384703))
+* update mantine to v8 ([5de6058](https://github.com/cr0ssing/kino-in-karlsruhe/commit/5de6058caf821434f6cfae5ec382122d4df3cb5d))
+* updated github actions versions ([b011ff3](https://github.com/cr0ssing/kino-in-karlsruhe/commit/b011ff3aee069442cc1e2af2bd7badf45e04533b))
+* updating prisma version ([648e489](https://github.com/cr0ssing/kino-in-karlsruhe/commit/648e48947d79074ff26a56c51460d56d4e20d729))
+* updating several dependencies ([648e489](https://github.com/cr0ssing/kino-in-karlsruhe/commit/648e48947d79074ff26a56c51460d56d4e20d729))
+* welcome back Universum ([a542461](https://github.com/cr0ssing/kino-in-karlsruhe/commit/a54246108b053c17fcce50363ce1bd40142ddd6d))
+
+
+### Bug Fixes
+
+* adapt filmpalast crawler ([9365299](https://github.com/cr0ssing/kino-in-karlsruhe/commit/936529946e6e1f5688307625b0d2e835e15e4f76))
+* adapt Kinemathek crawler to new website ([ddd72c1](https://github.com/cr0ssing/kino-in-karlsruhe/commit/ddd72c1d82b14685a08133d1e7cec63e0fa4d7fc))
+* avoid double tmdbId in crawler ([262943c](https://github.com/cr0ssing/kino-in-karlsruhe/commit/262943cfc1f2d531536727b56d88fdf6caae6b4e))
+* deactive crawler - RIP Universum ([17e2171](https://github.com/cr0ssing/kino-in-karlsruhe/commit/17e2171e1206f2c589c6477055493faebb839b76))
+* make impressum server compatible ([4725789](https://github.com/cr0ssing/kino-in-karlsruhe/commit/4725789b525706d144490e3efc577ff04f0b5ca7))
+* strip "Frühstückskino" prefix from Schauburg movie titles ([95d0fe4](https://github.com/cr0ssing/kino-in-karlsruhe/commit/95d0fe4f096cdbc83150c4bd85d27e61e44b097c))
+
 ## [1.8.0](https://github.com/cr0ssing/kino-in-karlsruhe/compare/v1.7.0...v1.8.0) (2025-12-09)
 
 
