@@ -27,6 +27,7 @@ import "./src/env.js";
 const config = {
   output: "standalone",
   reactCompiler: true,
+  agentRules: false,
   experimental: {
     optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
   },

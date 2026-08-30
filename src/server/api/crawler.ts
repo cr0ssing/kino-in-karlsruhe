@@ -700,7 +700,7 @@ async function crawlKinemathek() {
       }
 
       const [year, month, day] = dateStr.split("-").map(n => parseInt(n, 10));
-      const startTime = new Date(year!, month! - 1, day!, hours, minutes);
+      const startTime = new Date(year!, month! - 1, day, hours, minutes);
 
       screenings.push({
         movieTitle,
