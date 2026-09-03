@@ -62,8 +62,8 @@ importers:
         specifier: ^11.18.0
         version: 11.18.0(typescript@6.0.3)
       calendar-link:
-        specifier: ^2.11.4
-        version: 2.11.4
+        specifier: ^2.11.5
+        version: 2.11.5
       cheerio:
         specifier: ^1.2.0
         version: 1.2.0
@@ -1511,8 +1511,8 @@ packages:
       magicast:
         optional: true
 
-  calendar-link@2.11.4:
-    resolution: {integrity: sha512-K+wvjZs8olNSDPwY7pKPa9d65nQpTkfmWbYIfRGrGNPaht2ox6sPUTwdUuoodc7c31S2rUegA3yY9bXqVcevXw==}
+  calendar-link@2.11.5:
+    resolution: {integrity: sha512-a0f5xcoIz8zGHVao4sN+61KNbPk4J1nvD87im7pTirtH9Zl3f0ynM7VqexX+3khKB01F8bMLdgFZKB8iNKIswQ==}
 
   call-bind-apply-helpers@1.0.2:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
@@ -1955,6 +1955,7 @@ packages:
   eslint@9.39.5:
     resolution: {integrity: sha512-DgZS62aPLXKlnxILS/AYCoRvHaZeXceIzlXPkkGGzJWSow1aEk0lbTlxUSlyjC8jcaKxAdOnTDz+o1JFSBsyjw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -4765,7 +4766,7 @@ snapshots:
       pkg-types: 2.3.1
       rc9: 3.0.1
 
-  calendar-link@2.11.4:
+  calendar-link@2.11.5:
     dependencies:
       dayjs: 1.11.23
 
