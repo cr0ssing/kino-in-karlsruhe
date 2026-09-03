@@ -42,7 +42,7 @@
     "@trpc/client": "^11.18.0",
     "@trpc/react-query": "^11.18.0",
     "@trpc/server": "^11.18.0",
-    "calendar-link": "^2.11.4",
+    "calendar-link": "^2.11.5",
     "cheerio": "^1.2.0",
     "dayjs": "^1.11.23",
     "embla-carousel": "8.6.0",
