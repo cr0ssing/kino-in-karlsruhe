@@ -58,7 +58,7 @@
     "server-only": "^0.0.1",
     "superjson": "^2.2.6",
     "tailwind-preset-mantine": "3.0.3",
-    "zod": "^4.5.4"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
