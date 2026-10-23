@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
 
-FROM --platform=$BUILDPLATFORM node:26-alpine AS base
+FROM --platform=$BUILDPLATFORM node:26.12.1-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
