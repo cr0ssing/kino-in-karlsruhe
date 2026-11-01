@@ -19,6 +19,7 @@
 
 import { ActionIcon, Box, Group, Text } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import Link from "next/link";
 import type { Dispatch, SetStateAction } from "react";
 
 type TimetableHeaderProps = {
@@ -26,11 +27,47 @@ type TimetableHeaderProps = {
   index: number;
   selectedDay: number;
   setSelectedDay: Dispatch<SetStateAction<number>>;
+  /** Link to Sunday of the previous week, `null` if there is no previous week */
+  previousWeekHref?: string | null;
+  /** Link to Monday of the next week, `null` if there is no next week */
+  nextWeekHref?: string | null;
   isMobile: boolean | undefined;
   isToday: boolean;
 };
 
-export default function TimetableHeader({ text, index, selectedDay, setSelectedDay, isMobile, isToday }: TimetableHeaderProps) {
+const FIRST_DAY = 0;
+const LAST_DAY = 6;
+
+export default function TimetableHeader({ text, index, selectedDay, setSelectedDay, previousWeekHref, nextWeekHref, isMobile, isToday }: TimetableHeaderProps) {
+  const showArrows = index !== -1 && selectedDay !== -1;
+
+  function dayArrow(direction: "previous" | "next") {
+    const icon = direction === "previous" ? <IconChevronLeft size={16} /> : <IconChevronRight size={16} />;
+    const isWeekBoundary = direction === "previous" ? selectedDay === FIRST_DAY : selectedDay === LAST_DAY;
+
+    if (isWeekBoundary) {
+      const href = direction === "previous" ? previousWeekHref : nextWeekHref;
+      return href
+        ? <ActionIcon variant="subtle" component={Link} href={href} scroll={false} prefetch>
+          {icon}
+        </ActionIcon>
+        : <ActionIcon variant="subtle" disabled>
+          {icon}
+        </ActionIcon>;
+    }
+
+    return (
+      <ActionIcon
+        variant="subtle"
+        onClick={(e) => {
+          e.stopPropagation();
+          setSelectedDay((prev: number) => prev + (direction === "previous" ? -1 : 1));
+        }}
+      >
+        {icon}
+      </ActionIcon>
+    );
+  }
 
   return (
     <Group
@@ -43,17 +80,7 @@ export default function TimetableHeader({ text, index, selectedDay, setSelectedD
         borderBottom: `1px solid var(--mantine-color-timetable-border)`,
         zIndex: 2,
       }}>
-      {index !== -1 && selectedDay !== -1 && (
-        <ActionIcon
-          variant="subtle"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedDay((prev: number) => (prev - 1 + 7) % 7);
-          }}
-        >
-          <IconChevronLeft size={16} />
-        </ActionIcon>
-      )}
+      {showArrows && dayArrow("previous")}
 
       <Box
         style={{ cursor: index === -1 ? undefined : 'pointer' }}
@@ -61,17 +88,7 @@ export default function TimetableHeader({ text, index, selectedDay, setSelectedD
         <Text size="lg" fw={700} ta="center">{text}</Text>
       </Box>
 
-      {index !== -1 && selectedDay !== -1 && (
-        <ActionIcon
-          variant="subtle"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedDay((prev: number) => (prev + 1) % 7);
-          }}
-        >
-          <IconChevronRight size={16} />
-        </ActionIcon>
-      )}
+      {showArrows && dayArrow("next")}
     </Group>
   )
 }

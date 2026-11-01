@@ -44,7 +44,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ w
       <WeekNavigation weekOffset={weekOffset} startDate={startOfWeek} endDate={endOfWeek} />
       <Suspense key={"timetable-page-" + weekOffset} fallback={<Flex align="center" justify="center" h="84vh"><Loader /></Flex>}>
         <Stack ml="xl" mr="xl" mb="md" gap="lg">
-          <TimetablePage key={"timetable-page-" + weekOffset} screenings={screenings} startOfWeek={startOfWeek} endOfWeek={endOfWeek} />
+          <TimetablePage key={"timetable-page-" + weekOffset} screenings={screenings} weekOffset={weekOffset} startOfWeek={startOfWeek} endOfWeek={endOfWeek} />
           <Center><Text size="xs" c="dimmed">Alle Angaben ohne Gewähr</Text></Center>
         </Stack>
       </Suspense>

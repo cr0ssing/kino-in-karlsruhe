@@ -19,24 +19,21 @@
 
 "use client";
 
-import { useMemo } from "react";
 import Link, { type LinkProps } from "next/link";
 import { ActionIcon, Button, Group, Stack, Text, Tooltip } from "@mantine/core";
 import { useViewportSize } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import dayjs from "dayjs";
-import { useSearchParams } from "next/navigation";
 
-import { api } from "~/trpc/react";
 import Title from "./Title";
 import { getViewportSize, ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
 import NavigationMenu from "./NavigationMenu";
+import { useWeekNavigation, type WeekDirection } from "./useWeekNavigation";
 
 export default function WeekNavigation({ weekOffset, startDate, endDate }: { weekOffset: number, startDate: Date, endDate: Date }) {
   const { width: viewportWidth } = useViewportSize();
   const viewportSize = getViewportSize(viewportWidth);
   const isMobile = viewportSize && viewportSize <= ViewportSize.narrow;
-  const searchParams = new URLSearchParams(useSearchParams());
+  const { enabledPreviousWeek, enabledNextWeek, weekHref } = useWeekNavigation(weekOffset, startDate, endDate);
 
   // Format dates for display
   const dateFormatter = new Intl.DateTimeFormat("de-DE", {
@@ -49,23 +46,12 @@ export default function WeekNavigation({ weekOffset, startDate, endDate }: { wee
 
   const dateRange = `${dateFormatter.format(startDate)} - ${dateFormatter.format(endDate)}`;
 
-  const globalDateRangeStaleTime = useMemo(() => dayjs().add(1, "day").hour(2).diff(), []);
-  const { data: globalDateRange } = api.screening.getDateRange.useQuery({}, { staleTime: globalDateRangeStaleTime });
-  const { minDate, maxDate } = globalDateRange ?? {};
-
-  const enabledPreviousWeek = minDate && dayjs(minDate).isBefore(startDate);
-  const enabledNextWeek = maxDate && dayjs(maxDate).isAfter(endDate);
-
-  function navigate(direction: "previous" | "next"): LinkProps & { component: typeof Link } {
-    searchParams.set("weekOffset", weekOffset + (direction === "previous" ? -1 : 1) + "");
-    if (searchParams.get("selectedDay") !== "-1") {
-      searchParams.delete("selectedDay");
-    }
+  function navigate(direction: WeekDirection): LinkProps & { component: typeof Link } {
     return {
       component: Link,
       scroll: false,
       prefetch: true,
-      href: `?${searchParams.toString()}`,
+      href: weekHref(direction),
     };
   }
 

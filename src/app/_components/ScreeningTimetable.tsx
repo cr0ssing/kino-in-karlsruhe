@@ -32,13 +32,16 @@ import TimetableHeader from "./TimetableHeader";
 import TimetableColumn from "./TimetableColumn";
 import CinemaCombobox from "./CinemaCombobox";
 import { ViewportSize, ViewportSizeContext } from "./ViewportSizeContext";
+import { useWeekNavigation } from "./useWeekNavigation";
 
 dayjs.extend(minmax);
 
 interface ScreeningTimetableProps {
   screenings: Array<Screening & { movie: Movie, cinema: Cinema }>;
   isCurrentWeek: boolean;
+  weekOffset: number;
   startOfWeek: Date;
+  endOfWeek: Date;
 }
 
 const START_HOUR = 9;
@@ -226,7 +229,7 @@ function assignScreeningColumns(screenings: CombinedScreening[]) {
   });
 }
 
-export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfWeek }: ScreeningTimetableProps) {
+export default function ScreeningTimetable({ screenings, isCurrentWeek, weekOffset, startOfWeek, endOfWeek }: ScreeningTimetableProps) {
   const cinemas = useMemo(() => new Map<number, Cinema>(screenings.map(s => [s.cinemaId, s.cinema])), [screenings]);
   const startHour = useMemo(() => Math.min(START_HOUR, screenings.reduce((min, s) => Math.min(min, s.startTime.getHours()), 24)), [screenings]);
 
@@ -315,6 +318,11 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
     : [weekdays[selectedDay]!];
   const curDateIndex = displayedWeekdays.indexOf(curDate);
 
+  // On Monday/Sunday the day arrows switch to the previous/next week instead of wrapping around
+  const { enabledPreviousWeek, enabledNextWeek, weekHref } = useWeekNavigation(weekOffset, startOfWeek, endOfWeek);
+  const previousWeekHref = enabledPreviousWeek ? weekHref("previous", 6) : null;
+  const nextWeekHref = enabledNextWeek ? weekHref("next", 0) : null;
+
   return (
     !viewportSize ?
       <Center><Loader /></Center>
@@ -402,6 +410,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, startOfW
                   index={weekdays.indexOf(day)}
                   selectedDay={selectedDay}
                   setSelectedDay={setSelectedDay}
+                  previousWeekHref={previousWeekHref}
+                  nextWeekHref={nextWeekHref}
                   isMobile={isMobile} />
                 <TimetableColumn
                   key={"column-body" + day}

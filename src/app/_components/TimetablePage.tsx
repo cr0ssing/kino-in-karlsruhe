@@ -44,11 +44,12 @@ dayjs.extend(isBetween);
 
 type TimetablePageProps = {
   screenings: Promise<(Screening & { movie: Movie, cinema: Cinema })[]>,
+  weekOffset: number,
   startOfWeek: Date,
   endOfWeek: Date
 };
 
-export default function TimetablePage({ screenings: screeningsPromise, startOfWeek, endOfWeek }: TimetablePageProps) {
+export default function TimetablePage({ screenings: screeningsPromise, weekOffset, startOfWeek, endOfWeek }: TimetablePageProps) {
   const router = useRouter();
 
   useEffect(() => {
@@ -188,7 +189,12 @@ export default function TimetablePage({ screenings: screeningsPromise, startOfWe
             <Image src="/movie-night.png" alt="Kino in Karlsruhe" h={20} w={20} />
             <Title order={2}>Vorführungen</Title>
           </Group>
-          <ScreeningTimetable screenings={filteredScreenings} isCurrentWeek={isCurrentWeek} startOfWeek={startOfWeek} />
+          <ScreeningTimetable
+            screenings={filteredScreenings}
+            isCurrentWeek={isCurrentWeek}
+            weekOffset={weekOffset}
+            startOfWeek={startOfWeek}
+            endOfWeek={endOfWeek} />
         </Box>
       </Stack>
     </ViewportSizeContext.Provider>
