@@ -62,8 +62,8 @@ importers:
         specifier: ^11.19.0
         version: 11.19.0(typescript@6.0.3)
       calendar-link:
-        specifier: ^2.11.6
-        version: 2.11.6
+        specifier: ^2.11.7
+        version: 2.11.7
       cheerio:
         specifier: ^1.2.0
         version: 1.2.0
@@ -1529,8 +1529,8 @@ packages:
       magicast:
         optional: true
 
-  calendar-link@2.11.6:
-    resolution: {integrity: sha512-eoarHpap+20GN1zokZbSL0EdLljIddnVXIsuZl/eRdkHFs7Zj9hcC9rdpJm0PDfGmZASXKDR6H7pST5RMmXsIg==}
+  calendar-link@2.11.7:
+    resolution: {integrity: sha512-8oD6+9U1mLPqiiB8BS2wyaksnjgTK+iV8GGBdMUbEcLTRvZ/Ft4008R4364YQHlDS0SKrXViOOretf8Ey7ySug==}
 
   call-bind-apply-helpers@1.0.2:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
@@ -4789,7 +4789,7 @@ snapshots:
       pkg-types: 2.4.0
       rc9: 3.1.0
 
-  calendar-link@2.11.6:
+  calendar-link@2.11.7:
     dependencies:
       dayjs: 1.11.23
 
