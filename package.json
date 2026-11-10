@@ -47,7 +47,7 @@
     "dayjs": "^1.11.23",
     "embla-carousel": "8.6.0",
     "embla-carousel-react": "^8.6.0",
-    "geist": "^1.8.2",
+    "geist": "^1.9.2",
     "next": "16.4.2",
     "node-cron": "^4.6.0",
     "nuqs": "^2.10.2",
