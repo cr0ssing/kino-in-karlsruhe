@@ -19,8 +19,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Carousel, CarouselSlide } from "@mantine/carousel";
-import { ActionIcon, Card, CardSection, Center, Flex, lighten, Loader, LoadingOverlay, Stack, Text, Tooltip } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { ActionIcon, Box, Card, CardSection, Center, Flex, lighten, Loader, LoadingOverlay, Stack, Text, Tooltip } from "@mantine/core";
+import { clamp, useDisclosure } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { EmblaCarouselType } from "embla-carousel";
 import type { Cinema, Movie, Screening } from "~/../prisma/generated/prisma/client";
@@ -35,10 +35,16 @@ import AddToCalendarModal from "./AddToCalendarModal";
 const dayAmount = 8;
 const minDays = 7;
 const columnWidth = 85;
-const headerHeight = 130;
+const dayHeaderHeight = 25;
+const dayGap = 10;
+// distance from the top of a day column to its first screening card
+const cardsOffset = dayHeaderHeight + dayGap;
+// bottom edge of the modal's sticky title header when the modal is scrolled
+const stickyHeaderBottom = 80;
+const controlSize = 28;
 
 
-export default function ScreeningCarousel({ movieId, startDate, modalHeight, onHeightUpdated }: { movieId?: number, startDate: Date, modalHeight: number, onHeightUpdated: (height: number) => void }) {
+export default function ScreeningCarousel({ movieId, startDate, onHeightUpdated, scrollContainer }: { movieId?: number, startDate: Date, onHeightUpdated: (height: number) => void, scrollContainer: HTMLElement | null }) {
   const { data, isLoading: screeningsLoading, isFetching, fetchNextPage, hasNextPage } = api.screening.getInfiniteScreenings.useInfiniteQuery({
     dayAmount,
     movieId: movieId!
@@ -88,8 +94,6 @@ export default function ScreeningCarousel({ movieId, startDate, modalHeight, onH
     // elements are 85px tall gap is 9px tall. header is 25px
     onHeightUpdated(25 + Math.max(...screeningsByDay.map(([_, screenings]) => screenings?.length ?? 0)) * 94);
   }, [screeningsByDay, onHeightUpdated]);
-
-  const [scrollY] = useState(0);
 
   const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
 
@@ -155,9 +159,62 @@ export default function ScreeningCarousel({ movieId, startDate, modalHeight, onH
   }, [embla, fetchNextPage, hasNextPage, screeningsByDay.length, syncControls]);
   const handlePrev = useCallback(() => embla?.scrollPrev(), [embla]);
 
-  const carouselControlTop = useMemo(() => {
-    return (modalHeight - Math.min(scrollY, 130) + headerHeight + 34) / 2;
-  }, [modalHeight, scrollY]);
+  // The controls are centered on the visible part of the screening cards, so they stay in the middle
+  // of the screen while scrolling through days with more cards than fit into the modal.
+  const [rowsElement, setRowsElement] = useState<HTMLDivElement | null>(null);
+  const [controlOffset, setControlOffset] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!rowsElement || !scrollContainer) {
+      return;
+    }
+
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const rows = rowsElement.getBoundingClientRect();
+        const container = scrollContainer.getBoundingClientRect();
+        const cardsTop = rows.top + cardsOffset;
+        const visibleTop = Math.max(cardsTop, container.top + stickyHeaderBottom);
+        const visibleBottom = Math.min(rows.bottom, container.bottom);
+        const offset = (visibleTop + visibleBottom) / 2 - cardsTop - controlSize / 2;
+        setControlOffset(clamp(offset, 0, Math.max(0, rows.bottom - cardsTop - controlSize)));
+      });
+    };
+
+    update();
+    scrollContainer.addEventListener("scroll", update, { passive: true });
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(rowsElement);
+    resizeObserver.observe(scrollContainer);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      scrollContainer.removeEventListener("scroll", update);
+      resizeObserver.disconnect();
+    };
+  }, [rowsElement, scrollContainer]);
+
+  function carouselControl(direction: "previous" | "next") {
+    return (
+      <Box pos="relative" w={controlSize} style={{ flexShrink: 0 }}>
+        <ActionIcon
+          pos="absolute"
+          size={controlSize}
+          style={{
+            top: cardsOffset + (controlOffset ?? 0),
+            visibility: controlOffset === null ? "hidden" : undefined,
+          }}
+          disabled={direction === "previous" ? firstSlide : lastSlide}
+          onClick={direction === "previous" ? handlePrev : handleNext}
+          aria-label={direction === "previous" ? "Vorherige Tage" : "Nächste Tage"}
+        >
+          {direction === "previous" ? <IconChevronLeft /> : <IconChevronRight />}
+        </ActionIcon>
+      </Box>
+    );
+  }
 
   const [isCalendarOpen, { open: openCalendar, close: closeCalendar }] = useDisclosure(false);
   const [screening, setScreening] = useState<Screening & { movie: Movie, cinema: Cinema } | null>(null);
@@ -172,10 +229,10 @@ export default function ScreeningCarousel({ movieId, startDate, modalHeight, onH
     />}
     {screeningsLoading ?
       <Center><Loader mt="sm" /></Center> :
-      <Flex justify="center" ml="md" mr="md" gap="xs">
+      <Flex ref={setRowsElement} justify="center" ml="md" mr="md" gap="xs">
         {screeningsByDay.length > 0 ?
           <>
-            <ActionIcon pos="sticky" top={carouselControlTop} disabled={firstSlide} onClick={handlePrev}><IconChevronLeft /></ActionIcon>
+            {carouselControl("previous")}
             <Carousel
               slideSize={columnWidth}
               slideGap="10px"
@@ -194,12 +251,12 @@ export default function ScreeningCarousel({ movieId, startDate, modalHeight, onH
               {screeningsByDay.map(([day, screenings], index) => {
                 return (
                   <CarouselSlide key={"slide-" + index}>
-                    <Stack key={"day-" + index} gap="xs">
+                    <Stack key={"day-" + index} gap={dayGap}>
                       {day === "Placeholder" ?
-                        <Text ta="center" fw={700} w={columnWidth}>...</Text>
+                        <Text ta="center" fw={700} w={columnWidth} h={dayHeaderHeight}>...</Text>
                         : <>
                           {/* TODO make headers sticky */}
-                          <Text pos="sticky" top={0} key={"day-" + day} ta="center" fw={700} w={columnWidth}>
+                          <Text pos="sticky" top={0} key={"day-" + day} ta="center" fw={700} w={columnWidth} h={dayHeaderHeight}>
                             {dayjs(day).locale('de').format('dd, DD.MM.')}
                           </Text>
                           {screenings?.map(screening => {
@@ -241,7 +298,7 @@ export default function ScreeningCarousel({ movieId, startDate, modalHeight, onH
               <LoadingOverlay overlayProps={{ center: true }} visible={isFetching} />
             </Carousel>
 
-            <ActionIcon pos="sticky" top={carouselControlTop} disabled={lastSlide} onClick={handleNext}><IconChevronRight /></ActionIcon>
+            {carouselControl("next")}
           </>
           : <Text fz="lg" style={{ zIndex: 0 }}>Keine bevorstehenden Vorführungen gefunden.</Text>}
       </Flex>}

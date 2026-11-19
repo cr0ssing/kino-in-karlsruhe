@@ -50,8 +50,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
   const [scrollY, setScrollY] = useState(0);
   const { ref: posterRef, height: posterHeight } = useElementSize();
   const [carouselHeight, setCarouselHeight] = useState(0);
-
-  const { ref: modalRef, height: modalHeight } = useElementSize();
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null);
 
   const getHeight = useCallback(() =>
     !viewportSize || viewportSize >= posterBreakpoint
@@ -73,7 +72,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
     >
       <ModalOverlay blur={3} backgroundOpacity={0.55} />
       {movieLoading ? <Center><Loader /></Center> : movie && <ModalContent
-        ref={modalRef}
+        ref={setScrollContainer}
         bg={scrollY < headerHeight && movie.backdropUrl
           ? (movie.tmdbId === null
             ? `url(${movie.backdropUrl})`
@@ -179,7 +178,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
                 <Divider />
               </Stack>
             </Group>
-            <ScreeningCarousel movieId={movieId} startDate={startDate} modalHeight={modalHeight} onHeightUpdated={setCarouselHeight} />
+            <ScreeningCarousel movieId={movieId} startDate={startDate} onHeightUpdated={setCarouselHeight} scrollContainer={scrollContainer} />
           </Stack>
         </Group>
       </ModalContent>}

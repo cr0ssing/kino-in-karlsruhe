@@ -420,7 +420,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, weekOffs
                   screenings={groupedByWeekday[weekdays.indexOf(day)] ?? []}
                   hourHeight={HOUR_HEIGHT}
                   startHour={startHour}
-                  endHour={END_HOUR} />
+                  endHour={END_HOUR}
+                  isToday={i === curDateIndex} />
               </Box>
             );
           })}

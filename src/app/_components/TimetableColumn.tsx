@@ -23,6 +23,7 @@ import type { CombinedScreening } from "./types";
 import isoWeekday from "dayjs/plugin/isoWeek";
 
 import ScreeningEntry from "./ScreeningEntry";
+import CurrentTimeIndicator from "./CurrentTimeIndicator";
 
 dayjs.extend(isoWeekday);
 
@@ -33,9 +34,10 @@ type TimetableColumnProps = {
   startHour: number;
   endHour: number;
   screenings: CombinedScreening[];
+  isToday: boolean;
 };
 
-export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour }: TimetableColumnProps) {
+export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour, isToday }: TimetableColumnProps) {
   return (
     <Box key={"column-entries" + day} pos="relative" h={hourHeight * (endHour - startHour)}>
       {timeLabels.map((time, j) => (
@@ -55,6 +57,8 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
       {screenings.map((screening) =>
         <ScreeningEntry key={screening.id} screening={screening} startHour={startHour} hourHeight={hourHeight} />
       )}
+
+      {isToday && <CurrentTimeIndicator startHour={startHour} endHour={endHour} hourHeight={hourHeight} />}
     </Box>
   );
 }

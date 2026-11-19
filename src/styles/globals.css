@@ -33,3 +33,16 @@
     border-color: rgb(from var(--mantine-color-default-border) r g b / <alpha-value>);
   }
 }
+
+/*
+ * iOS zooms into text inputs with a font size below 16px when they get focused
+ * (and doesn't zoom back out, which is especially annoying in PWA mode).
+ * Use 16px on touch devices; !important is needed to beat Mantine's size variables.
+ */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
