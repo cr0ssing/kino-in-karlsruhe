@@ -73,17 +73,24 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
       <ModalOverlay blur={3} backgroundOpacity={0.55} />
       {movieLoading ? <Center><Loader /></Center> : movie && <ModalContent
         ref={setScrollContainer}
-        bg={scrollY < headerHeight && movie.backdropUrl
-          ? (movie.tmdbId === null
-            ? `url(${movie.backdropUrl})`
-            : `url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${movie.backdropUrl})`)
-          : "var(--mantine-color-body)"}
-        bgsz={scrollY < headerHeight && movie.backdropUrl ? "cover" : undefined}
-        bgr={scrollY < headerHeight && movie.backdropUrl ? "no-repeat" : undefined}
-        bgp={scrollY < headerHeight && movie.backdropUrl ? "top -200px left 50%" : undefined}
+        bg="var(--mantine-color-body)"
         onScroll={(e: React.UIEvent<HTMLDivElement>) => setScrollY(e.currentTarget.scrollTop)}
       >
         <Box key="header">
+          {movie.backdropUrl && <Box
+            aria-hidden
+            pos="absolute"
+            top={0}
+            left={0}
+            w="100%"
+            h={topOffeset}
+            bg={movie.tmdbId === null
+              ? `url(${movie.backdropUrl})`
+              : `url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${movie.backdropUrl})`}
+            bgsz="cover"
+            bgr="no-repeat"
+            bgp="center"
+          />}
           {scrollY >= headerHeight && <Overlay
             pos="sticky"
             top={0}
@@ -97,7 +104,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
             style={{
               zIndex: 0,
             }} />
-          <Box h={getHeight()} pos="absolute" top={150}
+          <Box h={getHeight()} pos="absolute" top={topOffeset}
             w="100%"
             bg="var(--mantine-color-body)" />
         </Box>
