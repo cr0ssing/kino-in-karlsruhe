@@ -35,9 +35,10 @@ type TimetableColumnProps = {
   endHour: number;
   screenings: CombinedScreening[];
   isToday: boolean;
+  date: Date;
 };
 
-export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour, isToday }: TimetableColumnProps) {
+export default function TimetableColumn({ day, timeLabels, screenings, hourHeight, startHour, endHour, isToday, date }: TimetableColumnProps) {
   return (
     <Box key={"column-entries" + day} pos="relative" h={hourHeight * (endHour - startHour)}>
       {timeLabels.map((time, j) => (
@@ -58,7 +59,7 @@ export default function TimetableColumn({ day, timeLabels, screenings, hourHeigh
         <ScreeningEntry key={screening.id} screening={screening} startHour={startHour} hourHeight={hourHeight} />
       )}
 
-      {isToday && <CurrentTimeIndicator startHour={startHour} endHour={endHour} hourHeight={hourHeight} />}
+      {isToday && <CurrentTimeIndicator date={date} startHour={startHour} endHour={endHour} hourHeight={hourHeight} />}
     </Box>
   );
 }

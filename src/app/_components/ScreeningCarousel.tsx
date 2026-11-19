@@ -19,8 +19,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Carousel, CarouselSlide } from "@mantine/carousel";
-import { ActionIcon, Box, Card, CardSection, Center, Flex, lighten, Loader, LoadingOverlay, Stack, Text, Tooltip } from "@mantine/core";
-import { clamp, useDisclosure } from "@mantine/hooks";
+import { ActionIcon, Card, CardSection, Center, Flex, lighten, Loader, LoadingOverlay, Stack, Text, Tooltip } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { EmblaCarouselType } from "embla-carousel";
 import type { Cinema, Movie, Screening } from "~/../prisma/generated/prisma/client";
@@ -39,12 +39,17 @@ const dayHeaderHeight = 25;
 const dayGap = 10;
 // distance from the top of a day column to its first screening card
 const cardsOffset = dayHeaderHeight + dayGap;
-// bottom edge of the modal's sticky title header when the modal is scrolled
-const stickyHeaderBottom = 80;
 const controlSize = 28;
 
 
-export default function ScreeningCarousel({ movieId, startDate, onHeightUpdated, scrollContainer }: { movieId?: number, startDate: Date, onHeightUpdated: (height: number) => void, scrollContainer: HTMLElement | null }) {
+export default function ScreeningCarousel({ movieId, startDate, onHeightUpdated, scrollContainer, stickyHeaderBottom }: {
+  movieId?: number,
+  startDate: Date,
+  onHeightUpdated: (height: number) => void,
+  scrollContainer: HTMLElement | null,
+  /** bottom edge of the modal's sticky header (relative to the top of the modal) when the modal is scrolled */
+  stickyHeaderBottom: number,
+}) {
   const { data, isLoading: screeningsLoading, isFetching, fetchNextPage, hasNextPage } = api.screening.getInfiniteScreenings.useInfiniteQuery({
     dayAmount,
     movieId: movieId!
@@ -161,8 +166,11 @@ export default function ScreeningCarousel({ movieId, startDate, onHeightUpdated,
 
   // The controls are centered on the visible part of the screening cards, so they stay in the middle
   // of the screen while scrolling through days with more cards than fit into the modal.
+  // They are positioned with `position: sticky`, so the browser keeps them in place while scrolling
+  // (scroll events lag behind momentum scrolling on iOS). The sticky offset is only recalculated here,
+  // and it stays constant while the cards fill the whole visible area.
   const [rowsElement, setRowsElement] = useState<HTMLDivElement | null>(null);
-  const [controlOffset, setControlOffset] = useState<number | null>(null);
+  const [controlStickyTop, setControlStickyTop] = useState<number | null>(null);
 
   useEffect(() => {
     if (!rowsElement || !scrollContainer) {
@@ -174,12 +182,21 @@ export default function ScreeningCarousel({ movieId, startDate, onHeightUpdated,
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const rows = rowsElement.getBoundingClientRect();
-        const container = scrollContainer.getBoundingClientRect();
+        const containerTop = scrollContainer.getBoundingClientRect().top + scrollContainer.clientTop;
+        const containerBottom = containerTop + scrollContainer.clientHeight;
         const cardsTop = rows.top + cardsOffset;
-        const visibleTop = Math.max(cardsTop, container.top + stickyHeaderBottom);
-        const visibleBottom = Math.min(rows.bottom, container.bottom);
-        const offset = (visibleTop + visibleBottom) / 2 - cardsTop - controlSize / 2;
-        setControlOffset(clamp(offset, 0, Math.max(0, rows.bottom - cardsTop - controlSize)));
+        // only the days currently shown count, a later day with many screenings shouldn't move the controls
+        const visibleDays = embla
+          ? embla.slidesInView().map(index => embla.slideNodes()[index]?.firstElementChild).filter(day => !!day)
+          : [];
+        const cardsBottom = visibleDays.length > 0
+          ? Math.max(...visibleDays.map(day => day.getBoundingClientRect().bottom))
+          : rows.bottom;
+        const visibleTop = Math.max(cardsTop, containerTop + stickyHeaderBottom);
+        // days without screenings: keep the controls next to the first row
+        const visibleBottom = Math.max(visibleTop + controlSize, Math.min(cardsBottom, containerBottom));
+        // round to avoid sub-pixel jitter
+        setControlStickyTop(Math.round((visibleTop + visibleBottom) / 2 - containerTop - controlSize / 2));
       });
     };
 
@@ -188,23 +205,26 @@ export default function ScreeningCarousel({ movieId, startDate, onHeightUpdated,
     const resizeObserver = new ResizeObserver(update);
     resizeObserver.observe(rowsElement);
     resizeObserver.observe(scrollContainer);
+    embla?.on("slidesInView", update).on("reInit", update);
 
     return () => {
       cancelAnimationFrame(frame);
       scrollContainer.removeEventListener("scroll", update);
       resizeObserver.disconnect();
+      embla?.off("slidesInView", update).off("reInit", update);
     };
-  }, [rowsElement, scrollContainer]);
+  }, [rowsElement, scrollContainer, stickyHeaderBottom, embla]);
 
   function carouselControl(direction: "previous" | "next") {
     return (
-      <Box pos="relative" w={controlSize} style={{ flexShrink: 0 }}>
+      // the sticky controls can't leave this wrapper, which spans the screening cards
+      <Flex direction="column" pt={cardsOffset} style={{ flexShrink: 0 }}>
         <ActionIcon
-          pos="absolute"
+          pos="sticky"
           size={controlSize}
           style={{
-            top: cardsOffset + (controlOffset ?? 0),
-            visibility: controlOffset === null ? "hidden" : undefined,
+            top: controlStickyTop ?? 0,
+            visibility: controlStickyTop === null ? "hidden" : undefined,
           }}
           disabled={direction === "previous" ? firstSlide : lastSlide}
           onClick={direction === "previous" ? handlePrev : handleNext}
@@ -212,7 +232,7 @@ export default function ScreeningCarousel({ movieId, startDate, onHeightUpdated,
         >
           {direction === "previous" ? <IconChevronLeft /> : <IconChevronRight />}
         </ActionIcon>
-      </Box>
+      </Flex>
     );
   }
 

@@ -421,7 +421,8 @@ export default function ScreeningTimetable({ screenings, isCurrentWeek, weekOffs
                   hourHeight={HOUR_HEIGHT}
                   startHour={startHour}
                   endHour={END_HOUR}
-                  isToday={i === curDateIndex} />
+                  isToday={i === curDateIndex}
+                  date={dayjs(startOfWeek).add(weekdays.indexOf(day), 'day').toDate()} />
               </Box>
             );
           })}

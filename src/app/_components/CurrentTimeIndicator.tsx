@@ -21,12 +21,13 @@
 
 import { useEffect, useState } from "react";
 import { Box } from "@mantine/core";
+import dayjs from "dayjs";
 
 const UPDATE_INTERVAL_MS = 60 * 1000;
 const DOT_SIZE = 10;
 
 /** Horizontal line marking the current time in the timetable column of today. */
-export default function CurrentTimeIndicator({ startHour, endHour, hourHeight }: { startHour: number, endHour: number, hourHeight: number }) {
+export default function CurrentTimeIndicator({ date, startHour, endHour, hourHeight }: { date: Date, startHour: number, endHour: number, hourHeight: number }) {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -35,7 +36,8 @@ export default function CurrentTimeIndicator({ startHour, endHour, hourHeight }:
   }, []);
 
   const hours = now.getHours() + now.getMinutes() / 60;
-  if (hours < startHour || hours >= endHour) {
+  // hide it after midnight if the page stays open, the column isn't today anymore
+  if (!dayjs(now).isSame(date, "day") || hours < startHour || hours >= endHour) {
     return null;
   }
 

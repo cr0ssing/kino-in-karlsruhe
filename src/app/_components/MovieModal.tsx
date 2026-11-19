@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with kino-in-karlsruhe. If not, see <http://www.gnu.org/licenses/>.
  */
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Badge, Box, Card, CardSection, Center, CloseButton, Divider, Group, Loader, ModalContent, ModalOverlay, ModalRoot, Overlay, Stack, Title } from "@mantine/core";
 import { useElementSize, useViewportSize } from "@mantine/hooks";
@@ -34,6 +34,13 @@ import ScreeningCarousel from "./ScreeningCarousel";
 
 const headerHeight = 130;
 const topOffeset = 150;
+// offset of the close button and the badges from the top of the modal when it is scrolled
+const stickyTop = 16;
+const closeButtonSize = 28;
+// space kept free next to the badges for the close button (size + margin + gap)
+const closeButtonSpace = closeButtonSize + 16 + 8;
+// gap between the close button and the header (Stack's default gap "md")
+const closeButtonGap = 16;
 const posterBreakpoint = ViewportSize.tight;
 
 
@@ -51,6 +58,19 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
   const { ref: posterRef, height: posterHeight } = useElementSize();
   const [carouselHeight, setCarouselHeight] = useState(0);
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null);
+
+  // The title block (badges, title and divider) is aligned to the bottom of the header and grows with
+  // long titles that wrap. The header sticks so that the badges end up next to the close button.
+  const { ref: titleRef, height: titleHeight } = useElementSize();
+  // the padding makes sure the stuck header also covers the area above the badges
+  // without a backdrop there's no space reserved for it above the title
+  const hasBackdrop = !!movie?.backdropUrl;
+  const headerBlockHeight = Math.max(hasBackdrop ? headerHeight : 0, titleHeight + stickyTop);
+  const headerStickyTop = stickyTop - (headerBlockHeight - titleHeight);
+  const stickyHeaderBottom = headerStickyTop + headerBlockHeight;
+  // the header gets an opaque background once the screenings reach it, so they don't show through it
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerOpaque, setHeaderOpaque] = useState(false);
 
   const getHeight = useCallback(() =>
     !viewportSize || viewportSize >= posterBreakpoint
@@ -74,23 +94,31 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
       {movieLoading ? <Center><Loader /></Center> : movie && <ModalContent
         ref={setScrollContainer}
         bg="var(--mantine-color-body)"
-        onScroll={(e: React.UIEvent<HTMLDivElement>) => setScrollY(e.currentTarget.scrollTop)}
+        onScroll={(e: React.UIEvent<HTMLDivElement>) => {
+          setScrollY(e.currentTarget.scrollTop);
+          const screenings = headerRef.current?.nextElementSibling;
+          if (headerRef.current && screenings) {
+            setHeaderOpaque(screenings.getBoundingClientRect().top <= headerRef.current.getBoundingClientRect().bottom + 1);
+          }
+        }}
       >
+        {/* Pinned to the top of the modal (the negative margin keeps it out of the layout),
+            the fade and the solid background below it scroll over it. */}
+        {movie.backdropUrl && <Box
+          aria-hidden
+          pos="sticky"
+          top={0}
+          w="100%"
+          h={topOffeset}
+          mb={-topOffeset}
+          bg={movie.tmdbId === null
+            ? `url(${movie.backdropUrl})`
+            : `url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${movie.backdropUrl})`}
+          bgsz="cover"
+          bgr="no-repeat"
+          bgp="center"
+        />}
         <Box key="header">
-          {movie.backdropUrl && <Box
-            aria-hidden
-            pos="absolute"
-            top={0}
-            left={0}
-            w="100%"
-            h={topOffeset}
-            bg={movie.tmdbId === null
-              ? `url(${movie.backdropUrl})`
-              : `url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${movie.backdropUrl})`}
-            bgsz="cover"
-            bgr="no-repeat"
-            bgp="center"
-          />}
           {scrollY >= headerHeight && <Overlay
             pos="sticky"
             top={0}
@@ -111,7 +139,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
         <Group
           wrap="nowrap"
           align="start"
-          mt="md"
+          mt={hasBackdrop ? "md" : 0}
           mb="md"
           gap={0}
         >
@@ -124,20 +152,30 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
           <Stack
             w={viewportSize && viewportSize >= posterBreakpoint ? "80%" : "100%"}
           >
-            <Group mr="md" justify="end" pos="sticky" top={16} style={{ zIndex: 3 }}>
+            {/* without a backdrop the header moves up next to the close button */}
+            <Group
+              mr="md"
+              mb={hasBackdrop ? undefined : -(closeButtonSize + closeButtonGap)}
+              justify="end"
+              pos="sticky"
+              top={stickyTop}
+              style={{ zIndex: 3 }}
+            >
               <CloseButton aria-label="Schließen" c="bright" onClick={close} />
             </Group>
             <Group
+              ref={headerRef}
               align="end"
-              h={headerHeight}
+              pt={stickyTop}
+              mih={hasBackdrop ? headerHeight : undefined}
               pos="sticky"
-              top={- 50}
-              bg={scrollY >= headerHeight ? "var(--mantine-color-body)" : undefined}
-              style={{ zIndex: 2 }}
+              top={headerStickyTop}
+              bg={headerOpaque || scrollY >= headerHeight ? "var(--mantine-color-body)" : "transparent"}
+              style={{ zIndex: 2, transition: "background-color 150ms ease" }}
             >
-              <Stack flex={1} gap={2}>
+              <Stack ref={titleRef} flex={1} gap={2}>
                 <Stack ml="md" gap={6}>
-                  <Group mb={3} gap="xs" pos="sticky" top={16}>
+                  <Group mb={3} gap="xs" pr={closeButtonSpace}>
                     {movie.releaseDate &&
                       <Badge aria-label="Startdatum" size="sm" variant="light" leftSection={<IconCalendar size={13} />}>
                         {dayjs(movie.releaseDate).locale('de').format('DD.MM.YYYY')}
@@ -185,7 +223,7 @@ export default function MovieModal({ movieId, close }: { movieId: number | null,
                 <Divider />
               </Stack>
             </Group>
-            <ScreeningCarousel movieId={movieId} startDate={startDate} onHeightUpdated={setCarouselHeight} scrollContainer={scrollContainer} />
+            <ScreeningCarousel movieId={movieId} startDate={startDate} onHeightUpdated={setCarouselHeight} scrollContainer={scrollContainer} stickyHeaderBottom={stickyHeaderBottom} />
           </Stack>
         </Group>
       </ModalContent>}
