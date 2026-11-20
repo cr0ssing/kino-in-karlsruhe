@@ -30,6 +30,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import ClientLayout from "./clientLayout";
+import ServiceWorker from "./_components/ServiceWorker";
 
 export const metadata: Metadata = {
   title: "Kino in Karlsruhe",
@@ -47,6 +48,7 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
+        <ServiceWorker />
         <TRPCReactProvider>
           <NuqsAdapter>
             <ClientLayout>

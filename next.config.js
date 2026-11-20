@@ -28,6 +28,10 @@ const config = {
   output: "standalone",
   reactCompiler: true,
   agentRules: false,
+  // Browsers must always check for a new service worker, so installed apps update.
+  headers: async () => [
+    { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }] },
+  ],
   experimental: {
     optimizePackageImports: ["@mantine/core", "@mantine/hooks"],
   },

@@ -66,6 +66,16 @@ export default defineConfig(
     },
   },
   {
-    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"]
+    // The service worker template runs in a worker scope, outside the TypeScript project.
+    files: ["pwa/sw.js"],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      ecmaVersion: 2022,
+      parserOptions: { project: false },
+      globals: { self: "readonly", caches: "readonly", fetch: "readonly", Request: "readonly", Response: "readonly", URL: "readonly" },
+    },
+  },
+  {
+    ignores: ["public/sw.js", "node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"]
   }
 );

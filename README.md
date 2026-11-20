@@ -16,6 +16,16 @@ This project can be deployed as a standard Next.js application while utilizing a
 Deployment via Docker (Compose) is actively maintained. See [docker-compose.yaml](./docker-compose.yaml) to get started. After the app and the database
 are deployed the database needs to be initialized. Run `pnpm db:push` and `pnpm db:seed` for that.
 
+## Progressive Web App
+
+The app installs as a PWA, opens offline and updates itself. The service worker is hand-written:
+
+- `pwa/sw.js` is the template. It precaches the build's static files, keeps the last copy of each page for offline use and always loads pages, the API and other live data from the network.
+- `pwa/build.ts` runs after `next build` (part of `pnpm build`). It writes `public/sw.js` with the precache list and a content hash as its version.
+- `src/app/_components/ServiceWorker.tsx` registers the worker in production builds and checks for a new version on launch and whenever the app returns to the foreground. A new version takes control right away. The page then reloads onto it immediately if the user has not interacted with it yet, and otherwise the next time it is hidden. All view state lives in the URL, so a reload keeps the week, filters and opened movie.
+
+The service worker is never registered in `pnpm dev`. Use `pnpm build && pnpm start` to try it locally.
+
 ## How does it work?
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
