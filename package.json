@@ -86,7 +86,7 @@
     "tailwindcss": "^4.3.5",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.73.0"
+    "typescript-eslint": "^8.74.0"
   },
   "ct3aMetadata": {
     "initVersion": "7.38.1"
